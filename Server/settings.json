@@ -1,0 +1,7 @@
+{
+  "name": "DevServer",
+  "description": "POMテストのためのサーバー",
+  "version": "0.0.0",
+  "ip": "",
+  "port": 54162
+}
