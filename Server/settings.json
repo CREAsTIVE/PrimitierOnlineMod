@@ -3,5 +3,6 @@
   "description": "POMテストのためのサーバー",
   "version": "0.0.0",
   "ip": "",
-  "port": 54162
+  "port": 54162,
+  "maxPlayer": 10
 }
