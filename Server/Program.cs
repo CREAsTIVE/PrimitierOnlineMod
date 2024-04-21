@@ -1,46 +1,56 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 class Settings {
-    public string? Name { get; set; }
-    public string? description { get; set; }
-    public string? version { get; set; }
-    public string? ip { get; set; }
-    public int? port { get; set; }
+    public string name { get; set; } = "";
+    public string description { get; set; } = "";
+    public string version { get; set; } = "0.0.0";
+    public string ip { get; set; } = "";
+    public int port { get; set; } = 54162;
+    public int maxPlayer { get; set; } = 10;
 }
 
 class Program {
+    static IConfigurationRoot? config;
     static Settings? settings;
     IPEndPoint[]? iPEndPoints;
     
     static void Main() {
         try {
-            settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("settings.json"));
-            if (settings == null) {
-                throw new Exception("Settings is null");
-            }
-            ServerConsole.WriteLine($"Settings file loaded: {settings.Name}, {settings.description}, {settings.version}, {settings.ip}, {settings.port}");
+            config = new ConfigurationBuilder()
+                .AddJsonFile("settings.json")
+                .Build();
+            settings = new Settings();
+            settings = config.Get<Settings>();
         } catch (Exception e) {
             ServerConsole.WriteLine(e.ToString());
             Environment.Exit(1);
         }
-        new Program().TcpListen();
+        new Program().Server();
     }
 
-    void TcpListen() {
-        TcpListener listener = new TcpListener(IPAddress.Any, settings?.port ?? 54162);
+    void Server() {
+        iPEndPoints = new IPEndPoint[settings!.maxPlayer];
+        TcpListener listener = new TcpListener(IPAddress.Any, settings!.port);
+        
         listener.Start();
-
         while (true) {
             TcpClient client = listener.AcceptTcpClient();
-            ServerConsole.WriteLine($"Client connected: {client.Client.RemoteEndPoint}");
-            ThreadPool.QueueUserWorkItem(Client, client);
+            IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+            if (!iPEndPoints.Contains(remoteEndPoint)) {
+                ThreadPool.QueueUserWorkItem(TcpClient, client);
+                ServerConsole.WriteLine($"Client connected: {remoteEndPoint}");
+            }
         }
     }
 
-    void Client(object? obj) {
+    void TcpClient(object? obj) {
         TcpClient client = (TcpClient)obj!;
+    }
+
+    void UdpClient(object? obj) {
+        UdpClient client = (UdpClient)obj!;
     }
 
     string[] SplitCommand(byte[] bytes) {
