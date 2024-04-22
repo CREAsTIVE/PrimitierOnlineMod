@@ -16,41 +16,47 @@ class Program {
     static Settings? settings;
     IPEndPoint[]? iPEndPoints;
     
-    static void Main() {
-        try {
+    static void Main(string[] args) {
+        try
+        {
             config = new ConfigurationBuilder()
                 .AddJsonFile("settings.json")
                 .Build();
             settings = new Settings();
             settings = config.Get<Settings>();
-        } catch (Exception e) {
-            ServerConsole.WriteLine(e.ToString());
-            Environment.Exit(1);
+            new Program().MainServer();
         }
-        new Program().Server();
+        catch (Exception e)
+        {
+            ServerConsole.WriteLine(e.ToString());
+        }
     }
 
-    void Server() {
+    void MainServer()
+    {
         iPEndPoints = new IPEndPoint[settings!.maxPlayer];
-        TcpListener listener = new TcpListener(IPAddress.Any, settings!.port);
-        
+        TcpListener listener = new TcpListener(IPAddress.Any, settings.port);
+
         listener.Start();
-        while (true) {
-            TcpClient client = listener.AcceptTcpClient();
-            IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-            if (!iPEndPoints.Contains(remoteEndPoint)) {
-                ThreadPool.QueueUserWorkItem(TcpClient, client);
-                ServerConsole.WriteLine($"Client connected: {remoteEndPoint}");
-            }
+        while (true)
+        {
+            ThreadPool.QueueUserWorkItem(TcpClient, listener.AcceptTcpClient());
         }
     }
 
     void TcpClient(object? obj) {
         TcpClient client = (TcpClient)obj!;
+        IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+        ServerConsole.WriteLine($"Connected from {remoteEndPoint.Address}:{remoteEndPoint.Port}");
+        if (iPEndPoints!.Contains(remoteEndPoint))
+        {
+            ThreadPool.QueueUserWorkItem(UdpClient, client);
+        }
     }
 
     void UdpClient(object? obj) {
-        UdpClient client = (UdpClient)obj!;
+        IPEndPoint iPEndPoint = (IPEndPoint)obj!;
+        UdpClient udpClient = new UdpClient();
     }
 
     string[] SplitCommand(byte[] bytes) {
