@@ -1,6 +1,8 @@
-﻿namespace Client
+﻿using MelonLoader;
+
+namespace Client
 {
-    public class Class1
+    public class Class1 : MelonMod
     {
 
     }
