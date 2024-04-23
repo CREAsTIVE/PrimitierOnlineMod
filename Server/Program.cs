@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Extensions.Configuration;
 
 class Settings {
@@ -9,6 +10,17 @@ class Settings {
     public string ip { get; set; } = "";
     public int port { get; set; } = 54162;
     public int maxPlayer { get; set; } = 10;
+}
+
+[Serializable]
+class Command {
+    public string Name { get; set; } = "";
+    public object[] Args { get; set; } = new object[] {};
+
+    public Command(string name, params object[] args) {
+        Name = name;
+        Args = args;
+    }
 }
 
 class Program {
@@ -45,22 +57,28 @@ class Program {
     }
 
     void TcpClient(object? obj) {
-        TcpClient client = (TcpClient)obj!;
-        IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-        ServerConsole.WriteLine($"Connected from {remoteEndPoint.Address}:{remoteEndPoint.Port}");
-        if (iPEndPoints!.Contains(remoteEndPoint))
-        {
-            ThreadPool.QueueUserWorkItem(UdpClient, client);
+        try {
+            using (TcpClient client = (TcpClient)obj!) {
+                IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+                using (NetworkStream stream = client.GetStream()) {
+                    
+                }
+            }
+        } catch (Exception e) {
+            ServerConsole.WriteLine(e.ToString());
         }
     }
 
     void UdpClient(object? obj) {
         IPEndPoint iPEndPoint = (IPEndPoint)obj!;
         UdpClient udpClient = new UdpClient();
-    }
-
-    string[] SplitCommand(byte[] bytes) {
-        return new string[] {"command", "args"};
+        byte[] receivedData = udpClient.Receive(ref iPEndPoint);
+        
+        foreach (IPEndPoint endPoint in iPEndPoints!) {
+            if (endPoint != null) {
+                udpClient.Send(receivedData, receivedData.Length, endPoint);
+            }
+        }
     }
 }
 
