@@ -28,7 +28,6 @@ class Command {
 
 class Program {
     static Settings? settings;
-    static Serilog.Core.Logger? logger;
     IPEndPoint[]? iPEndPoints;
     
     static void Main(string[] args) {
@@ -40,7 +39,7 @@ class Program {
             settings = new Settings();
             settings = config.Get<Settings>();
 
-            logger = new LoggerConfiguration()
+            Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
@@ -48,7 +47,7 @@ class Program {
         }
         catch (Exception e)
         {
-            logger!.Error(e.ToString());
+            Log.Error(e.ToString());
         }
     }
 
@@ -57,7 +56,7 @@ class Program {
         iPEndPoints = new IPEndPoint[settings!.maxPlayer];
         TcpListener listener = new TcpListener(IPAddress.Any, settings.port);
 
-        logger!.Information("Server started on {0}:{1}", settings.ip, settings.port);
+        Log.Information("Server started on {0}:{1}", settings.ip, settings.port);
         try
         {
             listener.Start();
@@ -67,7 +66,7 @@ class Program {
             }
         } catch (Exception e)
         {
-            logger!.Error(e.ToString());
+            Log.Error(e.ToString());
         }
     }
 
@@ -106,7 +105,7 @@ class Program {
                 }
             }
         } catch (Exception e) {
-            logger!.Error(e.ToString());
+            Log.Error(e.ToString());
         }
     }
 
@@ -126,7 +125,7 @@ class Program {
             }
         } catch (Exception e)
         {
-            logger!.Error(e.ToString());
+            Log.Error(e.ToString());
         }
     }
 }
