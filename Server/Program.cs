@@ -48,7 +48,7 @@ class Program {
         }
         catch (Exception e)
         {
-            ServerConsole.WriteLine(e.ToString());
+            logger!.Error(e.ToString());
         }
     }
 
@@ -67,7 +67,7 @@ class Program {
             }
         } catch (Exception e)
         {
-            ServerConsole.WriteLine(e.ToString());
+            logger!.Error(e.ToString());
         }
     }
 
@@ -106,7 +106,7 @@ class Program {
                 }
             }
         } catch (Exception e) {
-            ServerConsole.WriteLine(e.ToString());
+            logger!.Error(e.ToString());
         }
     }
 
@@ -126,15 +126,7 @@ class Program {
             }
         } catch (Exception e)
         {
-            ServerConsole.WriteLine(e.ToString());
+            logger!.Error(e.ToString());
         }
-    }
-}
-
-class ServerConsole
-{
-    internal static void WriteLine(string v)
-    {
-        Console.WriteLine($"[{DateTime.Now.ToString("hh:mm:ss")}] {v}");
     }
 }
