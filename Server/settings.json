@@ -2,7 +2,6 @@
   "name": "DevServer",
   "description": "POMテストのためのサーバー",
   "version": "0.0.0",
-  "ip": "",
   "port": 54162,
   "maxPlayer": 15,
   "Serilog": {
