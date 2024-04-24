@@ -8,7 +8,6 @@ class Settings {
     public string name { get; set; } = "";
     public string description { get; set; } = "";
     public string version { get; set; } = "0.0.0";
-    public string ip { get; set; } = "";
     public int port { get; set; } = 54162;
     public int maxPlayer { get; set; } = 10;
 }
@@ -36,7 +35,6 @@ class Program {
             IConfigurationRoot config = new ConfigurationBuilder()
                 .AddJsonFile("settings.json")
                 .Build();
-            settings = new Settings();
             settings = config.Get<Settings>();
 
             Log.Logger = new LoggerConfiguration()
@@ -56,10 +54,10 @@ class Program {
         iPEndPoints = new IPEndPoint[settings!.maxPlayer];
         TcpListener listener = new TcpListener(IPAddress.Any, settings.port);
 
-        Log.Information("Server started on {0}:{1}", settings.ip, settings.port);
         try
         {
             listener.Start();
+            Log.Information("Server started on {0}", settings.port);
             while (true)
             {
                 ThreadPool.QueueUserWorkItem(TcpClient, listener.AcceptTcpClient());
@@ -76,12 +74,15 @@ class Program {
             using (NetworkStream stream = client.GetStream())
             {
                 IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+                Log.Information("Client connected from {0}:{1}", remoteEndPoint.Address, remoteEndPoint.Port);
                 byte[] buffer = new byte[4];
                 byte[] bytes;
 
                 stream.Read(buffer, 0, buffer.Length);
                 bytes = new byte[BitConverter.ToInt32(buffer, 0)];
+                Log.Information("Received {0} bytes", buffer.Length);
                 stream.Read(bytes, 0, bytes.Length);
+                Log.Information("Received {0} bytes", bytes.Length);
 
                 DataContractSerializer serializer = new DataContractSerializer(typeof(Command));
                 Command command = (Command)serializer.ReadObject(new MemoryStream(bytes))!;
@@ -89,14 +90,20 @@ class Program {
                 if (command.Name == "connect")
                 {
                     if (iPEndPoints!.Contains(remoteEndPoint)) {
-                        
+                        Log.Error("Client already connected from {0}:{1}", remoteEndPoint.Address, remoteEndPoint.Port);
+                        return;
                     }
 
-                    foreach (IPEndPoint endPoint in iPEndPoints!)
+                    for (int i = 0; i < iPEndPoints!.Length; i++)
                     {
-                        if (endPoint == null)
+                        if (iPEndPoints[i] == default)
                         {
-
+                            iPEndPoints[i] = remoteEndPoint;
+                            break;
+                        } else if (i == iPEndPoints.Length - 1)
+                        {
+                            Log.Warning("Server is full");
+                            return;
                         }
                     }
                 } else if (command.Name == "disconnect")
@@ -109,7 +116,28 @@ class Program {
         }
     }
 
-    void UdpClient(object? obj) {
+    void UdpListener(object? obj) {
+        IPEndPoint iPEndPoint = (IPEndPoint)obj!;
+        UdpClient udpClient = new UdpClient();
+        byte[] receivedData = udpClient.Receive(ref iPEndPoint);
+        
+        try
+        {
+            foreach (IPEndPoint endPoint in iPEndPoints!)
+            {
+                if (endPoint != null)
+                {
+                    udpClient.Send(receivedData, receivedData.Length, endPoint);
+                }
+            }
+        } catch (Exception e)
+        {
+            Log.Error(e.ToString());
+        }
+    }
+
+    void UdpClient(object? obj)
+    {
         IPEndPoint iPEndPoint = (IPEndPoint)obj!;
         UdpClient udpClient = new UdpClient();
         byte[] receivedData = udpClient.Receive(ref iPEndPoint);
