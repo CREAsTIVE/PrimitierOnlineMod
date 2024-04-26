@@ -83,7 +83,7 @@ namespace Server
             }
         }
 
-        public static void UdpClient(object? state)
+        public static void Client(object? state)
         {
             object[] obj = (object[])state!;
             IPEndPoint iPEndPoint = (IPEndPoint)obj[0]!;
