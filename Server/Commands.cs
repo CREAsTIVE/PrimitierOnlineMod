@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace Server
+namespace Server.Commands
 {
-    public static class Commands
+    public static class Serializer
     {
         public static object Deserialize(byte[] bytes)
         {
