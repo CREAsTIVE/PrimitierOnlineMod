@@ -1,16 +1,35 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
+using Server.Commands;
 
-namespace Server
+namespace Server.Network
 {
-    public static class Network
-    {
-        public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.maxPlayer];
-    }
-
     public static class Tcp
     {
+        public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.maxPlayer];
+
+        public static void Listener(object state)
+        {
+            TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.port);
+
+            try
+            {
+                listener.Start();
+                Log.Information("Server started on {0}", Program.settings.port);
+                while (true)
+                {
+                    TcpClient client = listener.AcceptTcpClient();
+                    Log.Information("Client connected from {0}", client.Client.RemoteEndPoint);
+                    ThreadPool.QueueUserWorkItem(Client!, client);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
+
         public static void Client(object state)
         {
             try
@@ -25,15 +44,15 @@ namespace Server
                     stream.Read(bytes, 0, bytes.Length);
                     Log.Information("Received {0} bytes", bytes.Length);
 
-                    switch (Commands.Deserialize(bytes))
+                    switch (Serializer.Deserialize(bytes))
                     {
                         case Connect connect:
                             Log.Information("Connect : {0}", connect.UserName);
-                            for (int i = 0; i < Network.iPEndPoints!.Length; i++)
+                            for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
-                                if (Network.iPEndPoints[i] == default)
+                                if (iPEndPoints[i] == default)
                                 {
-                                    Network.iPEndPoints[i] = remoteEndPoint;
+                                    iPEndPoints[i] = remoteEndPoint;
                                     break;
                                 }
                             }
@@ -41,11 +60,11 @@ namespace Server
                             break;
                         case Disconnect disconnect:
                             Log.Information("Disconnect: {0}", disconnect);
-                            for (int i = 0; i < Network.iPEndPoints!.Length; i++)
+                            for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
-                                if (Network.iPEndPoints[i].Address == remoteEndPoint.Address)
+                                if (iPEndPoints[i].Address == remoteEndPoint.Address)
                                 {
-                                    Network.iPEndPoints[i] = default!;
+                                    iPEndPoints[i] = default!;
                                     break;
                                 }
                             }
@@ -73,7 +92,7 @@ namespace Server
             
             try
             {
-                foreach (IPEndPoint endPoint in Network.iPEndPoints!)
+                foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
                 {
                     if (endPoint != null)
                     {
@@ -95,7 +114,7 @@ namespace Server
             
             try
             {
-                foreach (IPEndPoint endPoint in Network.iPEndPoints!)
+                foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
                 {
                     if (endPoint != null)
                     {
