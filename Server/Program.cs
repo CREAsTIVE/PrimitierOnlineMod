@@ -1,7 +1,6 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Serilog;
+using Server.Network;
 
 namespace Server
 {
@@ -31,28 +30,7 @@ namespace Server
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
 
-                new Program().MainServer();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.ToString());
-            }
-        }
-
-        void MainServer()
-        {
-            Network.iPEndPoints = new IPEndPoint[settings!.maxPlayer];
-            TcpListener listener = new TcpListener(IPAddress.Any, settings.port);
-
-            try
-            {
-                listener.Start();
-                Log.Information("Server started on {0}", settings.port);
-                while (true)
-                {
-                    WaitCallback callback = new WaitCallback(Tcp.Client!);
-                    ThreadPool.QueueUserWorkItem(callback, listener.AcceptTcpClient());
-                }
+                Tcp.Listener(null!);
             }
             catch (Exception e)
             {
