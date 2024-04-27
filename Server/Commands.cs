@@ -17,6 +17,7 @@ namespace Server
                     case "Disconnect":
                         return JsonSerializer.Deserialize<Disconnect>(json)!;
                     case "Error":
+                        return JsonSerializer.Deserialize<Error>(json)!;
                     default:
                         throw new Exception("Invalid command.");
                 }
