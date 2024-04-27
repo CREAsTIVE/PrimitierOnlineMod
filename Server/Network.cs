@@ -4,16 +4,18 @@ using Serilog;
 
 namespace Server
 {
+    public static class Network
+    {
+        public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.maxPlayer];
+    }
+
     public static class Tcp
     {
         public static void Client(object state)
         {
-            object?[]? obj = (object[])state;
-            IPEndPoint[] iPEndPoints = (IPEndPoint[])obj[1]!;
-
             try
             {
-                using (TcpClient client = (TcpClient)obj[0]!)
+                using (TcpClient client = (TcpClient)state!)
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
@@ -27,11 +29,11 @@ namespace Server
                     {
                         case Connect connect:
                             Log.Information("Connect : {0}", connect.UserName);
-                            for (int i = 0; i < iPEndPoints!.Length; i++)
+                            for (int i = 0; i < Network.iPEndPoints!.Length; i++)
                             {
-                                if (iPEndPoints[i] == default)
+                                if (Network.iPEndPoints[i] == default)
                                 {
-                                    iPEndPoints[i] = remoteEndPoint;
+                                    Network.iPEndPoints[i] = remoteEndPoint;
                                     break;
                                 }
                             }
@@ -39,14 +41,17 @@ namespace Server
                             break;
                         case Disconnect disconnect:
                             Log.Information("Disconnect: {0}", disconnect);
-                            for (int i = 0; i < iPEndPoints!.Length; i++)
+                            for (int i = 0; i < Network.iPEndPoints!.Length; i++)
                             {
-                                if (iPEndPoints[i].Address == remoteEndPoint.Address)
+                                if (Network.iPEndPoints[i].Address == remoteEndPoint.Address)
                                 {
-                                    iPEndPoints[i] = default!;
+                                    Network.iPEndPoints[i] = default!;
                                     break;
                                 }
                             }
+                            break;
+                        case Error error:
+                            Log.Error("Error: {0}", error.ExceptionMessage.Message);
                             break;
                     }
                 }
@@ -60,16 +65,15 @@ namespace Server
 
     public static class Udp
     {
-        public static void Listener(object? state) {
-            object[] obj = (object[])state!;
-            IPEndPoint iPEndPoint = (IPEndPoint)obj[0]!;
-            IPEndPoint[] iPEndPoints = (IPEndPoint[])obj[1]!;
+        public static void Listener(object? state)
+        {
+            IPEndPoint iPEndPoint = (IPEndPoint)state!;
             UdpClient udpClient = new UdpClient();
             byte[] receivedData = udpClient.Receive(ref iPEndPoint);
             
             try
             {
-                foreach (IPEndPoint endPoint in iPEndPoints!)
+                foreach (IPEndPoint endPoint in Network.iPEndPoints!)
                 {
                     if (endPoint != null)
                     {
@@ -85,15 +89,13 @@ namespace Server
 
         public static void Client(object? state)
         {
-            object[] obj = (object[])state!;
-            IPEndPoint iPEndPoint = (IPEndPoint)obj[0]!;
-            IPEndPoint[] iPEndPoints = (IPEndPoint[])obj[1]!;
+            IPEndPoint iPEndPoint = (IPEndPoint)state!;
             UdpClient udpClient = new UdpClient();
             byte[] receivedData = udpClient.Receive(ref iPEndPoint);
             
             try
             {
-                foreach (IPEndPoint endPoint in iPEndPoints!)
+                foreach (IPEndPoint endPoint in Network.iPEndPoints!)
                 {
                     if (endPoint != null)
                     {

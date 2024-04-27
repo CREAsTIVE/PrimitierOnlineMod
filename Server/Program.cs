@@ -16,8 +16,7 @@ namespace Server
 
     class Program
     {
-        static Settings? settings;
-        IPEndPoint[]? iPEndPoints;
+        public static Settings? settings;
         
         static void Main(string[] args)
         {
@@ -42,7 +41,7 @@ namespace Server
 
         void MainServer()
         {
-            iPEndPoints = new IPEndPoint[settings!.maxPlayer];
+            Network.iPEndPoints = new IPEndPoint[settings!.maxPlayer];
             TcpListener listener = new TcpListener(IPAddress.Any, settings.port);
 
             try
@@ -52,8 +51,7 @@ namespace Server
                 while (true)
                 {
                     WaitCallback callback = new WaitCallback(Tcp.Client!);
-                    object? obj = new object[] { listener.AcceptTcpClient(), iPEndPoints };
-                    ThreadPool.QueueUserWorkItem(callback, obj);
+                    ThreadPool.QueueUserWorkItem(callback, listener.AcceptTcpClient());
                 }
             }
             catch (Exception e)

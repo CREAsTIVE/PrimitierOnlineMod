@@ -16,6 +16,7 @@ namespace Server
                         return JsonSerializer.Deserialize<Connect>(json)!;
                     case "Disconnect":
                         return JsonSerializer.Deserialize<Disconnect>(json)!;
+                    case "Error":
                     default:
                         throw new Exception("Invalid command.");
                 }
@@ -42,22 +43,29 @@ namespace Server
     public class Connect
     {
         public string Name { get; set; } = "Connect";
-        public string UserName { get; set; } = "";
+        public string UserName { get; set; }
+        public string Version { get; set; }
 
-        public Connect(string userName)
+        public Connect(string userName, string version)
         {
             UserName = userName;
+            Version = version;
         }
     }
 
     public class Disconnect
     {
         public string Name { get; set; } = "Disconnect";
-        // public string UserName { get; set; } = "";
+    }
 
-        // public Disconnect(string userName)
-        // {
-        //     UserName = userName;
-        // }
+    public class Error
+    {
+        public string Name { get; set; } = "Error";
+        public Exception ExceptionMessage { get; set; }
+
+        public Error(Exception exception)
+        {
+            ExceptionMessage = exception;
+        }
     }
 }
