@@ -44,11 +44,13 @@ namespace Server.Commands
     public class Connect
     {
         public string Name { get; set; } = "Connect";
+        public string UserID { get; set; }
         public string UserName { get; set; }
         public string Version { get; set; }
 
-        public Connect(string userName, string version)
+        public Connect(string userID, string userName, string version)
         {
+            UserID = userID;
             UserName = userName;
             Version = version;
         }
