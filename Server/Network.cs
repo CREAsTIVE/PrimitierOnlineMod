@@ -53,7 +53,7 @@ namespace Server.Network
                                 if (iPEndPoints[i] == default)
                                 {
                                     iPEndPoints[i] = remoteEndPoint;
-                                    ThreadPool.QueueUserWorkItem(Udp.Listener!, remoteEndPoint);
+                                    ThreadPool.QueueUserWorkItem(Udp.Client!, remoteEndPoint);
                                     break;
                                 }
                             }
@@ -85,7 +85,7 @@ namespace Server.Network
 
     public static class Udp
     {
-        public static void Listener(object? state)
+        public static void Client(object? state)
         {
             IPEndPoint iPEndPoint = (IPEndPoint)state!;
 
