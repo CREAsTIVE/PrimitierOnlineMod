@@ -53,6 +53,7 @@ namespace Server.Network
                                 if (iPEndPoints[i] == default)
                                 {
                                     iPEndPoints[i] = remoteEndPoint;
+                                    ThreadPool.QueueUserWorkItem(Udp.Listener!, remoteEndPoint);
                                     break;
                                 }
                             }
@@ -87,38 +88,21 @@ namespace Server.Network
         public static void Listener(object? state)
         {
             IPEndPoint iPEndPoint = (IPEndPoint)state!;
-            UdpClient udpClient = new UdpClient();
-            byte[] receivedData = udpClient.Receive(ref iPEndPoint);
-            
-            try
-            {
-                foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
-                {
-                    if (endPoint != null)
-                    {
-                        udpClient.Send(receivedData, receivedData.Length, endPoint);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.ToString());
-            }
-        }
 
-        public static void Client(object? state)
-        {
-            IPEndPoint iPEndPoint = (IPEndPoint)state!;
-            UdpClient udpClient = new UdpClient();
-            byte[] receivedData = udpClient.Receive(ref iPEndPoint);
-            
             try
             {
-                foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
+                using (UdpClient udpClient = new UdpClient())
                 {
-                    if (endPoint != null)
+                    while (true)
                     {
-                        udpClient.Send(receivedData, receivedData.Length, endPoint);
+                        byte[] receivedData = udpClient.Receive(ref iPEndPoint);
+                        foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
+                        {
+                            if (endPoint != null && endPoint == iPEndPoint)
+                            {
+                                udpClient.Send(receivedData, receivedData.Length, endPoint);
+                            }
+                        }
                     }
                 }
             }
