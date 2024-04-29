@@ -14,7 +14,14 @@
 
     public class Object
     {
-        
+        public string UUID { get; set; }
+        public PosRot PosRot { get; set; }
+
+        public Object(string uuid, PosRot posRot)
+        {
+            UUID = uuid;
+            PosRot = posRot;
+        }
     }
 
     public class PosRot
