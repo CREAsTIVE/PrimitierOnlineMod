@@ -8,6 +8,7 @@ namespace YuchiGames.POM.Server.Data.Commands
         [Key(0)]
         public string Name { get; set; }
 
+        [SerializationConstructor]
         public CommandName(string name)
         {
             Name = name;
@@ -26,6 +27,7 @@ namespace YuchiGames.POM.Server.Data.Commands
         [Key(3)]
         public string Version { get; set; }
 
+        [SerializationConstructor]
         public Connect(string userID, string userName, string version)
         {
             UserID = userID;
@@ -49,6 +51,7 @@ namespace YuchiGames.POM.Server.Data.Commands
         [Key(1)]
         public Exception ExceptionMessage { get; set; }
 
+        [SerializationConstructor]
         public Error(Exception exception)
         {
             ExceptionMessage = exception;

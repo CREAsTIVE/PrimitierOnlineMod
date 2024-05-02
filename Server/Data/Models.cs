@@ -10,6 +10,7 @@ namespace YuchiGames.POM.Server.Data.Models
         [Key(1)]
         public PosRot RightHand { get; set; }
 
+        [SerializationConstructor]
         public Plyaer(PosRot leftHand, PosRot rightHand)
         {
             LeftHand = leftHand;
@@ -25,6 +26,7 @@ namespace YuchiGames.POM.Server.Data.Models
         [Key(1)]
         public PosRot PosRot { get; set; }
 
+        [SerializationConstructor]
         public Object(string uuid, PosRot posRot)
         {
             UUID = uuid;
@@ -40,6 +42,7 @@ namespace YuchiGames.POM.Server.Data.Models
         [Key(1)]
         public float[] Rot { get; set; }
 
+        [SerializationConstructor]
         public PosRot(float[] pos, float[] rot)
         {
             Pos = pos;
