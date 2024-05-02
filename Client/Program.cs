@@ -2,7 +2,7 @@
 
 namespace Client
 {
-    public class Class1 : MelonMod
+    public class Program : MelonMod
     {
         public override void OnInitializeMelon()
         {
