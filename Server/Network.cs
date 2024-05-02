@@ -85,24 +85,20 @@ namespace Server.Network
 
     public static class Udp
     {
-        public static void Client(object? state)
+        public static void Listener(object state)
         {
-            IPEndPoint iPEndPoint = (IPEndPoint)state!;
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
 
             try
             {
-                using (UdpClient udpClient = new UdpClient())
+                using (UdpClient udpClient = new UdpClient(iPEndPoint))
                 {
                     while (true)
                     {
+                        iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
+
                         byte[] receivedData = udpClient.Receive(ref iPEndPoint);
-                        foreach (IPEndPoint endPoint in Tcp.iPEndPoints!)
-                        {
-                            if (endPoint != null && endPoint == iPEndPoint)
-                            {
-                                udpClient.Send(receivedData, receivedData.Length, endPoint);
-                            }
-                        }
+                        ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData, });
                     }
                 }
             }
@@ -111,5 +107,21 @@ namespace Server.Network
                 Log.Error(e.ToString());
             }
         }
+        public static void Client(object? state)
+        {
+            object[] args = (object[])state!;
+            IPEndPoint iPEndPoint = (IPEndPoint)args[0]!;
+            byte[] receivedData = (byte[])args[1]!;
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
+
     }
 }
