@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Serilog;
-using Server.Network;
+using YuchiGames.POM.Server.Data.Commands;
+using YuchiGames.POM.Server.Network;
+using YuchiGames.POM.Server.Serialization;
 
-namespace Server
+namespace YuchiGames.POM.Server
 {
     class Settings
     {
@@ -30,7 +32,10 @@ namespace Server
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
 
-                Tcp.Listener(null!);
+                Thread tcpThread = new Thread(Tcp.Listener);
+                Thread udpThread = new Thread(Udp.Listener);
+                tcpThread.Start();
+                udpThread.Start();
             }
             catch (Exception e)
             {

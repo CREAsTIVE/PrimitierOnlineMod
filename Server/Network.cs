@@ -1,22 +1,23 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
-using Server.Commands;
+using YuchiGames.POM.Server.Data.Commands;
+using YuchiGames.POM.Server.Serialization;
 
-namespace Server.Network
+namespace YuchiGames.POM.Server.Network
 {
     public static class Tcp
     {
         public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.maxPlayer];
 
-        public static void Listener(object state)
+        public static void Listener()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.port);
 
             try
             {
                 listener.Start();
-                Log.Information("Server started on {0}", Program.settings.port);
+                Log.Information("Tcp server started on {0}", Program.settings.port);
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
@@ -44,7 +45,7 @@ namespace Server.Network
                     stream.Read(bytes, 0, bytes.Length);
                     Log.Information("Received {0} bytes", bytes.Length);
 
-                    switch (Serializer.Deserialize(bytes))
+                    switch (CommandsSerializer.Deserialize(bytes))
                     {
                         case Connect connect:
                             Log.Information("Connect : {0}", connect.UserName);
@@ -63,7 +64,7 @@ namespace Server.Network
                             Log.Information("Disconnect: {0}", disconnect);
                             for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
-                                if (iPEndPoints[i].Address == remoteEndPoint.Address)
+                                if (iPEndPoints[i] == remoteEndPoint)
                                 {
                                     iPEndPoints[i] = default!;
                                     break;
@@ -85,12 +86,14 @@ namespace Server.Network
 
     public static class Udp
     {
-        public static void Listener(object state)
+        public static void Listener()
         {
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
 
             try
             {
+                Log.Information("Udp server started on {0}", Program.settings.port);
+
                 using (UdpClient udpClient = new UdpClient(iPEndPoint))
                 {
                     while (true)
@@ -98,7 +101,7 @@ namespace Server.Network
                         iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
 
                         byte[] receivedData = udpClient.Receive(ref iPEndPoint);
-                        ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData, });
+                        ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData });
                     }
                 }
             }
@@ -115,7 +118,20 @@ namespace Server.Network
 
             try
             {
-
+                using (UdpClient udpClient = new UdpClient())
+                {
+                    if (!Tcp.iPEndPoints.Contains(iPEndPoint))
+                    {
+                        return;
+                    }
+                    for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
+                    {
+                        if (Tcp.iPEndPoints[i] != iPEndPoint)
+                        {
+                            udpClient.Send(receivedData, receivedData.Length, Tcp.iPEndPoints[i]);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
