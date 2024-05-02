@@ -1,23 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Serilog;
-using YuchiGames.POM.Server.Data.Commands;
+using YuchiGames.POM.Server.Data.Settings;
 using YuchiGames.POM.Server.Network;
-using YuchiGames.POM.Server.Serialization;
 
 namespace YuchiGames.POM.Server
 {
-    class Settings
-    {
-        public string name { get; set; } = "";
-        public string description { get; set; } = "";
-        public string version { get; set; } = "0.0.0";
-        public int port { get; set; } = 54162;
-        public int maxPlayer { get; set; } = 10;
-    }
-
     class Program
     {
-        public static Settings? settings;
+        public static ServerSettings? settings;
         
         static void Main(string[] args)
         {
@@ -26,7 +16,7 @@ namespace YuchiGames.POM.Server
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile("settings.json")
                     .Build();
-                settings = config.Get<Settings>();
+                settings = config.Get<ServerSettings>();
 
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
