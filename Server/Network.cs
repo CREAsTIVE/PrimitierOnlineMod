@@ -8,16 +8,16 @@ namespace YuchiGames.POM.Server.Network
 {
     public static class Tcp
     {
-        public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.maxPlayer];
+        public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.MaxPlayer];
 
         public static void Listener()
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.port);
+            TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.Port);
 
             try
             {
                 listener.Start();
-                Log.Information("Tcp server started on {0}", Program.settings.port);
+                Log.Information("Tcp server started on {0}", Program.settings.Port);
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
@@ -88,17 +88,17 @@ namespace YuchiGames.POM.Server.Network
     {
         public static void Listener()
         {
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.Port);
 
             try
             {
-                Log.Information("Udp server started on {0}", Program.settings.port);
+                Log.Information("Udp server started on {0}", Program.settings.Port);
 
                 using (UdpClient udpClient = new UdpClient(iPEndPoint))
                 {
                     while (true)
                     {
-                        iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.port);
+                        iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.Port);
 
                         byte[] receivedData = udpClient.Receive(ref iPEndPoint);
                         ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData });
