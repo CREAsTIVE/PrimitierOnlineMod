@@ -17,17 +17,17 @@ namespace YuchiGames.POM.Server.Network
             try
             {
                 listener.Start();
-                Log.Information("Tcp server started on {0}", Program.settings.Port);
+                Log.Information("Tcp server started on port {0}.", Program.settings!.Port);
+
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    Log.Information("Client connected from {0}", client.Client.RemoteEndPoint);
                     ThreadPool.QueueUserWorkItem(Client!, client);
                 }
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Log.Error(e.Message);
             }
         }
 
@@ -39,47 +39,43 @@ namespace YuchiGames.POM.Server.Network
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-                    Log.Information("Client connected from {0}:{1}", remoteEndPoint.Address, remoteEndPoint.Port);
                     byte[] bytes = new byte[256];
 
                     stream.Read(bytes, 0, bytes.Length);
-                    Log.Information("Received {0} bytes", bytes.Length);
 
                     switch (CommandsSerializer.Deserialize(bytes))
                     {
                         case Connect connect:
-                            Log.Information("Connect : {0}", connect.UserName);
                             for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
                                 if (iPEndPoints[i] == default)
                                 {
                                     iPEndPoints[i] = remoteEndPoint;
-                                    ThreadPool.QueueUserWorkItem(Udp.Client!, remoteEndPoint);
+                                    Log.Information("Connected to {0}.", remoteEndPoint);
                                     break;
                                 }
                             }
-                            Log.Warning("Server is full.");
                             break;
                         case Disconnect disconnect:
-                            Log.Information("Disconnect: {0}", disconnect);
                             for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
                                 if (iPEndPoints[i] == remoteEndPoint)
                                 {
                                     iPEndPoints[i] = default!;
+                                    Log.Information("Disconnected from {0}.", remoteEndPoint);
                                     break;
                                 }
                             }
                             break;
                         case Error error:
-                            Log.Error("Error: {0}", error.ExceptionMessage.Message);
+                            Log.Error(error.ExceptionMessage.Message);
                             break;
                     }
                 }
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Log.Error(e.Message);
             }
         }
     }
@@ -92,14 +88,12 @@ namespace YuchiGames.POM.Server.Network
 
             try
             {
-                Log.Information("Udp server started on {0}", Program.settings.Port);
-
                 using (UdpClient udpClient = new UdpClient(iPEndPoint))
                 {
+                    Log.Information("Udp server started on port {0}.", Program.settings!.Port);
+                    
                     while (true)
                     {
-                        iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.Port);
-
                         byte[] receivedData = udpClient.Receive(ref iPEndPoint);
                         ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData });
                     }
@@ -107,9 +101,10 @@ namespace YuchiGames.POM.Server.Network
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Log.Error(e.Message);
             }
         }
+
         public static void Client(object? state)
         {
             object[] args = (object[])state!;
@@ -135,7 +130,7 @@ namespace YuchiGames.POM.Server.Network
             }
             catch (Exception e)
             {
-                Log.Error(e.ToString());
+                Log.Error(e.Message);
             }
         }
 
