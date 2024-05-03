@@ -1,6 +1,6 @@
 ﻿using MelonLoader;
 
-namespace Client
+namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
