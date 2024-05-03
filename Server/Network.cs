@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
-using YuchiGames.POM.Server.Data.Commands;
+using YuchiGames.POM.Server.Data.Methods;
 using YuchiGames.POM.Server.Serialization;
 
 namespace YuchiGames.POM.Server.Network

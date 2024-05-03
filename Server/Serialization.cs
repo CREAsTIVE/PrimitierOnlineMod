@@ -1,5 +1,5 @@
 ﻿using MessagePack;
-using YuchiGames.POM.Server.Data.Commands;
+using YuchiGames.POM.Server.Data.Methods;
 
 namespace YuchiGames.POM.Server.Serialization
 {
@@ -9,7 +9,7 @@ namespace YuchiGames.POM.Server.Serialization
         {
             try
             {
-                switch (MessagePackSerializer.Deserialize<CommandName>(bytes).Name)
+                switch (MessagePackSerializer.Deserialize<MethodsName>(bytes).Name)
                 {
                     case "Connect":
                         return MessagePackSerializer.Deserialize<Connect>(bytes);

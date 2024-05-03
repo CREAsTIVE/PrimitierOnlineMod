@@ -1,15 +1,15 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Server.Data.Commands
+namespace YuchiGames.POM.Server.Data.Methods
 {
     [MessagePackObject]
-    public class CommandName
+    public class MethodsName
     {
         [Key(0)]
         public string Name { get; set; }
 
         [SerializationConstructor]
-        public CommandName(string name)
+        public MethodsName(string name)
         {
             Name = name;
         }
