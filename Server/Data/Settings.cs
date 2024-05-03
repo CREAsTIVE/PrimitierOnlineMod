@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace YuchiGames.POM.Server.Data.Settings
+﻿namespace YuchiGames.POM.Server.Data.Settings
 {
     class ServerSettings
     {
-        public string name { get; set; } = "";
-        public string description { get; set; } = "";
-        public string version { get; set; } = "0.0.0";
-        public int port { get; set; } = 54162;
-        public int maxPlayer { get; set; } = 10;
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Version { get; set; }
+        public int Port { get; set; }
+        public int MaxPlayer { get; set; }
+
+        public ServerSettings(string name, string description, string version, int port, int maxPlayer)
+        {
+            Name = name;
+            Description = description;
+            Version = version;
+            Port = port;
+            MaxPlayer = maxPlayer;
+        }
     }
 }
