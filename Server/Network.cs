@@ -37,6 +37,8 @@ namespace YuchiGames.POM.Server.Network
 
         public static void Client(object state)
         {
+            Log.Information("Created new Tcp Client thread.");
+
             try
             {
                 using (TcpClient client = (TcpClient)state!)
@@ -127,6 +129,8 @@ namespace YuchiGames.POM.Server.Network
             IPEndPoint iPEndPoint = (IPEndPoint)args[0]!;
             byte[] receivedData = (byte[])args[1]!;
 
+            Log.Information("Created new Udp Client thread.");
+
             try
             {
                 using (UdpClient udpClient = new UdpClient())
@@ -140,6 +144,7 @@ namespace YuchiGames.POM.Server.Network
                         if (Tcp.iPEndPoints[i] != iPEndPoint)
                         {
                             udpClient.Send(receivedData, receivedData.Length, Tcp.iPEndPoints[i]);
+                            Log.Information("Sent data to {0}.", Tcp.iPEndPoints[i]);
                         }
                     }
                 }
