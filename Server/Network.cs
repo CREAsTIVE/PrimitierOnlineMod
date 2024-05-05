@@ -46,6 +46,12 @@ namespace YuchiGames.POM.Server.Network
                     switch (CommandsSerializer.Deserialize(bytes))
                     {
                         case Connect connect:
+                            if (Utils.ContainAddress(remoteEndPoint))
+                            {
+                                Log.Error("Already connected to {0}.", remoteEndPoint);
+                                return;
+                            }
+
                             for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
                                 if (iPEndPoints[i] == default)
@@ -57,6 +63,12 @@ namespace YuchiGames.POM.Server.Network
                             }
                             break;
                         case Disconnect disconnect:
+                            if (!Utils.ContainAddress(remoteEndPoint))
+                            {
+                                Log.Error("Not connected to {0}.", remoteEndPoint);
+                                return;
+                            }
+
                             for (int i = 0; i < iPEndPoints!.Length; i++)
                             {
                                 if (iPEndPoints[i] == remoteEndPoint)
@@ -68,7 +80,7 @@ namespace YuchiGames.POM.Server.Network
                             }
                             break;
                         case Error error:
-                            Log.Error(error.ExceptionMessage.Message);
+                            Log.Error("Received error to {0}. : {1}", remoteEndPoint, error.ExceptionMessage.Message);
                             break;
                     }
                 }
