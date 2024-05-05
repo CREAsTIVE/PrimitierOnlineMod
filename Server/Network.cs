@@ -10,7 +10,7 @@ namespace YuchiGames.POM.Server.Network
     {
         public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.MaxPlayer];
 
-        public static async void Listener()
+        public static void Listener()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.Port);
 
@@ -21,7 +21,8 @@ namespace YuchiGames.POM.Server.Network
 
                 while (true)
                 {
-                    await ClientAsync(await listener.AcceptTcpClientAsync());
+                    TcpClient client = listener.AcceptTcpClient();
+                    ThreadPool.QueueUserWorkItem(Client!, client);
                 }
             }
             catch (Exception e)
@@ -30,16 +31,17 @@ namespace YuchiGames.POM.Server.Network
             }
         }
 
-        public static async Task ClientAsync(TcpClient client)
+        public static void Client(object state)
         {
             try
             {
+                using (TcpClient client = (TcpClient)state!)
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
                     byte[] bytes = new byte[256];
 
-                    await stream.ReadAsync(bytes, 0, bytes.Length);
+                    stream.Read(bytes, 0, bytes.Length);
 
                     switch (CommandsSerializer.Deserialize(bytes))
                     {
@@ -75,16 +77,12 @@ namespace YuchiGames.POM.Server.Network
             {
                 Log.Error(e.Message);
             }
-            finally
-            {
-                client.Close();
-            }
         }
     }
 
     public static class Udp
     {
-        public static async void Listener()
+        public static void Listener()
         {
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Program.settings!.Port);
 
@@ -96,7 +94,8 @@ namespace YuchiGames.POM.Server.Network
                     
                     while (true)
                     {
-                        await ClientAsync(await udpClient.ReceiveAsync());
+                        byte[] receivedData = udpClient.Receive(ref iPEndPoint);
+                        ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData });
                     }
                 }
             }
@@ -106,32 +105,25 @@ namespace YuchiGames.POM.Server.Network
             }
         }
 
-        public static async Task ClientAsync(UdpReceiveResult result)
+        public static void Client(object? state)
         {
+            object[] args = (object[])state!;
+            IPEndPoint iPEndPoint = (IPEndPoint)args[0]!;
+            byte[] receivedData = (byte[])args[1]!;
+
             try
             {
                 using (UdpClient udpClient = new UdpClient())
                 {
-                    bool hasAddressContained = false;
-
-                    for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
-                    {
-                        if (Tcp.iPEndPoints[i].Address == result.RemoteEndPoint.Address)
-                        {
-                            hasAddressContained = true;
-                            break;
-                        }
-                    }
-                    if (!hasAddressContained)
+                    if (!Tcp.iPEndPoints.Contains(iPEndPoint))
                     {
                         return;
                     }
-
                     for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
                     {
-                        if (Tcp.iPEndPoints[i].Address != result.RemoteEndPoint.Address && hasAddressContained)
+                        if (Tcp.iPEndPoints[i] != iPEndPoint)
                         {
-                            udpClient.Send(result.Buffer, result.Buffer.Length, Tcp.iPEndPoints[i]);
+                            udpClient.Send(receivedData, receivedData.Length, Tcp.iPEndPoints[i]);
                         }
                     }
                 }
