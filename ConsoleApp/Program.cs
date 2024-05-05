@@ -64,5 +64,7 @@ class Program
 
         Connect connect = new Connect("123", "Yuchi", "1.0.0");
         stream.Write(MessagePackSerializer.Serialize(connect));
+        connect = new Connect("456", "Yuchi", "1.0.0");
+        stream.Write(MessagePackSerializer.Serialize(connect));
     }
 }
