@@ -1,7 +1,7 @@
 ﻿using MessagePack;
 using YuchiGames.POM.Server.Data.Methods;
 
-namespace YuchiGames.POM.Server.Serialization
+namespace YuchiGames.POM.Server.Data.Serialization
 {
     public static class CommandsSerializer
     {
