@@ -135,4 +135,19 @@ namespace YuchiGames.POM.Server.Network
         }
 
     }
+
+    public static class Utils
+    {
+        public static bool ContainAddress(IPEndPoint iPEndPoint)
+        {
+            for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
+            {
+                if (Tcp.iPEndPoints[i].Address == iPEndPoint.Address)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 }
