@@ -158,7 +158,7 @@ namespace YuchiGames.POM.Server.Network
         {
             for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
             {
-                if (Tcp.iPEndPoints[i].Address == iPEndPoint.Address)
+                if (Tcp.iPEndPoints[i] != default && Tcp.iPEndPoints[i].Address == iPEndPoint.Address)
                 {
                     return true;
                 }
