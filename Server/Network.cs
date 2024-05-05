@@ -29,6 +29,10 @@ namespace YuchiGames.POM.Server.Network
             {
                 Log.Error(e.Message);
             }
+            finally
+            {
+                listener.Stop();
+            }
         }
 
         public static void Client(object state)
@@ -80,7 +84,7 @@ namespace YuchiGames.POM.Server.Network
                             }
                             break;
                         case Error error:
-                            Log.Error("Received error to {0}. : {1}", remoteEndPoint, error.ExceptionMessage.Message);
+                            Log.Error("Received error: {0} to {1}.", error.ExceptionMessage.Message, remoteEndPoint);
                             break;
                     }
                 }
