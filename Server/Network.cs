@@ -127,7 +127,7 @@ namespace YuchiGames.POM.Server.Network
             {
                 using (UdpClient udpClient = new UdpClient())
                 {
-                    if (!Tcp.iPEndPoints.Contains(iPEndPoint))
+                    if (!Utils.ContainAddress(iPEndPoint))
                     {
                         return;
                     }
