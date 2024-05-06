@@ -59,12 +59,31 @@ class Program
 {
     static void Main(string[] args)
     {
-        TcpClient client = new TcpClient("127.0.0.1", 54162);
-        NetworkStream stream = client.GetStream();
+        IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 54162);
 
-        Connect connect = new Connect("123", "Yuchi", "1.0.0");
-        stream.Write(MessagePackSerializer.Serialize(connect));
-        connect = new Connect("456", "Yuchi", "1.0.0");
-        stream.Write(MessagePackSerializer.Serialize(connect));
+        try
+        {
+            using (TcpClient client = new TcpClient(endPoint))
+            {
+                NetworkStream stream = client.GetStream();
+
+                Connect connect = new Connect("123", "Yuchi", "1.0.0");
+                stream.Write(MessagePackSerializer.Serialize(connect));
+            }
+
+            //using (UdpClient client = new UdpClient())
+            //{
+            //    client.Connect(endPoint);
+
+            //    while (true)
+            //    {
+            //        client.Send(new byte[] { 0 });
+            //    }
+            //}
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }
