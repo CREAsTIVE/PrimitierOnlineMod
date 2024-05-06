@@ -63,23 +63,45 @@ class Program
 
         try
         {
-            using (TcpClient client = new TcpClient(endPoint))
+            // TCP通信で接続する
+            using (TcpClient client = new TcpClient())
             {
-                NetworkStream stream = client.GetStream();
+                client.Connect(endPoint);
 
-                Connect connect = new Connect("123", "Yuchi", "1.0.0");
-                stream.Write(MessagePackSerializer.Serialize(connect));
+                // Connectクラスのインスタンスを作成
+                Connect connect = new Connect("123456", "Taro", "1.0.0");
+
+                // Connectクラスのインスタンスをバイナリに変換
+                byte[] bytes = MessagePackSerializer.Serialize(connect);
+
+                using (NetworkStream stream = client.GetStream())
+                {
+                    // バイナリデータを送信
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+
+                client.Close();
             }
 
-            //using (UdpClient client = new UdpClient())
-            //{
-            //    client.Connect(endPoint);
+            Thread.Sleep(1000);
 
-            //    while (true)
-            //    {
-            //        client.Send(new byte[] { 0 });
-            //    }
-            //}
+            // UDP通信で接続する
+            using (UdpClient client = new UdpClient())
+            {
+                // Connectクラスのインスタンスを作成
+                Connect connect = new Connect("123456", "Taro", "1.0.0");
+
+                // Connectクラスのインスタンスをバイナリに変換
+                byte[] bytes = MessagePackSerializer.Serialize(connect);
+
+                for (int i = 0; i < 50; i++)
+                {
+                    // バイナリデータを送信
+                    client.Send(bytes, bytes.Length, endPoint);
+                }
+
+                client.Close();
+            }
         }
         catch (Exception e)
         {
