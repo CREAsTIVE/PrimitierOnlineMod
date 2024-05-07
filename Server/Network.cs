@@ -55,6 +55,7 @@ namespace YuchiGames.POM.Server.Network
                             if (Utils.ContainAddress(remoteEndPoint))
                             {
                                 Log.Error("Already connected to {0}.", remoteEndPoint);
+                                Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
                                 return;
                             }
 
@@ -72,6 +73,7 @@ namespace YuchiGames.POM.Server.Network
                             if (!Utils.ContainAddress(remoteEndPoint))
                             {
                                 Log.Error("Not connected to {0}.", remoteEndPoint);
+                                Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
                                 return;
                             }
 
@@ -140,6 +142,7 @@ namespace YuchiGames.POM.Server.Network
                     if (!Utils.ContainAddress(iPEndPoint))
                     {
                         Log.Error("Not connected to {0}.", iPEndPoint);
+                        Log.Debug("Closed Udp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
                         return;
                     }
                     for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
