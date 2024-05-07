@@ -147,7 +147,11 @@ namespace YuchiGames.POM.Server.Network
                     }
                     for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
                     {
-                        if (Tcp.iPEndPoints[i] != iPEndPoint)
+                        if (Tcp.iPEndPoints[i] == default)
+                        {
+                            continue;
+                        }
+                        if (!Tcp.iPEndPoints[i].Address.Equals(iPEndPoint.Address))
                         {
                             udpClient.Send(receivedData, receivedData.Length, Tcp.iPEndPoints[i]);
                             Log.Information("Sent data to {0}.", Tcp.iPEndPoints[i]);
@@ -169,14 +173,26 @@ namespace YuchiGames.POM.Server.Network
     {
         public static bool ContainAddress(IPEndPoint iPEndPoint)
         {
-            for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
+            try
             {
-                if (Tcp.iPEndPoints[i] != default && Tcp.iPEndPoints[i].Address == iPEndPoint.Address)
+                for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
                 {
-                    return true;
+                    if (Tcp.iPEndPoints[i] == default)
+                    {
+                        continue;
+                    }
+                    if (Tcp.iPEndPoints[i].Address.Equals(iPEndPoint.Address))
+                    {
+                        return true;
+                    }
                 }
+                return false;
             }
-            return false;
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+                return false;
+            }
         }
     }
 }
