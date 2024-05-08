@@ -116,7 +116,8 @@ namespace YuchiGames.POM.Server.Network
                     
                     while (true)
                     {
-                        byte[] receivedData = udpClient.Receive(ref iPEndPoint);
+                        IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        byte[] receivedData = udpClient.Receive(ref remoteEndPoint);
                         ThreadPool.QueueUserWorkItem(Client!, new object[] { iPEndPoint, receivedData });
                     }
                 }
