@@ -33,6 +33,8 @@ namespace YuchiGames.POM.Server.Network
             {
                 listener.Stop();
             }
+
+            Log.Information("Tcp server stopped on port {0}.", Program.settings!.Port);
         }
 
         public static void Client(object state)
@@ -126,6 +128,8 @@ namespace YuchiGames.POM.Server.Network
             {
                 Log.Error(e.Message);
             }
+
+            Log.Information("Udp server stopped on port {0}.", Program.settings!.Port);
         }
 
         public static void Client(object? state)
