@@ -45,7 +45,7 @@ namespace YuchiGames.POM.Server.Network
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-                    byte[] bytes = new byte[256];
+                    byte[] bytes = new byte[64];
 
                     stream.Read(bytes, 0, bytes.Length);
 
