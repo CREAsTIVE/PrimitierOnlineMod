@@ -19,8 +19,10 @@ namespace YuchiGames.POM.Client.Network
                 {
                     TcpClient client = listener.AcceptTcpClient();
                     using (client)
+                    using (NetworkStream stream = client.GetStream())
                     {
-
+                        byte[] bytes = new byte[client.ReceiveBufferSize];
+                        stream.Read(bytes, 0, bytes.Length);
                     }
                 }
             }
