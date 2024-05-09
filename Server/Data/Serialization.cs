@@ -3,7 +3,7 @@ using YuchiGames.POM.Server.Data.Methods;
 
 namespace YuchiGames.POM.Server.Data.Serialization
 {
-    public static class CommandsSerializer
+    public static class MethodsSerializer
     {
         public static object Deserialize(byte[] bytes)
         {

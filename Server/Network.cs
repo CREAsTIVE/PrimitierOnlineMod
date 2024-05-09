@@ -49,7 +49,7 @@ namespace YuchiGames.POM.Server.Network
 
                     stream.Read(bytes, 0, bytes.Length);
 
-                    switch (CommandsSerializer.Deserialize(bytes))
+                    switch (MethodsSerializer.Deserialize(bytes))
                     {
                         case Connect connect:
                             if (Utils.ContainAddress(remoteEndPoint))
