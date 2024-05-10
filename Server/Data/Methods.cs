@@ -21,17 +21,11 @@ namespace YuchiGames.POM.Server.Data.Methods
         [Key(0)]
         public string Name { get; set; } = "Connect";
         [Key(1)]
-        public string UserID { get; set; }
-        [Key(2)]
-        public string UserName { get; set; }
-        [Key(3)]
         public string Version { get; set; }
 
         [SerializationConstructor]
-        public Connect(string userID, string userName, string version)
+        public Connect(string version)
         {
-            UserID = userID;
-            UserName = userName;
             Version = version;
         }
     }
@@ -41,6 +35,13 @@ namespace YuchiGames.POM.Server.Data.Methods
     {
         [Key(0)]
         public string Name { get; set; } = "Disconnect";
+    }
+
+    [MessagePackObject]
+    public class Success
+    {
+        [Key(0)]
+        public string Name { get; set; } = "Success";
     }
 
     [MessagePackObject]
