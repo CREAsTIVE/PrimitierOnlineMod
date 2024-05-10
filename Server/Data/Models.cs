@@ -6,50 +6,52 @@ namespace YuchiGames.POM.Server.Data.Models
     public class Plyaer
     {
         [Key(0)]
-        public PosRot Hips { get; set; }
+        public string Name { get; set;} = "Player";
         [Key(1)]
-        public PosRot Hips_Left { get; set; }
+        public PosRot Hips { get; set; }
         [Key(2)]
-        public PosRot Hips_Left_UpperLeg { get; set; }
+        public PosRot Hips_Left { get; set; }
         [Key(3)]
-        public PosRot Hips_Left_UpperLeg_LowerLeg { get; set; }
+        public PosRot Hips_Left_UpperLeg { get; set; }
         [Key(4)]
-        public PosRot Hips_Left_UpperLeg_LowerLeg_Foot { get; set; }
+        public PosRot Hips_Left_UpperLeg_LowerLeg { get; set; }
         [Key(5)]
-        public PosRot Hips_Right { get; set; }
+        public PosRot Hips_Left_UpperLeg_LowerLeg_Foot { get; set; }
         [Key(6)]
-        public PosRot Hips_Right_UpperLeg { get; set; }
+        public PosRot Hips_Right { get; set; }
         [Key(7)]
-        public PosRot Hips_Right_UpperLeg_LowerLeg { get; set; }
+        public PosRot Hips_Right_UpperLeg { get; set; }
         [Key(8)]
-        public PosRot Hips_Right_UpperLeg_LowerLeg_Foot { get; set; }
+        public PosRot Hips_Right_UpperLeg_LowerLeg { get; set; }
         [Key(9)]
-        public PosRot Spine { get; set; }
+        public PosRot Hips_Right_UpperLeg_LowerLeg_Foot { get; set; }
         [Key(10)]
-        public PosRot Chest { get; set; }
+        public PosRot Spine { get; set; }
         [Key(11)]
-        public PosRot Chest_Left { get; set; }
+        public PosRot Chest { get; set; }
         [Key(12)]
-        public PosRot Chest_Left_UpperArm { get; set; }
+        public PosRot Chest_Left { get; set; }
         [Key(13)]
-        public PosRot Chest_Left_UpperArm_LowerArm { get; set; }
+        public PosRot Chest_Left_UpperArm { get; set; }
         [Key(14)]
-        public PosRot Chest_Left_UpperArm_LowerArm_Hand { get; set; }
+        public PosRot Chest_Left_UpperArm_LowerArm { get; set; }
         [Key(15)]
-        public PosRot Chest_Right { get; set; }
+        public PosRot Chest_Left_UpperArm_LowerArm_Hand { get; set; }
         [Key(16)]
-        public PosRot Chest_Right_UpperArm { get; set; }
+        public PosRot Chest_Right { get; set; }
         [Key(17)]
-        public PosRot Chest_Right_UpperArm_LowerArm { get; set; }
+        public PosRot Chest_Right_UpperArm { get; set; }
         [Key(18)]
-        public PosRot Chest_Right_UpperArm_LowerArm_Hand { get; set; }
+        public PosRot Chest_Right_UpperArm_LowerArm { get; set; }
         [Key(19)]
-        public PosRot Neck { get; set; }
+        public PosRot Chest_Right_UpperArm_LowerArm_Hand { get; set; }
         [Key(20)]
-        public PosRot Head { get; set; }
+        public PosRot Neck { get; set; }
         [Key(21)]
-        public PosRot Head_left { get; set; }
+        public PosRot Head { get; set; }
         [Key(22)]
+        public PosRot Head_left { get; set; }
+        [Key(23)]
         public PosRot Head_right { get; set; }
 
         [SerializationConstructor]
@@ -109,8 +111,10 @@ namespace YuchiGames.POM.Server.Data.Models
     public class Object
     {
         [Key(0)]
-        public string UUID { get; set; }
+        public string Name { get; set; } = "Object";
         [Key(1)]
+        public string UUID { get; set; }
+        [Key(2)]
         public PosRot Position { get; set; }
 
         [SerializationConstructor]
