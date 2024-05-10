@@ -45,15 +45,15 @@ namespace YuchiGames.POM.Server.Data.Methods
     }
 
     [MessagePackObject]
-    public class Error
+    public class Failure
     {
         [Key(0)]
-        public string Name { get; set; } = "Error";
+        public string Name { get; set; } = "Failure";
         [Key(1)]
         public Exception ExceptionMessage { get; set; }
 
         [SerializationConstructor]
-        public Error(Exception exception)
+        public Failure(Exception exception)
         {
             ExceptionMessage = exception;
         }
