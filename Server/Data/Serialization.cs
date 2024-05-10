@@ -11,12 +11,14 @@ namespace YuchiGames.POM.Server.Data.Serialization
             {
                 switch (MessagePackSerializer.Deserialize<MethodsName>(bytes).Name)
                 {
-                    case "Connect":
-                        return MessagePackSerializer.Deserialize<Connect>(bytes);
-                    case "Disconnect":
-                        return MessagePackSerializer.Deserialize<Disconnect>(bytes);
-                    case "Error":
-                        return MessagePackSerializer.Deserialize<Error>(bytes);
+                    case "ConnectMethod":
+                        return MessagePackSerializer.Deserialize<ConnectMethod>(bytes);
+                    case "DisconnectMethod":
+                        return MessagePackSerializer.Deserialize<DisconnectMethod>(bytes);
+                    case "SuccessMethod":
+                        return MessagePackSerializer.Deserialize<SuccessMethod>(bytes);
+                    case "FailureMethod":
+                        return MessagePackSerializer.Deserialize<FailureMethod>(bytes);
                     default:
                         throw new Exception("Invalid command.");
                 }
