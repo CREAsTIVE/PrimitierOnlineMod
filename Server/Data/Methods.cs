@@ -16,44 +16,44 @@ namespace YuchiGames.POM.Server.Data.Methods
     }
 
     [MessagePackObject]
-    public class Connect
+    public class ConnectMethod
     {
         [Key(0)]
-        public string Name { get; set; } = "Connect";
+        public string Name { get; set; } = "ConnectMethod";
         [Key(1)]
         public string Version { get; set; }
 
         [SerializationConstructor]
-        public Connect(string version)
+        public ConnectMethod(string version)
         {
             Version = version;
         }
     }
 
     [MessagePackObject]
-    public class Disconnect
+    public class DisconnectMethod
     {
         [Key(0)]
-        public string Name { get; set; } = "Disconnect";
+        public string Name { get; set; } = "DisconnectMethod";
     }
 
     [MessagePackObject]
-    public class Success
+    public class SuccessMethod
     {
         [Key(0)]
-        public string Name { get; set; } = "Success";
+        public string Name { get; set; } = "SuccessMethod";
     }
 
     [MessagePackObject]
-    public class Failure
+    public class FailureMethod
     {
         [Key(0)]
-        public string Name { get; set; } = "Failure";
+        public string Name { get; set; } = "FailureMethod";
         [Key(1)]
         public Exception ExceptionMessage { get; set; }
 
         [SerializationConstructor]
-        public Failure(Exception exception)
+        public FailureMethod(Exception exception)
         {
             ExceptionMessage = exception;
         }
