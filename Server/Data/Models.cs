@@ -3,10 +3,10 @@
 namespace YuchiGames.POM.Server.Data.Models
 {
     [MessagePackObject]
-    public class Plyaer
+    public class PlayerModel
     {
         [Key(0)]
-        public string Name { get; set;} = "Player";
+        public string Name { get; set;} = "PlayerModel";
         [Key(1)]
         public PosRot Hips { get; set; }
         [Key(2)]
@@ -55,7 +55,7 @@ namespace YuchiGames.POM.Server.Data.Models
         public PosRot Head_right { get; set; }
 
         [SerializationConstructor]
-        public Plyaer(
+        public PlayerModel(
             PosRot hips,
             PosRot hips_Left,
             PosRot hips_Left_UpperLeg,
@@ -108,17 +108,17 @@ namespace YuchiGames.POM.Server.Data.Models
     }
 
     [MessagePackObject]
-    public class Object
+    public class ObjectModel
     {
         [Key(0)]
-        public string Name { get; set; } = "Object";
+        public string Name { get; set; } = "ObjectModel";
         [Key(1)]
         public string UUID { get; set; }
         [Key(2)]
         public PosRot Position { get; set; }
 
         [SerializationConstructor]
-        public Object(string uuid, PosRot position)
+        public ObjectModel(string uuid, PosRot position)
         {
             UUID = uuid;
             Position = position;
