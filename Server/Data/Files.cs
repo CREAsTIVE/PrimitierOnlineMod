@@ -3,30 +3,30 @@
 namespace YuchiGames.POM.Server.Data.Files
 {
     [MessagePackObject]
-    public class VRMData
+    public class VRMFile
     {
         [Key(0)]
-        public string Name { get; set; } = "VRMData";
+        public string Name { get; set; } = "VRMFile";
         [Key(1)]
         public byte[] Data { get; set; }
 
         [SerializationConstructor]
-        public VRMData(byte[] data)
+        public VRMFile(byte[] data)
         {
             Data = data;
         }
     }
 
     [MessagePackObject]
-    public class MapData
+    public class MapFile
     {
         [Key(0)]
-        public string Name { get; set; } = "MapData";
+        public string Name { get; set; } = "MapFile";
         [Key(1)]
         public byte[] Data { get; set; }
 
         [SerializationConstructor]
-        public MapData(byte[] data)
+        public MapFile(byte[] data)
         {
             Data = data;
         }
