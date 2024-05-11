@@ -29,7 +29,7 @@ namespace YuchiGames.POM.Server
             }
             catch (Exception e)
             {
-                Log.Error(e.Message);
+                Console.WriteLine(e.Message);
             }
         }
     }
