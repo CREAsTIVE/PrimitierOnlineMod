@@ -6,7 +6,7 @@ using MessagePack;
 public class Connect
 {
     [Key(0)]
-    public string Name { get; set; } = "Connect";
+    public string Name { get; set; } = "ConnectMethod";
     [Key(1)]
     public string UserID { get; set; }
     [Key(2)]
