@@ -22,6 +22,12 @@ namespace YuchiGames.POM.Client
                 Thread udpThread = new Thread(Udp.Listener);
                 tcpThread.Start();
                 udpThread.Start();
+
+                Discord.Discord discord = new Discord.Discord(1239248231737856060, (UInt64)Discord.CreateFlags.NoRequireDiscord);
+                while (true)
+                {
+                    discord.RunCallbacks();
+                }
             }
             catch (Exception e)
             {

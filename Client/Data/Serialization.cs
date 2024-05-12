@@ -11,8 +11,8 @@ namespace YuchiGames.POM.Client.Data.Serialization
             {
                 switch (MessagePackSerializer.Deserialize<MethodsName>(bytes).Name)
                 {
-                    case "Error":
-                        return MessagePackSerializer.Deserialize<Error>(bytes);
+                    case "FailureMethod":
+                        return MessagePackSerializer.Deserialize<FailureMethod>(bytes);
                     default:
                         throw new Exception("Invalid command.");
                 }
