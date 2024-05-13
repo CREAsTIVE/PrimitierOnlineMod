@@ -21,16 +21,22 @@ namespace YuchiGames.POM.Server
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
-
-                Thread tcpThread = new Thread(Tcp.Listener);
-                Thread udpThread = new Thread(Udp.Listener);
-                tcpThread.Start();
-                udpThread.Start();
+                
+                Program program = new Program();
+                program.Start();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
+        }
+
+        void Start()
+        {
+            Thread tcpThread = new Thread(Tcp.Listener);
+            Thread udpThread = new Thread(Udp.Listener);
+            tcpThread.Start();
+            udpThread.Start();
         }
     }
 }
