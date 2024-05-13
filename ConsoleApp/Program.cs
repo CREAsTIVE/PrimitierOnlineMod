@@ -24,6 +24,13 @@ public class Connect
 }
 
 [MessagePackObject]
+public class SuccessMethod
+{
+    [Key(0)]
+    public string Name { get; } = "SuccessMethod";
+}
+
+[MessagePackObject]
 public class Plyaer
 {
     [Key(0)]
@@ -69,7 +76,7 @@ class Program
                 client.Connect(endPoint);
 
                 // Connectクラスのインスタンスを作成
-                Connect connect = new Connect("123456", "Taro", "1.0.0");
+                SuccessMethod connect = new SuccessMethod();
 
                 // Connectクラスのインスタンスをバイナリに変換
                 byte[] bytes = MessagePackSerializer.Serialize(connect);
@@ -89,7 +96,7 @@ class Program
             using (UdpClient client = new UdpClient())
             {
                 // Connectクラスのインスタンスを作成
-                Connect connect = new Connect("123456", "Taro", "1.0.0");
+                SuccessMethod connect = new SuccessMethod();
 
                 // Connectクラスのインスタンスをバイナリに変換
                 byte[] bytes = MessagePackSerializer.Serialize(connect);
