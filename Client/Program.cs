@@ -1,5 +1,4 @@
 ﻿using MelonLoader;
-using YuchiGames.POM.Client.DiscordWrapper;
 
 namespace YuchiGames.POM.Client
 {
@@ -9,9 +8,7 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                DiscordSetup.Initialize();
-                DiscordActivity.Initialize();
-                DiscordActivity.UpdateActivity("In the online", "Playing online mode");
+
             }
             catch (Exception e)
             {
