@@ -28,9 +28,7 @@ namespace YuchiGames.POM.Server.Network.Process
                         case ConnectMethod connect:
                             if (Utils.ContainAddress(remoteEndPoint))
                             {
-                                Log.Error("Already connected to {0}.", remoteEndPoint);
-                                Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
-                                return;
+                                throw new Exception($"Already connected to {remoteEndPoint}.");
                             }
 
                             for (int i = 0; i < Listeners.Tcp.iPEndPoints!.Length; i++)
@@ -46,9 +44,7 @@ namespace YuchiGames.POM.Server.Network.Process
                         case DisconnectMethod disconnect:
                             if (!Utils.ContainAddress(remoteEndPoint))
                             {
-                                Log.Error("Not connected to {0}.", remoteEndPoint);
-                                Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
-                                return;
+                                throw new Exception($"Not connected to {remoteEndPoint}.");
                             }
 
                             for (int i = 0; i < Listeners.Tcp.iPEndPoints!.Length; i++)
@@ -65,7 +61,8 @@ namespace YuchiGames.POM.Server.Network.Process
                             Log.Information("Received success: {0}.", remoteEndPoint);
                             break;
                         case FailureMethod error:
-                            throw new Exception($"Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
+                            Log.Information("Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
+                            break;
                         default:
                             throw new Exception($"ReceivedUnknown method from {remoteEndPoint}.");
                     }

@@ -20,9 +20,7 @@ namespace YuchiGames.POM.Server.Network.Process
                 {
                     if (!Utils.ContainAddress(remoteEndPoint))
                     {
-                        Log.Error("Not connected to {0}.", remoteEndPoint);
-                        Log.Debug("Closed Udp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
-                        return;
+                        throw new Exception($"Not connected to {remoteEndPoint}.");
                     }
 
                     for (int i = 0; i < Listeners.Tcp.iPEndPoints.Length; i++)
