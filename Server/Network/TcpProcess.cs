@@ -61,7 +61,7 @@ namespace YuchiGames.POM.Server.Network.Process
                             Log.Information("Received success: {0}.", remoteEndPoint);
                             break;
                         case FailureMethod error:
-                            Log.Information("Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
+                            Log.Information($"Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
                             break;
                         default:
                             throw new Exception($"ReceivedUnknown method from {remoteEndPoint}.");
