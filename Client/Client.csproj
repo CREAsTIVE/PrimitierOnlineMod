@@ -21,9 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="discord_game_sdk.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
