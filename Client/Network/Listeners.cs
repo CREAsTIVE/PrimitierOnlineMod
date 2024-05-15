@@ -9,13 +9,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
     {
         public static void Listener()
         {
-            if (Program.settings == null)
-            {
-                MelonLogger.Error("Settings is null.");
-                return;
-            }
-            
-            TcpListener listener = new TcpListener(IPAddress.Parse(Program.settings.IP), Program.settings.Port);
+            TcpListener listener = new TcpListener(IPAddress.Parse(Program.settings!.IP), Program.settings.Port);
 
             try
             {
@@ -45,15 +39,9 @@ namespace YuchiGames.POM.Server.Network.Listeners
     {
         public static async void Listener()
         {
-            if (Program.settings == null)
-            {
-                MelonLogger.Error("Settings is null.");
-                return;
-            }
-
             try
             {
-                IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(Program.settings.IP), Program.settings.Port);
+                IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(Program.settings!.IP), Program.settings.Port);
                 using (UdpClient listener = new UdpClient(iPEndPoint))
                 {
                     MelonLogger.Msg($"Udp listener started on port {Program.settings.Port}.");
@@ -70,7 +58,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 MelonLogger.Error(e.Message);
             }
 
-            MelonLogger.Msg($"Udp listener stopped on port {Program.settings.Port}.");
+            MelonLogger.Msg($"Udp listener stopped on port {Program.settings!.Port}.");
         }
     }
 }
