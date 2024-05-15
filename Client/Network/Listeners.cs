@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
             try
             {
                 listener.Start();
-                MelonLogger.Msg($"Tcp server started on port {Program.settings.Port}.");
+                MelonLogger.Msg($"Tcp listener started on port {Program.settings.Port}.");
 
                 while (true)
                 {
@@ -37,7 +37,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 listener.Stop();
             }
 
-            MelonLogger.Msg($"Tcp server stopped on port {Program.settings.Port}.");
+            MelonLogger.Msg($"Tcp listener stopped on port {Program.settings.Port}.");
         }
     }
 
@@ -56,7 +56,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(Program.settings.IP), Program.settings.Port);
                 using (UdpClient listener = new UdpClient(iPEndPoint))
                 {
-                    MelonLogger.Msg($"Udp server started on port {Program.settings.Port}.");
+                    MelonLogger.Msg($"Udp listener started on port {Program.settings.Port}.");
 
                     while (true)
                     {
@@ -70,7 +70,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 MelonLogger.Error(e.Message);
             }
 
-            MelonLogger.Msg($"Udp server stopped on port {Program.settings.Port}.");
+            MelonLogger.Msg($"Udp listener stopped on port {Program.settings.Port}.");
         }
     }
 }
