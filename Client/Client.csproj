@@ -15,8 +15,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+    </Reference>
     <Reference Include="MelonLoader">
       <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 
