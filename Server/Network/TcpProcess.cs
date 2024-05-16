@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
-using YuchiGames.POM.Server.Data.Methods;
+using YuchiGames.POM.Server.Data.Messages;
 using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Network.Utilities;
 
@@ -25,7 +25,7 @@ namespace YuchiGames.POM.Server.Network.Process
 
                     switch (MethodsSerializer.Deserialize(bytes))
                     {
-                        case ConnectMethod connect:
+                        case ConnectMessage connect:
                             if (Utils.ContainAddress(remoteEndPoint))
                             {
                                 throw new Exception($"Already connected to {remoteEndPoint}.");
@@ -41,7 +41,7 @@ namespace YuchiGames.POM.Server.Network.Process
                                 }
                             }
                             break;
-                        case DisconnectMethod disconnect:
+                        case DisconnectMessage disconnect:
                             if (!Utils.ContainAddress(remoteEndPoint))
                             {
                                 throw new Exception($"Not connected to {remoteEndPoint}.");
@@ -57,10 +57,10 @@ namespace YuchiGames.POM.Server.Network.Process
                                 }
                             }
                             break;
-                        case SuccessMethod success:
+                        case SuccessMessage success:
                             Log.Information("Received success: {0}.", remoteEndPoint);
                             break;
-                        case FailureMethod error:
+                        case FailureMessage error:
                             Log.Information($"Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
                             break;
                         default:

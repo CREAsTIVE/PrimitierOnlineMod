@@ -1,5 +1,5 @@
 ﻿using MessagePack;
-using YuchiGames.POM.Server.Data.Methods;
+using YuchiGames.POM.Server.Data.Messages;
 
 namespace YuchiGames.POM.Server.Data.Serialization
 {
@@ -9,16 +9,16 @@ namespace YuchiGames.POM.Server.Data.Serialization
         {
             try
             {
-                switch (MessagePackSerializer.Deserialize<MethodsName>(bytes).Name)
+                switch (MessagePackSerializer.Deserialize<MessagesName>(bytes).Name)
                 {
-                    case "ConnectMethod":
-                        return MessagePackSerializer.Deserialize<ConnectMethod>(bytes);
-                    case "DisconnectMethod":
-                        return MessagePackSerializer.Deserialize<DisconnectMethod>(bytes);
-                    case "SuccessMethod":
-                        return MessagePackSerializer.Deserialize<SuccessMethod>(bytes);
-                    case "FailureMethod":
-                        return MessagePackSerializer.Deserialize<FailureMethod>(bytes);
+                    case "ConnectMessage":
+                        return MessagePackSerializer.Deserialize<ConnectMessage>(bytes);
+                    case "DisconnectMessage":
+                        return MessagePackSerializer.Deserialize<DisconnectMessage>(bytes);
+                    case "SuccessMessage":
+                        return MessagePackSerializer.Deserialize<SuccessMessage>(bytes);
+                    case "FailureMessage":
+                        return MessagePackSerializer.Deserialize<FailureMessage>(bytes);
                     default:
                         throw new Exception("Invalid command.");
                 }

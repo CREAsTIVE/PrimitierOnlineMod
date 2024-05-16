@@ -1,59 +1,59 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Server.Data.Methods
+namespace YuchiGames.POM.Server.Data.Messages
 {
     [MessagePackObject]
-    public class MethodsName
+    public class MessagesName
     {
         [Key(0)]
         public string Name { get; }
 
         [SerializationConstructor]
-        public MethodsName(string name)
+        public MessagesName(string name)
         {
             Name = name;
         }
     }
 
     [MessagePackObject]
-    public class ConnectMethod
+    public class ConnectMessage
     {
         [Key(0)]
-        public string Name { get; } = "ConnectMethod";
+        public string Name { get; } = "ConnectMessage";
         [Key(1)]
         public string Version { get; set; }
 
         [SerializationConstructor]
-        public ConnectMethod(string version)
+        public ConnectMessage(string version)
         {
             Version = version;
         }
     }
 
     [MessagePackObject]
-    public class DisconnectMethod
+    public class DisconnectMessage
     {
         [Key(0)]
-        public string Name { get; } = "DisconnectMethod";
+        public string Name { get; } = "DisconnectMessage";
     }
 
     [MessagePackObject]
-    public class SuccessMethod
+    public class SuccessMessage
     {
         [Key(0)]
-        public string Name { get; } = "SuccessMethod";
+        public string Name { get; } = "SuccessMessage";
     }
 
     [MessagePackObject]
-    public class FailureMethod
+    public class FailureMessage
     {
         [Key(0)]
-        public string Name { get; } = "FailureMethod";
+        public string Name { get; } = "FailureMessage";
         [Key(1)]
         public Exception ExceptionMessage { get; set; }
 
         [SerializationConstructor]
-        public FailureMethod(Exception exception)
+        public FailureMessage(Exception exception)
         {
             ExceptionMessage = exception;
         }
