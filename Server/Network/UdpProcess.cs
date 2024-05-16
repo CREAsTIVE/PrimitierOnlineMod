@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
+using YuchiGames.POM.Server.Data.Messages;
+using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Network.Utilities;
 
 namespace YuchiGames.POM.Server.Network.Process
@@ -23,17 +25,24 @@ namespace YuchiGames.POM.Server.Network.Process
                         throw new Exception($"Not connected to {remoteEndPoint}.");
                     }
 
-                    for (int i = 0; i < Listeners.Tcp.iPEndPoints.Length; i++)
+                    switch (MethodsSerializer.Deserialize(receivedData))
                     {
-                        if (Listeners.Tcp.iPEndPoints[i] == default)
-                        {
-                            continue;
-                        }
-                        if (!Listeners.Tcp.iPEndPoints[i].Address.Equals(remoteEndPoint.Address))
-                        {
-                            client.Send(receivedData, receivedData.Length, Listeners.Tcp.iPEndPoints[i]);
-                            Log.Information("Sent data to {0}.", Listeners.Tcp.iPEndPoints[i]);
-                        }
+                        case SendPlayerPosMessage sendPlayerPosMessage:
+                            for (int i = 0; i < Listeners.Tcp.iPEndPoints.Length; i++)
+                            {
+                                if (Listeners.Tcp.iPEndPoints[i] == default)
+                                {
+                                    continue;
+                                }
+                                if (!Listeners.Tcp.iPEndPoints[i].Address.Equals(remoteEndPoint.Address))
+                                {
+                                    client.Send(receivedData, receivedData.Length, Listeners.Tcp.iPEndPoints[i]);
+                                    Log.Information("Sent data to {0}.", Listeners.Tcp.iPEndPoints[i]);
+                                }
+                            }
+                            break;
+                        default:
+                            throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }
                 }
             }

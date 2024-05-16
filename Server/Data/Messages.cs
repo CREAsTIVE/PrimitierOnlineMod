@@ -1,4 +1,5 @@
 ﻿using MessagePack;
+using YuchiGames.POM.Server.Data.Models;
 
 namespace YuchiGames.POM.Server.Data.Messages
 {
@@ -35,6 +36,24 @@ namespace YuchiGames.POM.Server.Data.Messages
     {
         [Key(0)]
         public string Name { get; } = "DisconnectMessage";
+    }
+
+    [MessagePackObject]
+    public class SendPlayerPosMessage
+    {
+        [Key(0)]
+        public string Name { get; } = "SendPlayerPosMessage";
+        [Key(1)]
+        public string PlayerID { get; set; }
+        [Key(2)]
+        public PlayerModel PlayerPos { get; set; }
+
+        [SerializationConstructor]
+        public SendPlayerPosMessage(string playerID, PlayerModel playerPos)
+        {
+            PlayerID = playerID;
+            PlayerPos = playerPos;
+        }
     }
 
     [MessagePackObject]

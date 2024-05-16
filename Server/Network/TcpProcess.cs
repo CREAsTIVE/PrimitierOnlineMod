@@ -64,7 +64,7 @@ namespace YuchiGames.POM.Server.Network.Process
                             Log.Information($"Received error: {error.ExceptionMessage.Message} to {remoteEndPoint}.");
                             break;
                         default:
-                            throw new Exception($"ReceivedUnknown method from {remoteEndPoint}.");
+                            throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }
                 }
             }
