@@ -1,4 +1,4 @@
-﻿namespace YuchiGames.POM.Server.Network.Senders
+namespace YuchiGames.POM.Server.Network.Senders
 {
     
 }
