@@ -1,24 +1,11 @@
 ﻿using MessagePack;
 using YuchiGames.POM.Server.Data.Models;
 
-namespace YuchiGames.POM.Server.Data.Messages
+namespace YuchiGames.POM.Server.Data.TcpMessages
 {
     interface IMessage
     {
         string Name { get; }
-    }
-
-    [MessagePackObject]
-    public class MessagesName
-    {
-        [Key(0)]
-        public string Name { get; }
-
-        [SerializationConstructor]
-        public MessagesName(string name)
-        {
-            Name = name;
-        }
     }
 
     [MessagePackObject]
@@ -44,36 +31,10 @@ namespace YuchiGames.POM.Server.Data.Messages
     }
 
     [MessagePackObject]
-    public class SendPlayerPosMessage : IMessage
-    {
-        [Key(0)]
-        public string Name { get; } = "SendPlayerPosMessage";
-        [Key(1)]
-        public string PlayerID { get; set; }
-        [Key(2)]
-        public PlayerModel PlayerPos { get; set; }
-
-        [SerializationConstructor]
-        public SendPlayerPosMessage(string playerID, PlayerModel playerPos)
-        {
-            PlayerID = playerID;
-            PlayerPos = playerPos;
-        }
-    }
-
-    [MessagePackObject]
     public class SuccessMessage : IMessage
     {
         [Key(0)]
         public string Name { get; } = "SuccessMessage";
-        [Key(1)]
-        public string MessageName { get; set; }
-
-        [SerializationConstructor]
-        public SuccessMessage(string messageName)
-        {
-            MessageName = messageName;
-        }
     }
 
     [MessagePackObject]

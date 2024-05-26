@@ -1,12 +1,52 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
-using YuchiGames.POM.Server.Data.Messages;
+using YuchiGames.POM.Server.Data.TcpMessages;
+using YuchiGames.POM.Server.Data.UdpMessages;
 using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Network.Utilities;
+using YuchiGames.POM.Server.MessageMethods;
 
-namespace YuchiGames.POM.Server.Network.Process
+namespace YuchiGames.POM.Server.Network.Processes
 {
+    public static class Tcp
+    {
+        public static void Client(TcpClient client)
+        {
+            Log.Debug("Created new Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+
+            try
+            {
+                using (client)
+                using (NetworkStream stream = client.GetStream())
+                {
+                    IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+                    byte[] bytes = new byte[64];
+
+                    stream.Read(bytes, 0, bytes.Length);
+
+                    switch (MethodsSerializer.Deserialize(bytes))
+                    {
+                        case ConnectMessage connect:
+                            Connect.Client(remoteEndPoint);
+                            break;
+                        case DisconnectMessage disconnect:
+                            Disconnect.Client(remoteEndPoint);
+                            break;
+                        default:
+                            throw new Exception($"Received unknown message from {remoteEndPoint}.");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+            }
+
+            Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+        }
+    }
+
     public static class Udp
     {
         public static void Client(UdpReceiveResult result)

@@ -1,8 +1,22 @@
 ﻿using MessagePack;
-using YuchiGames.POM.Server.Data.Messages;
+using YuchiGames.POM.Server.Data.TcpMessages;
+using YuchiGames.POM.Server.Data.UdpMessages;
 
 namespace YuchiGames.POM.Server.Data.Serialization
 {
+    [MessagePackObject]
+    public class MessagesName
+    {
+        [Key(0)]
+        public string Name { get; }
+
+        [SerializationConstructor]
+        public MessagesName(string name)
+        {
+            Name = name;
+        }
+    }
+
     public static class MethodsSerializer
     {
         public static object Deserialize(byte[] bytes)

@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    _ = Task.Run(() => Process.Tcp.Client(client));
+                    _ = Task.Run(() => Processes.Tcp.Client(client));
                 }
             }
             catch (Exception e)
@@ -49,7 +49,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        _ = Task.Run(() => Process.Udp.Client(result));
+                        _ = Task.Run(() => Processes.Udp.Client(result));
                     }
                 }
             }
