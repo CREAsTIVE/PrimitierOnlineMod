@@ -1,5 +1,4 @@
 ﻿using MessagePack;
-using YuchiGames.POM.Server.Data.Models;
 
 namespace YuchiGames.POM.Server.Data.TcpMessages
 {
@@ -28,6 +27,24 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
     {
         [Key(0)]
         public string Name { get; } = "DisconnectMessage";
+    }
+
+    [MessagePackObject]
+    public class SuccessConnectionMessage : IMessage
+    {
+        [Key(0)]
+        public string Name { get; } = "SuccessConnectionMessage";
+        [Key(1)]
+        public string YourID { get; set; }
+        [Key(2)]
+        public string[] IDList { get; set; }
+        
+        [SerializationConstructor]
+        public SuccessConnectionMessage(string yourID, string[] idList)
+        {
+            YourID = yourID;
+            IDList = idList;
+        }
     }
 
     [MessagePackObject]
