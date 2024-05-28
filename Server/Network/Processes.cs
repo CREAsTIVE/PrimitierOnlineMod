@@ -68,16 +68,16 @@ namespace YuchiGames.POM.Server.Network.Processes
                     switch (MethodsSerializer.Deserialize(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
-                            for (int i = 0; i < Listeners.Tcp.iPEndPoints.Length; i++)
+                            for (int i = 0; i < Program.userData.Length; i++)
                             {
-                                if (Listeners.Tcp.iPEndPoints[i] == default)
+                                if (Program.userData[i] == default)
                                 {
                                     continue;
                                 }
-                                if (!Listeners.Tcp.iPEndPoints[i].Address.Equals(remoteEndPoint.Address))
+                                if (!Program.userData[i].EndPoint.Address.Equals(remoteEndPoint.Address))
                                 {
-                                    client.Send(receivedData, receivedData.Length, Listeners.Tcp.iPEndPoints[i]);
-                                    Log.Information("Sent data to {0}.", Listeners.Tcp.iPEndPoints[i]);
+                                    client.Send(receivedData, receivedData.Length, Program.userData[i].EndPoint);
+                                    Log.Information("Sent data to {0}.", Program.userData[i].EndPoint);
                                 }
                             }
                             break;

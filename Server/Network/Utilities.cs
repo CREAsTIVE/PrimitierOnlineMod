@@ -10,13 +10,13 @@ namespace YuchiGames.POM.Server.Network.Utilities
         {
             try
             {
-                for (int i = 0; i < Tcp.iPEndPoints.Length; i++)
+                for (int i = 0; i < Program.userData.Length; i++)
                 {
-                    if (Tcp.iPEndPoints[i] == default)
+                    if (Program.userData[i] == default)
                     {
                         continue;
                     }
-                    if (Tcp.iPEndPoints[i].Address.Equals(iPEndPoint.Address))
+                    if (Program.userData[i].EndPoint.Address.Equals(iPEndPoint.Address))
                     {
                         return true;
                     }

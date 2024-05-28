@@ -18,11 +18,11 @@ namespace YuchiGames.POM.Server.MessageMethods
                     throw new Exception($"Not connected to {remoteEndPoint}.");
                 }
 
-                for (int i = 0; i < Tcp.iPEndPoints!.Length; i++)
+                for (int i = 0; i < Program.userData!.Length; i++)
                 {
-                    if (Tcp.iPEndPoints[i] == remoteEndPoint)
+                    if (Program.userData[i].EndPoint == remoteEndPoint)
                     {
-                        Tcp.iPEndPoints[i] = default!;
+                        Program.userData[i] = default!;
                         Log.Information("Disconnected from {0}.", remoteEndPoint);
                         break;
                     }

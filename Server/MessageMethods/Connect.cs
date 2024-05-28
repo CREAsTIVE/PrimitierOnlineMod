@@ -18,11 +18,11 @@ namespace YuchiGames.POM.Server.MessageMethods
                     throw new Exception($"Already connected to {remoteEndPoint}.");
                 }
 
-                for (int i = 0; i < Tcp.iPEndPoints!.Length; i++)
+                for (int i = 0; i < Program.userData!.Length; i++)
                 {
-                    if (Tcp.iPEndPoints[i] == default)
+                    if (Program.userData[i] == default)
                     {
-                        Tcp.iPEndPoints[i] = remoteEndPoint;
+                        Program.userData[i].EndPoint = remoteEndPoint;
                         Log.Information("Connected to {0}.", remoteEndPoint);
                         break;
                     }
