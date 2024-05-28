@@ -68,7 +68,7 @@ namespace YuchiGames.POM.Server.Network.Processes
                     switch (MethodsSerializer.Deserialize(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
-                            for (int i = 0; i < Program.userData.Length; i++)
+                            for (int i = 0; i < Program.userData!.Length; i++)
                             {
                                 if (Program.userData[i] == default)
                                 {

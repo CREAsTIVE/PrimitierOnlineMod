@@ -10,7 +10,7 @@ namespace YuchiGames.POM.Server.Network.Utilities
         {
             try
             {
-                for (int i = 0; i < Program.userData.Length; i++)
+                for (int i = 0; i < Program.userData!.Length; i++)
                 {
                     if (Program.userData[i] == default)
                     {

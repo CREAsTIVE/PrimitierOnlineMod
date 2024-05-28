@@ -16,7 +16,7 @@ namespace YuchiGames.POM.Server
     class Program
     {
         public static ServerSettings? settings;
-        public static UserData[] userData = new UserData[settings!.MaxPlayer];
+        public static UserData[]? userData;
         
         static void Main(string[] args)
         {
@@ -30,6 +30,8 @@ namespace YuchiGames.POM.Server
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
+                
+                userData = new UserData[settings!.MaxPlayer];
                 
                 Program program = new Program();
                 program.Start();
