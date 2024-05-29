@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using YuchiGames.POM.Server.Network.Utilities;
-using YuchiGames.POM.Server.Network.Listeners;
 using Serilog;
+using YuchiGames.POM.Server.Network.Utilities;
 using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Data.TcpMessages;
 

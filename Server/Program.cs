@@ -8,16 +8,21 @@ namespace YuchiGames.POM.Server
 {
     class UserData
     {
-        public int ID { get; set; } = 0;
-        public string UserName { get; set; } = "";
-        public IPEndPoint EndPoint { get; set; } = new IPEndPoint(IPAddress.Any, 0);
+        public string UserName { get; set; }
+        public IPEndPoint EndPoint { get; set; }
+
+        public UserData(string userName, IPEndPoint endPoint)
+        {
+            UserName = userName;
+            EndPoint = endPoint;
+        }
     }
 
     class Program
     {
         public static ServerSettings? settings;
         public static UserData[]? userData;
-        
+
         static void Main(string[] args)
         {
             try
@@ -30,9 +35,9 @@ namespace YuchiGames.POM.Server
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
-                
+
                 userData = new UserData[settings!.MaxPlayer];
-                
+
                 Program program = new Program();
                 program.Start();
             }

@@ -21,14 +21,14 @@ namespace YuchiGames.POM.Server.Network.Processes
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-                    byte[] bytes = new byte[64];
+                    byte[] bytes = new byte[1024];
 
                     stream.Read(bytes, 0, bytes.Length);
 
                     switch (MethodsSerializer.Deserialize(bytes))
                     {
                         case ConnectMessage connect:
-                            stream.Write(Connect.Client(remoteEndPoint));
+                            stream.Write(Connect.Client(connect, remoteEndPoint));
                             break;
                         case DisconnectMessage disconnect:
                             stream.Write(Disconnect.Client(remoteEndPoint));

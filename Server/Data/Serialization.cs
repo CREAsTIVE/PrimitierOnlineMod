@@ -29,6 +29,8 @@ namespace YuchiGames.POM.Server.Data.Serialization
                         return MessagePackSerializer.Deserialize<ConnectMessage>(bytes);
                     case "DisconnectMessage":
                         return MessagePackSerializer.Deserialize<DisconnectMessage>(bytes);
+                    case "SuccessConnectionMessage":
+                        return MessagePackSerializer.Deserialize<SuccessConnectionMessage>(bytes);
                     case "SuccessMessage":
                         return MessagePackSerializer.Deserialize<SuccessMessage>(bytes);
                     case "FailureMessage":

@@ -14,11 +14,14 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         public string Name { get; } = "ConnectMessage";
         [Key(1)]
         public string Version { get; set; }
+        [Key(2)]
+        public string UserName { get; set; }
 
         [SerializationConstructor]
-        public ConnectMessage(string version)
+        public ConnectMessage(string version, string userName)
         {
             Version = version;
+            UserName = userName;
         }
     }
 
@@ -35,12 +38,12 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         [Key(0)]
         public string Name { get; } = "SuccessConnectionMessage";
         [Key(1)]
-        public string YourID { get; set; }
+        public int YourID { get; set; }
         [Key(2)]
-        public string[] IDList { get; set; }
-        
+        public int[] IDList { get; set; }
+
         [SerializationConstructor]
-        public SuccessConnectionMessage(string yourID, string[] idList)
+        public SuccessConnectionMessage(int yourID, int[] idList)
         {
             YourID = yourID;
             IDList = idList;
