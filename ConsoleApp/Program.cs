@@ -2,19 +2,19 @@
 using System.Net.Sockets;
 using MessagePack;
 
-interface IMessage
-{
-    string Name { get; }
-}
+[Union(0, typeof(ConnectMessage))]
+[Union(1, typeof(DisconnectMessage))]
+[Union(2, typeof(SuccessConnectionMessage))]
+[Union(3, typeof(SuccessMessage))]
+[Union(4, typeof(FailureMessage))]
+public interface IMessage { }
 
-[MessagePackObject(keyAsPropertyName: true)]
+[MessagePackObject]
 public class ConnectMessage : IMessage
 {
-    // [Key(2)]
-    public string Name { get; } = "ConnectMessage";
-    // [Key(0)]
+    [Key(0)]
     public string Version { get; set; }
-    // [Key(1)]
+    [Key(1)]
     public string UserName { get; set; }
 
     [SerializationConstructor]
@@ -25,21 +25,15 @@ public class ConnectMessage : IMessage
     }
 }
 
-[MessagePackObject(keyAsPropertyName: true)]
-public class DisconnectMessage : IMessage
-{
-    // [Key(0)]
-    public string Name { get; } = "DisconnectMessage";
-}
+[MessagePackObject]
+public class DisconnectMessage : IMessage { }
 
-[MessagePackObject(keyAsPropertyName: true)]
-public class SuccessConnectionMessage
+[MessagePackObject]
+public class SuccessConnectionMessage : IMessage
 {
-    // [Key(2)]
-    public string Name { get; } = "SuccessConnectionMessage";
-    // [Key(0)]
+    [Key(0)]
     public int YourID { get; set; }
-    // [Key(1)]
+    [Key(1)]
     public int[] IDList { get; set; }
 
     [SerializationConstructor]
@@ -50,38 +44,19 @@ public class SuccessConnectionMessage
     }
 }
 
-[MessagePackObject(keyAsPropertyName: true)]
-public class SuccessMessage : IMessage
-{
-    // [Key(0)]
-    public string Name { get; } = "SuccessMessage";
-}
+[MessagePackObject]
+public class SuccessMessage : IMessage { }
 
-[MessagePackObject(keyAsPropertyName: true)]
+[MessagePackObject]
 public class FailureMessage : IMessage
 {
-    // [Key(1)]
-    public string Name { get; } = "FailureMessage";
-    // [Key(0)]
+    [Key(0)]
     public Exception ExceptionMessage { get; set; }
 
     [SerializationConstructor]
     public FailureMessage(Exception exception)
     {
         ExceptionMessage = exception;
-    }
-}
-
-[MessagePackObject]
-public class MessagesName
-{
-    [Key(0)]
-    public string Name { get; }
-
-    [SerializationConstructor]
-    public MessagesName(string name)
-    {
-        Name = name;
     }
 }
 
@@ -99,25 +74,36 @@ class Program
                 client.Connect(endPoint);
 
                 // Connectクラスのインスタンスを作成
-                ConnectMessage connect = new ConnectMessage("0.0.0", "YuchiGames");
+                IMessage connect = new ConnectMessage("0.0.0", "YuchiGames");
 
-                byte[] bytes = new byte[1024];
-                // Connectクラスのインスタンスをバイナリに変換
-                bytes = MessagePackSerializer.Serialize(connect);
+                byte[] data = MessagePackSerializer.Serialize(connect);
+                byte[] lengthBytes = new byte[4];
+                lengthBytes = BitConverter.GetBytes(data.Length);
+                byte[] buffer = new byte[lengthBytes.Length + data.Length];
+                Buffer.BlockCopy(lengthBytes, 0, buffer, 0, lengthBytes.Length);
+                Buffer.BlockCopy(data, 0, buffer, lengthBytes.Length, data.Length);
 
                 using (NetworkStream stream = client.GetStream())
                 {
                     // バイナリデータを送信
-                    stream.Write(bytes, 0, bytes.Length);
-                    byte[] receiveBytes = new byte[1024];
-                    stream.Read(receiveBytes, 0, bytes.Length);
-                    switch (MessagePackSerializer.Deserialize<IMessage>(receiveBytes).Name)
+                    stream.Write(buffer, 0, buffer.Length);
+                    byte[] lengthBytes2 = new byte[4];
+                    stream.Read(lengthBytes2, 0, lengthBytes2.Length);
+                    int bufferLength = BitConverter.ToInt32(lengthBytes2, 0);
+                    byte[] buffer2 = new byte[bufferLength];
+                    int readLengthBytes = 0;
+
+                    while (readLengthBytes < bufferLength)
                     {
-                        case "SuccessConnectionMessage":
-                            SuccessConnectionMessage connectionMessage = MessagePackSerializer.Deserialize<SuccessConnectionMessage>(receiveBytes);
-                            Console.WriteLine($"Your ID: {connectionMessage.YourID}, ID List: {string.Join(", ", connectionMessage.IDList)}");
+                        readLengthBytes += stream.Read(buffer2, readLengthBytes, bufferLength - readLengthBytes);
+                    }
+                    Console.WriteLine($"receiveBytes.Length: {buffer2.Length}");
+                    switch (MessagePackSerializer.Deserialize<IMessage>(buffer2))
+                    {
+                        case SuccessConnectionMessage successConnectionMessage:
+                            Console.WriteLine($"Your ID: {successConnectionMessage.YourID}, ID List: {string.Join(", ", successConnectionMessage.IDList)}");
                             break;
-                        case "FailureMessage":
+                        case FailureMessage failureMessage:
                             throw new Exception("Received failure message.");
                         default:
                             throw new Exception("Received unknown message.");

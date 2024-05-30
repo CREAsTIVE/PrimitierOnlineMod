@@ -2,19 +2,19 @@
 
 namespace YuchiGames.POM.Server.Data.TcpMessages
 {
-    interface IMessage
-    {
-        string Name { get; }
-    }
+    [Union(0, typeof(ConnectMessage))]
+    [Union(1, typeof(DisconnectMessage))]
+    [Union(2, typeof(SuccessConnectionMessage))]
+    [Union(3, typeof(SuccessMessage))]
+    [Union(4, typeof(FailureMessage))]
+    public interface IMessage { }
 
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject]
     public class ConnectMessage : IMessage
     {
-        // [Key(2)]
-        public string Name { get; } = "ConnectMessage";
-        // [Key(0)]
+        [Key(0)]
         public string Version { get; set; }
-        // [Key(1)]
+        [Key(1)]
         public string UserName { get; set; }
 
         [SerializationConstructor]
@@ -25,21 +25,15 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         }
     }
 
-    [MessagePackObject(keyAsPropertyName: true)]
-    public class DisconnectMessage : IMessage
-    {
-        // [Key(0)]
-        public string Name { get; } = "DisconnectMessage";
-    }
+    [MessagePackObject]
+    public class DisconnectMessage : IMessage { }
 
-    [MessagePackObject(keyAsPropertyName: true)]
-    public class SuccessConnectionMessage
+    [MessagePackObject]
+    public class SuccessConnectionMessage : IMessage
     {
-        // [Key(2)]
-        public string Name { get; } = "SuccessConnectionMessage";
-        // [Key(0)]
+        [Key(0)]
         public int YourID { get; set; }
-        // [Key(1)]
+        [Key(1)]
         public int[] IDList { get; set; }
 
         [SerializationConstructor]
@@ -50,19 +44,13 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         }
     }
 
-    [MessagePackObject(keyAsPropertyName: true)]
-    public class SuccessMessage : IMessage
-    {
-        // [Key(0)]
-        public string Name { get; } = "SuccessMessage";
-    }
+    [MessagePackObject]
+    public class SuccessMessage : IMessage { }
 
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject]
     public class FailureMessage : IMessage
     {
-        // [Key(1)]
-        public string Name { get; } = "FailureMessage";
-        // [Key(0)]
+        [Key(0)]
         public Exception ExceptionMessage { get; set; }
 
         [SerializationConstructor]

@@ -3,9 +3,9 @@ using System.Net.Sockets;
 using Serilog;
 using YuchiGames.POM.Server.Data.TcpMessages;
 using YuchiGames.POM.Server.Data.UdpMessages;
-using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Network.Utilities;
 using YuchiGames.POM.Server.MessageMethods;
+using MessagePack;
 
 namespace YuchiGames.POM.Server.Network.Processes
 {
@@ -21,11 +21,19 @@ namespace YuchiGames.POM.Server.Network.Processes
                 using (NetworkStream stream = client.GetStream())
                 {
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
-                    byte[] bytes = new byte[1024];
 
-                    stream.Read(bytes, 0, bytes.Length);
+                    byte[] lengthBytes = new byte[4];
+                    stream.Read(lengthBytes, 0, lengthBytes.Length);
+                    int bufferLength = BitConverter.ToInt32(lengthBytes, 0);
+                    byte[] buffer = new byte[bufferLength];
+                    int readLengthBytes = 0;
 
-                    switch (MethodsSerializer.Deserialize(bytes))
+                    while (readLengthBytes < bufferLength)
+                    {
+                        readLengthBytes += stream.Read(buffer, readLengthBytes, bufferLength - readLengthBytes);
+                    }
+
+                    switch (MessagePackSerializer.Deserialize<Data.TcpMessages.IMessage>(buffer))
                     {
                         case ConnectMessage connect:
                             stream.Write(Connect.Client(connect, remoteEndPoint));
@@ -65,7 +73,7 @@ namespace YuchiGames.POM.Server.Network.Processes
                         throw new Exception($"Not connected to {remoteEndPoint}.");
                     }
 
-                    switch (MethodsSerializer.Deserialize(receivedData))
+                    switch (MessagePackSerializer.Deserialize<Data.UdpMessages.IMessage>(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
                             for (int i = 0; i < Program.userData!.Length; i++)

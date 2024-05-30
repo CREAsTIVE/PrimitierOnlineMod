@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Serilog;
 using YuchiGames.POM.Server.Network.Utilities;
-using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Data.TcpMessages;
+using MessagePack;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
@@ -27,11 +27,12 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                return MethodsSerializer.Serialize(new SuccessMessage());
-            } catch (Exception e)
+                return MessagePackSerializer.Serialize(new SuccessMessage());
+            }
+            catch (Exception e)
             {
                 Log.Error(e.Message);
-                return MethodsSerializer.Serialize(new FailureMessage(e));
+                return MessagePackSerializer.Serialize(new FailureMessage(e));
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Serilog;
 using YuchiGames.POM.Server.Network.Utilities;
-using YuchiGames.POM.Server.Data.Serialization;
 using YuchiGames.POM.Server.Data.TcpMessages;
+using MessagePack;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
@@ -41,14 +41,15 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                byte[] bytes = MethodsSerializer.Serialize(new SuccessConnectionMessage(yourID, idList));
-                Log.Debug($"bytes.Length: {bytes.Length}");
-                return bytes;
+                byte[] buffer = Utils.AddLength(MessagePackSerializer.Serialize(new SuccessConnectionMessage(yourID, idList)));
+                Log.Debug($"buffer.Length: {buffer.Length}");
+
+                return buffer;
             }
             catch (Exception e)
             {
                 Log.Error(e.Message);
-                return MethodsSerializer.Serialize(new FailureMessage(e));
+                return MessagePackSerializer.Serialize(new FailureMessage(e));
             }
         }
     }
