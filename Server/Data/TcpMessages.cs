@@ -7,14 +7,14 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         string Name { get; }
     }
 
-    [MessagePackObject]
+    [MessagePackObject(keyAsPropertyName: true)]
     public class ConnectMessage : IMessage
     {
-        [Key(0)]
+        // [Key(2)]
         public string Name { get; } = "ConnectMessage";
-        [Key(1)]
+        // [Key(0)]
         public string Version { get; set; }
-        [Key(2)]
+        // [Key(1)]
         public string UserName { get; set; }
 
         [SerializationConstructor]
@@ -25,21 +25,21 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         }
     }
 
-    [MessagePackObject]
+    [MessagePackObject(keyAsPropertyName: true)]
     public class DisconnectMessage : IMessage
     {
-        [Key(0)]
+        // [Key(0)]
         public string Name { get; } = "DisconnectMessage";
     }
 
-    [MessagePackObject]
-    public class SuccessConnectionMessage : IMessage
+    [MessagePackObject(keyAsPropertyName: true)]
+    public class SuccessConnectionMessage
     {
-        [Key(0)]
+        // [Key(2)]
         public string Name { get; } = "SuccessConnectionMessage";
-        [Key(1)]
+        // [Key(0)]
         public int YourID { get; set; }
-        [Key(2)]
+        // [Key(1)]
         public int[] IDList { get; set; }
 
         [SerializationConstructor]
@@ -50,19 +50,19 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
         }
     }
 
-    [MessagePackObject]
+    [MessagePackObject(keyAsPropertyName: true)]
     public class SuccessMessage : IMessage
     {
-        [Key(0)]
+        // [Key(0)]
         public string Name { get; } = "SuccessMessage";
     }
 
-    [MessagePackObject]
+    [MessagePackObject(keyAsPropertyName: true)]
     public class FailureMessage : IMessage
     {
-        [Key(0)]
+        // [Key(1)]
         public string Name { get; } = "FailureMessage";
-        [Key(1)]
+        // [Key(0)]
         public Exception ExceptionMessage { get; set; }
 
         [SerializationConstructor]

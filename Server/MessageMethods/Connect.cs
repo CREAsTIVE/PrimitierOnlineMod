@@ -41,8 +41,8 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                byte[] bytes = new byte[1024];
-                bytes = MethodsSerializer.Serialize(new SuccessConnectionMessage(yourID, idList));
+                byte[] bytes = MethodsSerializer.Serialize(new SuccessConnectionMessage(yourID, idList));
+                Log.Debug($"bytes.Length: {bytes.Length}");
                 return bytes;
             }
             catch (Exception e)

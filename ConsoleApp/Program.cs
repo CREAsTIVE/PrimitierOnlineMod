@@ -2,14 +2,19 @@
 using System.Net.Sockets;
 using MessagePack;
 
-[MessagePackObject]
-public class ConnectMessage
+interface IMessage
 {
-    [Key(0)]
+    string Name { get; }
+}
+
+[MessagePackObject(keyAsPropertyName: true)]
+public class ConnectMessage : IMessage
+{
+    // [Key(2)]
     public string Name { get; } = "ConnectMessage";
-    [Key(1)]
+    // [Key(0)]
     public string Version { get; set; }
-    [Key(2)]
+    // [Key(1)]
     public string UserName { get; set; }
 
     [SerializationConstructor]
@@ -20,14 +25,21 @@ public class ConnectMessage
     }
 }
 
-[MessagePackObject]
+[MessagePackObject(keyAsPropertyName: true)]
+public class DisconnectMessage : IMessage
+{
+    // [Key(0)]
+    public string Name { get; } = "DisconnectMessage";
+}
+
+[MessagePackObject(keyAsPropertyName: true)]
 public class SuccessConnectionMessage
 {
-    [Key(0)]
+    // [Key(2)]
     public string Name { get; } = "SuccessConnectionMessage";
-    [Key(1)]
+    // [Key(0)]
     public int YourID { get; set; }
-    [Key(2)]
+    // [Key(1)]
     public int[] IDList { get; set; }
 
     [SerializationConstructor]
@@ -38,35 +50,25 @@ public class SuccessConnectionMessage
     }
 }
 
-[MessagePackObject]
-public class Player
+[MessagePackObject(keyAsPropertyName: true)]
+public class SuccessMessage : IMessage
 {
-    [Key(0)]
-    public PosRot LeftHand { get; set; }
-    [Key(1)]
-    public PosRot RightHand { get; set; }
-
-    [SerializationConstructor]
-    public Player(PosRot leftHand, PosRot rightHand)
-    {
-        LeftHand = leftHand;
-        RightHand = rightHand;
-    }
+    // [Key(0)]
+    public string Name { get; } = "SuccessMessage";
 }
 
-[MessagePackObject]
-public class PosRot
+[MessagePackObject(keyAsPropertyName: true)]
+public class FailureMessage : IMessage
 {
-    [Key(0)]
-    public float[] Pos { get; set; }
-    [Key(1)]
-    public float[] Rot { get; set; }
+    // [Key(1)]
+    public string Name { get; } = "FailureMessage";
+    // [Key(0)]
+    public Exception ExceptionMessage { get; set; }
 
     [SerializationConstructor]
-    public PosRot(float[] pos, float[] rot)
+    public FailureMessage(Exception exception)
     {
-        Pos = pos;
-        Rot = rot;
+        ExceptionMessage = exception;
     }
 }
 
@@ -109,7 +111,7 @@ class Program
                     stream.Write(bytes, 0, bytes.Length);
                     byte[] receiveBytes = new byte[1024];
                     stream.Read(receiveBytes, 0, bytes.Length);
-                    switch (MessagePackSerializer.Deserialize<MessagesName>(receiveBytes).Name)
+                    switch (MessagePackSerializer.Deserialize<IMessage>(receiveBytes).Name)
                     {
                         case "SuccessConnectionMessage":
                             SuccessConnectionMessage connectionMessage = MessagePackSerializer.Deserialize<SuccessConnectionMessage>(receiveBytes);
@@ -128,22 +130,22 @@ class Program
             Thread.Sleep(1000);
 
             // UDP通信で接続する
-            using (UdpClient client = new UdpClient())
-            {
-                Player player = new Player(new PosRot(new float[] { 1.0f, 2.0f, 3.0f }, new float[] { 0.0f, 0.0f, 0.0f }), new PosRot(new float[] { 4.0f, 5.0f, 6.0f }, new float[] { 0.0f, 0.0f, 0.0f }));
+            // using (UdpClient client = new UdpClient())
+            // {
+            //     Player player = new Player(new PosRot(new float[] { 1.0f, 2.0f, 3.0f }, new float[] { 0.0f, 0.0f, 0.0f }), new PosRot(new float[] { 4.0f, 5.0f, 6.0f }, new float[] { 0.0f, 0.0f, 0.0f }));
 
-                byte[] bytes = new byte[1024];
-                // Connectクラスのインスタンスをバイナリに変換
-                bytes = MessagePackSerializer.Serialize(player);
+            //     byte[] bytes = new byte[1024];
+            //     // Connectクラスのインスタンスをバイナリに変換
+            //     bytes = MessagePackSerializer.Serialize(player);
 
-                for (int i = 0; i < 50; i++)
-                {
-                    // バイナリデータを送信
-                    client.Send(bytes, bytes.Length, endPoint);
-                }
+            //     for (int i = 0; i < 50; i++)
+            //     {
+            //         // バイナリデータを送信
+            //         client.Send(bytes, bytes.Length, endPoint);
+            //     }
 
-                client.Close();
-            }
+            //     client.Close();
+            // }
         }
         catch (Exception e)
         {

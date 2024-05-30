@@ -4,10 +4,10 @@ using YuchiGames.POM.Server.Data.UdpMessages;
 
 namespace YuchiGames.POM.Server.Data.Serialization
 {
-    [MessagePackObject]
+    [MessagePackObject(keyAsPropertyName: true)]
     public class MessagesName
     {
-        [Key(0)]
+        // [Key(0)]
         public string Name { get; }
 
         [SerializationConstructor]
