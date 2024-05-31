@@ -83,6 +83,9 @@ class Program
                 Buffer.BlockCopy(lengthBytes, 0, buffer, 0, lengthBytes.Length);
                 Buffer.BlockCopy(data, 0, buffer, lengthBytes.Length, data.Length);
 
+                Console.WriteLine($"Client send buffer size: {data.Length}");
+                Console.WriteLine($"Client send buffer: {BitConverter.ToString(data)}");
+
                 using (NetworkStream stream = client.GetStream())
                 {
                     // バイナリデータを送信
@@ -97,7 +100,11 @@ class Program
                     {
                         readLengthBytes += stream.Read(buffer2, readLengthBytes, bufferLength - readLengthBytes);
                     }
-                    Console.WriteLine($"receiveBytes.Length: {buffer2.Length}");
+
+                    Console.WriteLine($"Client receive buffer size: {buffer2.Length}");
+                    Console.WriteLine($"Client receive buffer: {BitConverter.ToString(buffer2)}");
+                    Console.WriteLine($"Client json: {MessagePackSerializer.ConvertToJson(buffer2)}");
+
                     switch (MessagePackSerializer.Deserialize<IMessage>(buffer2))
                     {
                         case SuccessConnectionMessage successConnectionMessage:
@@ -116,22 +123,22 @@ class Program
             Thread.Sleep(1000);
 
             // UDP通信で接続する
-            // using (UdpClient client = new UdpClient())
-            // {
-            //     Player player = new Player(new PosRot(new float[] { 1.0f, 2.0f, 3.0f }, new float[] { 0.0f, 0.0f, 0.0f }), new PosRot(new float[] { 4.0f, 5.0f, 6.0f }, new float[] { 0.0f, 0.0f, 0.0f }));
+            using (UdpClient client = new UdpClient())
+            {
+                IMessage message = new SuccessMessage();
 
-            //     byte[] bytes = new byte[1024];
-            //     // Connectクラスのインスタンスをバイナリに変換
-            //     bytes = MessagePackSerializer.Serialize(player);
+                byte[] bytes = new byte[1024];
+                // Connectクラスのインスタンスをバイナリに変換
+                bytes = MessagePackSerializer.Serialize(message);
 
-            //     for (int i = 0; i < 50; i++)
-            //     {
-            //         // バイナリデータを送信
-            //         client.Send(bytes, bytes.Length, endPoint);
-            //     }
+                for (int i = 0; i < 50; i++)
+                {
+                    // バイナリデータを送信
+                    client.Send(bytes, bytes.Length, endPoint);
+                }
 
-            //     client.Close();
-            // }
+                client.Close();
+            }
         }
         catch (Exception e)
         {

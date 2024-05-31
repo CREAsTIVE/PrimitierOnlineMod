@@ -33,6 +33,9 @@ namespace YuchiGames.POM.Server.Network.Processes
                         readLengthBytes += stream.Read(buffer, readLengthBytes, bufferLength - readLengthBytes);
                     }
 
+                    Log.Debug($"Server receive buffer size: {buffer.Length}");
+                    Log.Debug($"Server receive buffer: {BitConverter.ToString(buffer)}");
+
                     switch (MessagePackSerializer.Deserialize<Data.TcpMessages.IMessage>(buffer))
                     {
                         case ConnectMessage connect:

@@ -1,9 +1,11 @@
 ﻿using MessagePack;
 using YuchiGames.POM.Server.Data.Models;
+using YuchiGames.POM.Server.Data.TcpMessages;
 
 namespace YuchiGames.POM.Server.Data.UdpMessages
 {
-    interface IMessage { }
+    [Union(0, typeof(SuccessConnectionMessage))]
+    public interface IMessage { }
 
     [MessagePackObject]
     public class SendPlayerPosMessage : IMessage

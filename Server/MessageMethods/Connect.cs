@@ -41,8 +41,12 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                byte[] buffer = Utils.AddLength(MessagePackSerializer.Serialize(new SuccessConnectionMessage(yourID, idList)));
-                Log.Debug($"buffer.Length: {buffer.Length}");
+                IMessage message = new SuccessConnectionMessage(yourID, idList);
+                byte[] data = MessagePackSerializer.Serialize(message);
+                byte[] buffer = Utils.AddLength(data);
+                Log.Debug($"Server send buffer size: {data.Length}");
+                Log.Debug($"Server send buffer: {BitConverter.ToString(data)}");
+                Log.Debug($"Server json: {MessagePackSerializer.ConvertToJson(data)}");
 
                 return buffer;
             }
