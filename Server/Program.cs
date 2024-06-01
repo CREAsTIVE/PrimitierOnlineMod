@@ -8,11 +8,13 @@ namespace YuchiGames.POM.Server
 {
     class UserData
     {
+        public int ID { get; set; }
         public string UserName { get; set; }
         public IPEndPoint EndPoint { get; set; }
 
-        public UserData(string userName, IPEndPoint endPoint)
+        public UserData(int id, string userName, IPEndPoint endPoint)
         {
+            ID = id;
             UserName = userName;
             EndPoint = endPoint;
         }

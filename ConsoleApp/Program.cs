@@ -127,9 +127,7 @@ class Program
             {
                 IMessage message = new SuccessMessage();
 
-                byte[] bytes = new byte[1024];
-                // Connectクラスのインスタンスをバイナリに変換
-                bytes = MessagePackSerializer.Serialize(message);
+                byte[] bytes = MessagePackSerializer.Serialize(message);
 
                 for (int i = 0; i < 50; i++)
                 {

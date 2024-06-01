@@ -18,15 +18,14 @@ namespace YuchiGames.POM.Server.MessageMethods
                 }
 
                 int[] idList = new int[Program.settings!.MaxPlayer];
-                int idListIndex = 0;
                 int yourID = 0;
 
                 for (int i = 0; i < Program.userData!.Length; i++)
                 {
                     if (Program.userData[i] == default)
                     {
-                        Program.userData[i] = new UserData(connectMessage.UserName, remoteEndPoint);
-                        yourID = i;
+                        yourID = i + 1;
+                        Program.userData[i] = new UserData(yourID, connectMessage.UserName, remoteEndPoint);
                         Log.Information("Connected to {0}.", remoteEndPoint);
                         break;
                     }
@@ -36,8 +35,7 @@ namespace YuchiGames.POM.Server.MessageMethods
                 {
                     if (Program.userData[i] != default)
                     {
-                        idList[idListIndex] = i;
-                        idListIndex++;
+                        idList[i] = i + 1;
                     }
                 }
 
