@@ -36,7 +36,7 @@ namespace YuchiGames.POM.Server.Network.Processes
                     Log.Debug($"Server receive buffer size: {buffer.Length}");
                     Log.Debug($"Server receive buffer: {BitConverter.ToString(buffer)}");
 
-                    switch (MessagePackSerializer.Deserialize<Data.TcpMessages.IMessage>(buffer))
+                    switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
                         case ConnectMessage connect:
                             stream.Write(Connect.Client(connect, remoteEndPoint));
@@ -76,7 +76,7 @@ namespace YuchiGames.POM.Server.Network.Processes
                         throw new Exception($"Not connected to {remoteEndPoint}.");
                     }
 
-                    switch (MessagePackSerializer.Deserialize<Data.UdpMessages.IMessage>(receivedData))
+                    switch (MessagePackSerializer.Deserialize<IUdpMessage>(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
                             for (int i = 0; i < Program.userData!.Length; i++)

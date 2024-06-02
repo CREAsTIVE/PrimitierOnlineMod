@@ -27,12 +27,14 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                return MessagePackSerializer.Serialize(new SuccessMessage());
+                ITcpMessage message = new SuccessMessage();
+                return Utils.AddLength(MessagePackSerializer.Serialize(message));
             }
             catch (Exception e)
             {
                 Log.Error(e.Message);
-                return MessagePackSerializer.Serialize(new FailureMessage(e));
+                ITcpMessage message = new FailureMessage(e);
+                return Utils.AddLength(MessagePackSerializer.Serialize(message));
             }
         }
     }

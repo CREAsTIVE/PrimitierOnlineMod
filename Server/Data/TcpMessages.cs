@@ -7,10 +7,10 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
     [Union(2, typeof(SuccessConnectionMessage))]
     [Union(3, typeof(SuccessMessage))]
     [Union(4, typeof(FailureMessage))]
-    public interface IMessage { }
+    public interface ITcpMessage { }
 
     [MessagePackObject]
-    public class ConnectMessage : IMessage
+    public class ConnectMessage : ITcpMessage
     {
         [Key(0)]
         public string Version { get; set; }
@@ -26,10 +26,10 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
     }
 
     [MessagePackObject]
-    public class DisconnectMessage : IMessage { }
+    public class DisconnectMessage : ITcpMessage { }
 
     [MessagePackObject]
-    public class SuccessConnectionMessage : IMessage
+    public class SuccessConnectionMessage : ITcpMessage
     {
         [Key(0)]
         public int YourID { get; set; }
@@ -45,10 +45,10 @@ namespace YuchiGames.POM.Server.Data.TcpMessages
     }
 
     [MessagePackObject]
-    public class SuccessMessage : IMessage { }
+    public class SuccessMessage : ITcpMessage { }
 
     [MessagePackObject]
-    public class FailureMessage : IMessage
+    public class FailureMessage : ITcpMessage
     {
         [Key(0)]
         public Exception ExceptionMessage { get; set; }

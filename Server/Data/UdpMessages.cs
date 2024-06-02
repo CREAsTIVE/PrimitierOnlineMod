@@ -5,10 +5,10 @@ using YuchiGames.POM.Server.Data.TcpMessages;
 namespace YuchiGames.POM.Server.Data.UdpMessages
 {
     [Union(0, typeof(SuccessConnectionMessage))]
-    public interface IMessage { }
+    public interface IUdpMessage { }
 
     [MessagePackObject]
-    public class SendPlayerPosMessage : IMessage
+    public class SendPlayerPosMessage : IUdpMessage
     {
         [Key(0)]
         public string PlayerID { get; set; }

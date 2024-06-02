@@ -6,8 +6,6 @@ namespace YuchiGames.POM.Server.Network.Listeners
 {
     public static class Tcp
     {
-        // public static IPEndPoint[] iPEndPoints = new IPEndPoint[Program.settings!.MaxPlayer];
-
         public static void Listener()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.settings!.Port);
