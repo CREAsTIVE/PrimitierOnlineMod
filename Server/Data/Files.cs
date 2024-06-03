@@ -1,13 +1,13 @@
-﻿using System.ComponentModel;
-using MessagePack;
-using YuchiGames.POM.Server.Data.Models;
+﻿using MessagePack;
 
 namespace YuchiGames.POM.Server.Data.Files
 {
+    [Union(0, typeof(VRMFile))]
+    [Union(1, typeof(MapFile))]
     public interface IFile { }
 
     [MessagePackObject]
-    public class VRMFile : IModel
+    public class VRMFile : IFile
     {
         [Key(0)]
         public byte[] Data { get; set; }
@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Server.Data.Files
     }
 
     [MessagePackObject]
-    public class MapFile : IModel
+    public class MapFile : IFile
     {
         [Key(0)]
         public byte[] Data { get; }
