@@ -1,10 +1,9 @@
 ﻿using MessagePack;
 using YuchiGames.POM.Server.Data.Models;
-using YuchiGames.POM.Server.Data.TcpMessages;
 
 namespace YuchiGames.POM.Server.Data.UdpMessages
 {
-    [Union(0, typeof(SuccessConnectionMessage))]
+    [Union(0, typeof(SendPlayerPosMessage))]
     public interface IUdpMessage { }
 
     [MessagePackObject]

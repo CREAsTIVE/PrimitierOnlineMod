@@ -1,13 +1,15 @@
-﻿using MessagePack;
+﻿using System.ComponentModel;
+using MessagePack;
+using YuchiGames.POM.Server.Data.Models;
 
 namespace YuchiGames.POM.Server.Data.Files
 {
+    public interface IFile { }
+
     [MessagePackObject]
-    public class VRMFile
+    public class VRMFile : IModel
     {
         [Key(0)]
-        public string Name { get; set; } = "VRMFile";
-        [Key(1)]
         public byte[] Data { get; set; }
 
         [SerializationConstructor]
@@ -18,17 +20,40 @@ namespace YuchiGames.POM.Server.Data.Files
     }
 
     [MessagePackObject]
-    public class MapFile
+    public class MapFile : IModel
     {
         [Key(0)]
-        public string Name { get; set; } = "MapFile";
-        [Key(1)]
-        public byte[] Data { get; set; }
+        public byte[] Data { get; }
+        [IgnoreMember]
+        public int MaxLength { get; }
 
         [SerializationConstructor]
-        public MapFile(byte[] data)
+        public MapFile(string path, int maxLength)
         {
-            Data = data;
+            FileInfo fileInfo = new FileInfo(path);
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException("File not found", path);
+            }
+            if (fileInfo.Length > maxLength)
+            {
+                throw new InvalidDataException("File is too large");
+            }
+
+            using (FileStream fileStream = fileInfo.OpenRead())
+            {
+                Data = new byte[fileStream.Length];
+                int numBytesToRead = (int)fileStream.Length;
+                int numBytesRead = 0;
+                while (numBytesToRead > 0)
+                {
+                    int n = fileStream.Read(Data, numBytesRead, numBytesToRead);
+                    if (n == 0)
+                        break;
+                    numBytesRead += n;
+                    numBytesToRead -= n;
+                }
+            }
         }
     }
 }
