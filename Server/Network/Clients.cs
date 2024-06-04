@@ -4,6 +4,7 @@ using Serilog;
 using YuchiGames.POM.Server.Data;
 using YuchiGames.POM.Server.MessageMethods;
 using MessagePack;
+using YuchiGames.POM.Server.Network.Utilities;
 
 namespace YuchiGames.POM.Server.Network.Clients
 {
