@@ -1,4 +1,4 @@
-﻿namespace YuchiGames.POM.Server.Data.Settings
+﻿namespace YuchiGames.POM.Server.Data
 {
     public class ServerSettings
     {

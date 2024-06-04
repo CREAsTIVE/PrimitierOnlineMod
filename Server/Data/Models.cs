@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Server.Data.Models
+namespace YuchiGames.POM.Server.Data
 {
     [Union(0, typeof(PlayerModel))]
     [Union(1, typeof(ObjectModel))]

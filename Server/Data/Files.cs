@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Server.Data.Files
+namespace YuchiGames.POM.Server.Data
 {
     [Union(0, typeof(VRMFile))]
     [Union(1, typeof(MapFile))]

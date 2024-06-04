@@ -1,7 +1,6 @@
 ﻿using MessagePack;
-using YuchiGames.POM.Server.Data.Models;
 
-namespace YuchiGames.POM.Server.Data.UdpMessages
+namespace YuchiGames.POM.Server.Data
 {
     [Union(0, typeof(SendPlayerPosMessage))]
     public interface IUdpMessage { }
