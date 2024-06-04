@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Serilog;
 
-namespace YuchiGames.POM.Server.Network.Utilities
+namespace YuchiGames.POM.Server.Network
 {
     public static class Utils
     {

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using Serilog;
 
-namespace YuchiGames.POM.Server.Network.Listeners
+namespace YuchiGames.POM.Server.Network
 {
     public static class Tcp
     {
