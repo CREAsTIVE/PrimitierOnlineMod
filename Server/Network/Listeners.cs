@@ -28,9 +28,8 @@ namespace YuchiGames.POM.Server.Network
             finally
             {
                 listener.Stop();
+                Log.Information("Tcp server stopped on port {0}.", Program.settings!.Port);
             }
-
-            Log.Information("Tcp server stopped on port {0}.", Program.settings!.Port);
         }
     }
 
