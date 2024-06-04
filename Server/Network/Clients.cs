@@ -18,7 +18,9 @@ namespace YuchiGames.POM.Server.Network.Clients
                 using (client)
                 using (NetworkStream stream = client.GetStream())
                 {
-                    IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint!;
+                    if (client.Client.RemoteEndPoint is null)
+                        throw new Exception("RemoteEndPoint not found.");
+                    IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
 
                     byte[] lengthBytes = new byte[4];
                     stream.Read(lengthBytes, 0, lengthBytes.Length);
@@ -67,6 +69,9 @@ namespace YuchiGames.POM.Server.Network.Clients
 
             try
             {
+                if (Program.userData is null)
+                    throw new Exception("UserData not found.");
+
                 using (UdpClient client = new UdpClient())
                 {
                     if (!Utils.ContainAddress(remoteEndPoint))
@@ -77,7 +82,7 @@ namespace YuchiGames.POM.Server.Network.Clients
                     switch (MessagePackSerializer.Deserialize<IUdpMessage>(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
-                            for (int i = 0; i < Program.userData!.Length; i++)
+                            for (int i = 0; i < Program.userData.Length; i++)
                             {
                                 if (Program.userData[i] == default)
                                 {

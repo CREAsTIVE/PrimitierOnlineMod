@@ -9,7 +9,10 @@ namespace YuchiGames.POM.Server.Network
         {
             try
             {
-                for (int i = 0; i < Program.userData!.Length; i++)
+                if (Program.userData is null)
+                    throw new Exception("UserData not found.");
+
+                for (int i = 0; i < Program.userData.Length; i++)
                 {
                     if (Program.userData[i] == default)
                     {

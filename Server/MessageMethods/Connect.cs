@@ -12,15 +12,20 @@ namespace YuchiGames.POM.Server.MessageMethods
         {
             try
             {
+                if (Program.settings is null)
+                    throw new Exception("Settings not found.");
+                if (Program.userData is null)
+                    throw new Exception("UserData not found.");
+
                 if (Utils.ContainAddress(remoteEndPoint))
                 {
                     throw new Exception($"Already connected to {remoteEndPoint}.");
                 }
 
-                int[] idList = new int[Program.settings!.MaxPlayer];
+                int[] idList = new int[Program.settings.MaxPlayer];
                 int yourID = 0;
 
-                for (int i = 0; i < Program.userData!.Length; i++)
+                for (int i = 0; i < Program.userData.Length; i++)
                 {
                     if (Program.userData[i] == default)
                     {

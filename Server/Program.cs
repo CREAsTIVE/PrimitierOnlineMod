@@ -33,12 +33,14 @@ namespace YuchiGames.POM.Server
                     .AddJsonFile("settings.json")
                     .Build();
                 settings = config.Get<ServerSettings>();
+                if (settings is null)
+                    throw new Exception("Settings not found.");
 
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
 
-                userData = new UserData[settings!.MaxPlayer];
+                userData = new UserData[settings.MaxPlayer];
 
                 Program program = new Program();
                 program.Start();
