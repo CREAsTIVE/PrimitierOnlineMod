@@ -1,8 +1,6 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
-using UnityEngine;
-using YuchiGames.POM.Client.Data.Methods;
-using YuchiGames.POM.Client.Data.Settings;
+using YuchiGames.POM.Client.Data;
 
 namespace YuchiGames.POM.Client
 {
@@ -18,13 +16,6 @@ namespace YuchiGames.POM.Client
                     .AddJsonFile("settings.json")
                     .Build();
                 settings = config.Get<ClientSettings>();
-
-                GameObject HeadObject = GameObject.Find("Ybot_head");
-                GameObject LeftHand = GameObject.Find("LeftHand Controller").transform.Find("IkTarget/ProxyHand/HandPosition/R_Hand_Mesh").gameObject;
-                GameObject RightHand = GameObject.Find("RightHand Controller").transform.Find("IkTarget/ProxyHand/HandPosition/R_Hand_Mesh").gameObject;
-
-                ConnectMethod connectMethod = new ConnectMethod("0.0.0");
-
             }
             catch (Exception e)
             {

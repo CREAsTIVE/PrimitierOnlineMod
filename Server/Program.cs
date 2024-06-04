@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using YuchiGames.POM.Server.Data;
-using YuchiGames.POM.Server.Network;
+using YuchiGames.POM.Server.Network.Listeners;
 
 namespace YuchiGames.POM.Server
 {

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using Serilog;
 
-namespace YuchiGames.POM.Server.Network
+namespace YuchiGames.POM.Server.Network.Listeners
 {
     public static class Tcp
     {
@@ -18,7 +18,7 @@ namespace YuchiGames.POM.Server.Network
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    _ = Task.Run(() => Processes.Tcp.Client(client));
+                    _ = Task.Run(() => Clients.Tcp.Client(client));
                 }
             }
             catch (Exception e)
@@ -46,7 +46,7 @@ namespace YuchiGames.POM.Server.Network
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        _ = Task.Run(() => Processes.Udp.Client(result));
+                        _ = Task.Run(() => Clients.Udp.Client(result));
                     }
                 }
             }

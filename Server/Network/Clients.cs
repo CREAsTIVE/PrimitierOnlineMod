@@ -5,7 +5,7 @@ using YuchiGames.POM.Server.Data;
 using YuchiGames.POM.Server.MessageMethods;
 using MessagePack;
 
-namespace YuchiGames.POM.Server.Network.Processes
+namespace YuchiGames.POM.Server.Network.Clients
 {
     public static class Tcp
     {
