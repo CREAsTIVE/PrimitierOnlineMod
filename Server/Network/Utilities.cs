@@ -31,16 +31,5 @@ namespace YuchiGames.POM.Server.Network.Utilities
                 return false;
             }
         }
-
-        public static byte[] AddLength(byte[] data)
-        {
-            byte[] lengthBytes = new byte[4];
-            lengthBytes = BitConverter.GetBytes(data.Length);
-            byte[] buffer = new byte[lengthBytes.Length + data.Length];
-            Buffer.BlockCopy(lengthBytes, 0, buffer, 0, lengthBytes.Length);
-            Buffer.BlockCopy(data, 0, buffer, lengthBytes.Length, data.Length);
-
-            return buffer;
-        }
     }
 }
