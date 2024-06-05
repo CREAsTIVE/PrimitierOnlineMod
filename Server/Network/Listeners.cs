@@ -9,10 +9,8 @@ namespace YuchiGames.POM.Server.Network.Listeners
         public static void Listener()
         {
             if (Program.settings is null)
-            {
-                Log.Error("Settings not found.");
-                return;
-            }
+                throw new Exception("Settings not found.");
+
             TcpListener listener = new TcpListener(IPAddress.Any, Program.settings.Port);
 
             try
@@ -43,10 +41,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
         public static async void Listener()
         {
             if (Program.settings is null)
-            {
-                Log.Error("Settings not found.");
-                return;
-            }
+                throw new Exception("Settings not found.");
 
             try
             {
