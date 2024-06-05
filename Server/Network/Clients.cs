@@ -25,15 +25,7 @@ namespace YuchiGames.POM.Server.Network.Clients
 
                     int bufferLength = 1024;
                     byte[] buffer = new byte[bufferLength];
-                    int readLengthBytes = 0;
-
-                    while (readLengthBytes < bufferLength)
-                    {
-                        readLengthBytes += stream.Read(buffer, readLengthBytes, bufferLength - readLengthBytes);
-                    }
-
-                    Log.Debug($"Server receive buffer size: {buffer.Length}");
-                    Log.Debug($"Server receive buffer: {BitConverter.ToString(buffer)}");
+                    stream.Read(buffer, 0, bufferLength);
 
                     ITcpMessage message;
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
