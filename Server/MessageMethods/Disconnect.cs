@@ -2,13 +2,12 @@
 using Serilog;
 using YuchiGames.POM.Server.Network.Utilities;
 using YuchiGames.POM.Server.Data;
-using MessagePack;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
     public static class Disconnect
     {
-        public static byte[] Client(IPEndPoint remoteEndPoint)
+        public static ITcpMessage Client(IPEndPoint remoteEndPoint)
         {
             try
             {
@@ -30,14 +29,12 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
-                ITcpMessage message = new SuccessMessage();
-                return Utils.AddLength(MessagePackSerializer.Serialize(message));
+                return new SuccessMessage();
             }
             catch (Exception e)
             {
                 Log.Error(e.Message);
-                ITcpMessage message = new FailureMessage(e);
-                return Utils.AddLength(MessagePackSerializer.Serialize(message));
+                return new FailureMessage(e);
             }
         }
     }

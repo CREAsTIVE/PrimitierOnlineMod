@@ -23,9 +23,7 @@ namespace YuchiGames.POM.Server.Network.Clients
                         throw new Exception("RemoteEndPoint not found.");
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
 
-                    byte[] lengthBytes = new byte[4];
-                    stream.Read(lengthBytes, 0, lengthBytes.Length);
-                    int bufferLength = BitConverter.ToInt32(lengthBytes, 0);
+                    int bufferLength = 1024;
                     byte[] buffer = new byte[bufferLength];
                     int readLengthBytes = 0;
 
@@ -37,17 +35,21 @@ namespace YuchiGames.POM.Server.Network.Clients
                     Log.Debug($"Server receive buffer size: {buffer.Length}");
                     Log.Debug($"Server receive buffer: {BitConverter.ToString(buffer)}");
 
+                    ITcpMessage message;
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
                         case ConnectMessage connect:
-                            stream.Write(Connect.Client(connect, remoteEndPoint));
+                            message = Connect.Client(connect, remoteEndPoint);
                             break;
                         case DisconnectMessage disconnect:
-                            stream.Write(Disconnect.Client(remoteEndPoint));
+                            message = Disconnect.Client(remoteEndPoint);
                             break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }
+
+                    buffer = MessagePackSerializer.Serialize(message);
+                    stream.Write(buffer, 0, buffer.Length);
                 }
             }
             catch (Exception e)
