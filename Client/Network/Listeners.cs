@@ -3,25 +3,22 @@ using MelonLoader;
 using MessagePack;
 using YuchiGames.POM.Client.Data;
 
-namespace YuchiGames.POM.Client.Network.Listeners
+namespace YuchiGames.POM.Client.Network
 {
-    public static class Udp
+    public class Listeners
     {
-        public static async void Listener()
+        public async void Udp()
         {
-            if (Program.settings is null)
-                throw new Exception("Settings is null");
-
             try
             {
-                using (UdpClient listener = new UdpClient(Program.settings.Port))
+                using (UdpClient listener = new UdpClient(Program.Settings.Port))
                 {
-                    MelonLogger.Msg("Udp listener started on port {0}.", Program.settings.Port);
+                    MelonLogger.Msg("Udp listener started on port {0}.", Program.Settings.Port);
 
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        if (result.RemoteEndPoint.Address.ToString() == Program.settings.IP)
+                        if (result.RemoteEndPoint.Address.ToString() == Program.Settings.IP)
                             throw new Exception("Not a message sent by the server.");
                         _ = Task.Run(() =>
                         {
@@ -32,8 +29,7 @@ namespace YuchiGames.POM.Client.Network.Listeners
                                     MelonLogger.Msg("Received player position message from {0}.", sendPlayerPosMessage.PlayerID);
                                     break;
                                 default:
-                                    MelonLogger.Error("Unknown message type.");
-                                    break;
+                                    throw new Exception("Unknown message type.");
                             }
                         });
                     }

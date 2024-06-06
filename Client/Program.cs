@@ -6,7 +6,16 @@ namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
-        public static ClientSettings? settings;
+        private static ClientSettings? settings;
+        public static ClientSettings Settings
+        {
+            get
+            {
+                if (settings is null)
+                    throw new Exception("Settings not found.");
+                return settings;
+            }
+        }
 
         public override void OnInitializeMelon()
         {
