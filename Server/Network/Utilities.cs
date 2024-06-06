@@ -9,26 +9,22 @@ namespace YuchiGames.POM.Server.Network.Utilities
         {
             try
             {
-                if (Program.userData is null)
-                    throw new Exception("UserData not found.");
-
-                for (int i = 0; i < Program.userData.Length; i++)
+                for (int i = 0; i < Program.UserData.Length; i++)
                 {
-                    if (Program.userData[i] == default)
+                    if (Program.UserData[i] == default)
                     {
                         continue;
                     }
-                    if (Program.userData[i].EndPoint.Address.Equals(iPEndPoint.Address))
+                    if (Program.UserData[i].EndPoint.Address.Equals(iPEndPoint.Address))
                     {
                         return true;
                     }
                 }
                 return false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Log.Error(e.Message);
-                return false;
+                throw;
             }
         }
     }

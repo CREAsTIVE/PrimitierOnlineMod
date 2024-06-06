@@ -64,9 +64,6 @@ namespace YuchiGames.POM.Server.Network.Clients
 
             try
             {
-                if (Program.userData is null)
-                    throw new Exception("UserData not found.");
-
                 using (UdpClient client = new UdpClient())
                 {
                     if (!Utils.ContainAddress(remoteEndPoint))
@@ -77,16 +74,16 @@ namespace YuchiGames.POM.Server.Network.Clients
                     switch (MessagePackSerializer.Deserialize<IUdpMessage>(receivedData))
                     {
                         case SendPlayerPosMessage sendPlayerPosMessage:
-                            for (int i = 0; i < Program.userData.Length; i++)
+                            for (int i = 0; i < Program.UserData.Length; i++)
                             {
-                                if (Program.userData[i] == default)
+                                if (Program.UserData[i] == default)
                                 {
                                     continue;
                                 }
-                                if (!Program.userData[i].EndPoint.Address.Equals(remoteEndPoint.Address))
+                                if (!Program.UserData[i].EndPoint.Address.Equals(remoteEndPoint.Address))
                                 {
-                                    client.Send(receivedData, receivedData.Length, Program.userData[i].EndPoint);
-                                    Log.Information("Sent data to {0}.", Program.userData[i].EndPoint);
+                                    client.Send(receivedData, receivedData.Length, Program.UserData[i].EndPoint);
+                                    Log.Information("Sent data to {0}.", Program.UserData[i].EndPoint);
                                 }
                             }
                             break;

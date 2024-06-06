@@ -8,15 +8,12 @@ namespace YuchiGames.POM.Server.Network.Listeners
     {
         public static void Listener()
         {
-            if (Program.settings is null)
-                throw new Exception("Settings not found.");
-
-            TcpListener listener = new TcpListener(IPAddress.Any, Program.settings.Port);
+            TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
 
             try
             {
                 listener.Start();
-                Log.Information("Tcp server started on port {0}.", Program.settings.Port);
+                Log.Information("Tcp server started on port {0}.", Program.Settings.Port);
 
                 while (true)
                 {
@@ -31,7 +28,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
             finally
             {
                 listener.Stop();
-                Log.Information("Tcp server stopped on port {0}.", Program.settings.Port);
+                Log.Information("Tcp server stopped on port {0}.", Program.Settings.Port);
             }
         }
     }
@@ -40,14 +37,14 @@ namespace YuchiGames.POM.Server.Network.Listeners
     {
         public static async void Listener()
         {
-            if (Program.settings is null)
+            if (Program.Settings is null)
                 throw new Exception("Settings not found.");
 
             try
             {
-                using (UdpClient listener = new UdpClient(Program.settings.Port))
+                using (UdpClient listener = new UdpClient(Program.Settings.Port))
                 {
-                    Log.Information("Udp server started on port {0}.", Program.settings.Port);
+                    Log.Information("Udp server started on port {0}.", Program.Settings.Port);
 
                     while (true)
                     {
@@ -61,7 +58,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 Log.Error(e.Message);
             }
 
-            Log.Information("Udp server stopped on port {0}.", Program.settings.Port);
+            Log.Information("Udp server stopped on port {0}.", Program.Settings.Port);
         }
     }
 }

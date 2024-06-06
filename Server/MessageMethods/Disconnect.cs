@@ -11,19 +11,16 @@ namespace YuchiGames.POM.Server.MessageMethods
         {
             try
             {
-                if (Program.userData is null)
-                    throw new Exception("UserData not found.");
-
                 if (!Utils.ContainAddress(remoteEndPoint))
                 {
                     throw new Exception($"Not connected to {remoteEndPoint}.");
                 }
 
-                for (int i = 0; i < Program.userData.Length; i++)
+                for (int i = 0; i < Program.UserData.Length; i++)
                 {
-                    if (Program.userData[i].EndPoint == remoteEndPoint)
+                    if (Program.UserData[i].EndPoint == remoteEndPoint)
                     {
-                        Program.userData[i] = default!;
+                        Program.UserData[i] = default!;
                         Log.Information("Disconnected from {0}.", remoteEndPoint);
                         break;
                     }

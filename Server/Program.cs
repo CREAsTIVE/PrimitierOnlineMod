@@ -22,25 +22,47 @@ namespace YuchiGames.POM.Server
 
     class Program
     {
-        public static ServerSettings? settings;
-        public static UserData[]? userData;
+        private static ServerSettings? _settings;
+        public static ServerSettings Settings
+        {
+            get
+            {
+                if (_settings is null)
+                    throw new Exception("Settings not found.");
+                return _settings;
+            }
+        }
+        private static UserData[]? _userData;
+        public static UserData[] UserData
+        {
+            get
+            {
+                if (_userData is null)
+                    throw new Exception("User data not found.");
+                return _userData;
+            }
+            set
+            {
+                _userData = value;
+            }
+        }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             try
             {
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile("settings.json")
                     .Build();
-                settings = config.Get<ServerSettings>();
-                if (settings is null)
+                _settings = config.Get<ServerSettings>();
+                if (_settings is null)
                     throw new Exception("Settings not found.");
 
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
 
-                userData = new UserData[settings.MaxPlayer];
+                _userData = new UserData[_settings.MaxPlayer];
 
                 Program program = new Program();
                 program.Start();
@@ -51,7 +73,7 @@ namespace YuchiGames.POM.Server
             }
         }
 
-        void Start()
+        private void Start()
         {
             Thread tcpThread = new Thread(Tcp.Listener);
             Thread udpThread = new Thread(Udp.Listener);
