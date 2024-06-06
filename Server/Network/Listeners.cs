@@ -2,11 +2,11 @@
 using System.Net.Sockets;
 using Serilog;
 
-namespace YuchiGames.POM.Server.Network.Listeners
+namespace YuchiGames.POM.Server.Network
 {
-    public class Tcp
+    public class Listeners
     {
-        public void Listener()
+        public void Tcp()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
 
@@ -18,7 +18,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    _ = Task.Run(() => Clients.Tcp.Client(client));
+                    _ = Task.Run(() => new Clients().Tcp(client));
                 }
             }
             catch (Exception e)
@@ -31,11 +31,8 @@ namespace YuchiGames.POM.Server.Network.Listeners
                 Log.Information("Tcp server stopped on port {0}.", Program.Settings.Port);
             }
         }
-    }
 
-    public class Udp
-    {
-        public async void Listener()
+        public async void Udp()
         {
             if (Program.Settings is null)
                 throw new Exception("Settings not found.");
@@ -49,7 +46,7 @@ namespace YuchiGames.POM.Server.Network.Listeners
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        _ = Task.Run(() => Clients.Udp.Client(result));
+                        _ = Task.Run(() => new Clients().Udp(result));
                     }
                 }
             }

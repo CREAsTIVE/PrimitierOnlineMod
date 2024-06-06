@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using Serilog;
-using YuchiGames.POM.Server.Network.Utilities;
+using YuchiGames.POM.Server.Network;
 using YuchiGames.POM.Server.Data;
 
 namespace YuchiGames.POM.Server.MessageMethods

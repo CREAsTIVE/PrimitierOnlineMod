@@ -4,13 +4,12 @@ using Serilog;
 using YuchiGames.POM.Server.Data;
 using YuchiGames.POM.Server.MessageMethods;
 using MessagePack;
-using YuchiGames.POM.Server.Network.Utilities;
 
-namespace YuchiGames.POM.Server.Network.Clients
+namespace YuchiGames.POM.Server.Network
 {
-    public static class Tcp
+    public class Clients
     {
-        public static void Client(TcpClient client)
+        public void Tcp(TcpClient client)
         {
             Log.Debug("Created new Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
 
@@ -51,11 +50,8 @@ namespace YuchiGames.POM.Server.Network.Clients
 
             Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
         }
-    }
 
-    public static class Udp
-    {
-        public static void Client(UdpReceiveResult result)
+        public void Udp(UdpReceiveResult result)
         {
             IPEndPoint remoteEndPoint = result.RemoteEndPoint;
             byte[] receivedData = result.Buffer;

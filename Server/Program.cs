@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using YuchiGames.POM.Server.Data;
-using YuchiGames.POM.Server.Network.Listeners;
+using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server
 {
@@ -75,10 +75,9 @@ namespace YuchiGames.POM.Server
 
         private void Start()
         {
-            Tcp tcp = new Tcp();
-            Udp udp = new Udp();
-            Thread tcpThread = new Thread(tcp.Listener);
-            Thread udpThread = new Thread(udp.Listener);
+            Listeners listeners = new Listeners();
+            Thread tcpThread = new Thread(listeners.Tcp);
+            Thread udpThread = new Thread(listeners.Udp);
             tcpThread.Start();
             udpThread.Start();
         }
