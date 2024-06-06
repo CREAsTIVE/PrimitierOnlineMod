@@ -28,12 +28,12 @@ namespace YuchiGames.POM.Client
 
         public override void OnUpdate()
         {
-            base.OnUpdate();
+            MelonLogger.Msg("OnUpdate Method");
         }
 
         public override void OnApplicationQuit()
         {
-            base.OnApplicationQuit();
+            MelonLogger.Msg("OnApplicationQuit Method");
         }
     }
 }
