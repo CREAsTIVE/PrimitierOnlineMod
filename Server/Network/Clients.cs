@@ -30,10 +30,10 @@ namespace YuchiGames.POM.Server.Network
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
                         case ConnectMessage connect:
-                            message = Connect.Client(connect, remoteEndPoint);
+                            message = new Connect().Process(connect, remoteEndPoint);
                             break;
                         case DisconnectMessage disconnect:
-                            message = Disconnect.Client(remoteEndPoint);
+                            message = new Disconnect().Process(remoteEndPoint);
                             break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");

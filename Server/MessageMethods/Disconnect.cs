@@ -5,9 +5,9 @@ using YuchiGames.POM.Server.Data;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
-    public static class Disconnect
+    public class Disconnect
     {
-        public static ITcpMessage Client(IPEndPoint remoteEndPoint)
+        public ITcpMessage Process(IPEndPoint remoteEndPoint)
         {
             try
             {

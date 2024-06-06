@@ -5,9 +5,9 @@ using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
-    public static class Connect
+    public class Connect
     {
-        public static ITcpMessage Client(ConnectMessage connectMessage, IPEndPoint remoteEndPoint)
+        public ITcpMessage Process(ConnectMessage connectMessage, IPEndPoint remoteEndPoint)
         {
             try
             {
