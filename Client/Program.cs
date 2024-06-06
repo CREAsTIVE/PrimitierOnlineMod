@@ -16,6 +16,9 @@ namespace YuchiGames.POM.Client
                     .AddJsonFile("settings.json")
                     .Build();
                 settings = config.Get<ClientSettings>();
+
+                if (settings is null)
+                    throw new Exception("Settings not found.");
             }
             catch (Exception e)
             {
