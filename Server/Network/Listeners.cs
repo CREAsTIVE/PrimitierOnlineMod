@@ -4,9 +4,9 @@ using Serilog;
 
 namespace YuchiGames.POM.Server.Network.Listeners
 {
-    public static class Tcp
+    public class Tcp
     {
-        public static void Listener()
+        public void Listener()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
 
@@ -33,9 +33,9 @@ namespace YuchiGames.POM.Server.Network.Listeners
         }
     }
 
-    public static class Udp
+    public class Udp
     {
-        public static async void Listener()
+        public async void Listener()
         {
             if (Program.Settings is null)
                 throw new Exception("Settings not found.");

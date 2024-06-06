@@ -75,8 +75,10 @@ namespace YuchiGames.POM.Server
 
         private void Start()
         {
-            Thread tcpThread = new Thread(Tcp.Listener);
-            Thread udpThread = new Thread(Udp.Listener);
+            Tcp tcp = new Tcp();
+            Udp udp = new Udp();
+            Thread tcpThread = new Thread(tcp.Listener);
+            Thread udpThread = new Thread(udp.Listener);
             tcpThread.Start();
             udpThread.Start();
         }

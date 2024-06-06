@@ -23,7 +23,11 @@ namespace YuchiGames.POM.Client.Network.Senders
                     stream.Write(buffer, 0, buffer.Length);
                     stream.Read(buffer, 0, buffer.Length);
 
-                    return MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
+                    message = MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
+                    if (message is FailureMessage)
+                        throw new Exception("Failure message received.");
+
+                    return message;
                 }
             }
             catch (Exception)

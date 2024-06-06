@@ -1,6 +1,8 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
+using UnityEngine;
 using YuchiGames.POM.Client.Data;
+using YuchiGames.POM.Client.Network.Senders;
 
 namespace YuchiGames.POM.Client
 {
@@ -19,6 +21,9 @@ namespace YuchiGames.POM.Client
 
                 if (settings is null)
                     throw new Exception("Settings not found.");
+
+                GameObject gameObject = new GameObject();
+                //Tcp.Sender(new ConnectMessage());
             }
             catch (Exception e)
             {
