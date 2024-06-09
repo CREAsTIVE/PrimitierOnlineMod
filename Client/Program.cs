@@ -1,5 +1,6 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
+using UnityEngine;
 using YuchiGames.POM.Client.Data;
 
 namespace YuchiGames.POM.Client
@@ -16,13 +17,14 @@ namespace YuchiGames.POM.Client
                 return settings;
             }
         }
+        private GameObject[] PlayerObject = new GameObject[2];
 
         public override void OnInitializeMelon()
         {
             try
             {
                 IConfigurationRoot config = new ConfigurationBuilder()
-                    .AddJsonFile("settings.json")
+                    .AddJsonFile($"{Directory.GetCurrentDirectory()}/Mods/settings.json")
                     .Build();
                 settings = config.Get<ClientSettings>();
 
@@ -31,18 +33,58 @@ namespace YuchiGames.POM.Client
             }
             catch (Exception e)
             {
-                MelonLogger.Error(e.Message);
+                LoggerInstance.Error(e.Message);
+            }
+        }
+
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
+            try
+            {
+                PlayerObject[0] = GameObject.Find("/Player/LeftHand");
+                PlayerObject[1] = GameObject.Find("/Player/RightHand");
+            }
+            catch (Exception e)
+            {
+                LoggerInstance.Error(e.Message);
             }
         }
 
         public override void OnUpdate()
         {
-            MelonLogger.Msg("OnUpdate Method");
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                LoggerInstance.Error(e.Message);
+            }
+        }
+
+        public override void OnFixedUpdate()
+        {
+            try
+            {
+                LoggerInstance.Msg("Player 1 position: {0}.", PlayerObject[0].transform.position);
+                LoggerInstance.Msg("Player 2 position: {0}.", PlayerObject[1].transform.position);
+            }
+            catch (Exception e)
+            {
+                LoggerInstance.Error(e.Message);
+            }
         }
 
         public override void OnApplicationQuit()
         {
-            MelonLogger.Msg("OnApplicationQuit Method");
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                LoggerInstance.Error(e.Message);
+            }
         }
     }
 }
