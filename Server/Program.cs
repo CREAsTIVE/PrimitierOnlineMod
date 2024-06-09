@@ -46,6 +46,18 @@ namespace YuchiGames.POM.Server
                 _userData = value;
             }
         }
+        private static object _lockUserData = new object();
+        public static object LockUserData
+        {
+            get
+            {
+                return _lockUserData;
+            }
+            set
+            {
+                _lockUserData = value;
+            }
+        }
 
         private static void Main(string[] args)
         {

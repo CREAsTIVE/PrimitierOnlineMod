@@ -16,13 +16,16 @@ namespace YuchiGames.POM.Server.MessageMethods
                     throw new Exception($"Not connected to {remoteEndPoint}.");
                 }
 
-                for (int i = 0; i < Program.UserData.Length; i++)
+                lock (Program.LockUserData)
                 {
-                    if (Program.UserData[i].EndPoint == remoteEndPoint)
+                    for (int i = 0; i < Program.UserData.Length; i++)
                     {
-                        Program.UserData[i] = default!;
-                        Log.Information("Disconnected from {0}.", remoteEndPoint);
-                        break;
+                        if (Program.UserData[i].EndPoint == remoteEndPoint)
+                        {
+                            Program.UserData[i] = default!;
+                            Log.Information("Disconnected from {0}.", remoteEndPoint);
+                            break;
+                        }
                     }
                 }
 
