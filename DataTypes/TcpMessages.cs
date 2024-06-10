@@ -9,6 +9,9 @@ namespace YuchiGames.POM.Data
     [Union(4, typeof(FailureMessage))]
     public interface ITcpMessage { }
 
+    /// <summary>
+    /// ConnectMessage is sent by the client to the server to establish a connection.
+    /// </summary>
     [MessagePackObject]
     public class ConnectMessage : ITcpMessage
     {

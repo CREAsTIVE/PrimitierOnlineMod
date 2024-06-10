@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\DataTypes\Files.cs" Link="Data\Files.cs" />
+    <Compile Include="..\DataTypes\Models.cs" Link="Data\Models.cs" />
+    <Compile Include="..\DataTypes\TcpMessages.cs" Link="Data\TcpMessages.cs" />
+    <Compile Include="..\DataTypes\UdpMessages.cs" Link="Data\UdpMessages.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ConsoleAppFramework" Version="4.2.4" />
     <PackageReference Include="MessagePack" Version="2.5.140" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
