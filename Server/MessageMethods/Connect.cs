@@ -16,9 +16,12 @@ namespace YuchiGames.POM.Server.MessageMethods
                     throw new Exception($"Already connected to {remoteEndPoint}.");
                 }
 
-                int[] idList = new int[Program.Settings.MaxPlayer];
-                int yourID = 0;
+                if (connectMessage.Version != Program.Settings.Version)
+                {
+                    throw new Exception($"Version mismatch. Server version: {Program.Settings.Version}, Client version: {connectMessage.Version}.");
+                }
 
+                int yourID = 0;
                 lock (Program.LockUserData)
                 {
                     for (int i = 0; i < Program.UserData.Length; i++)
@@ -33,6 +36,7 @@ namespace YuchiGames.POM.Server.MessageMethods
                     }
                 }
 
+                int[] idList = new int[Program.Settings.MaxPlayer];
                 for (int i = 0; i < Program.UserData.Length; i++)
                 {
                     if (Program.UserData[i] != default)
