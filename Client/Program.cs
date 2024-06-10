@@ -1,8 +1,7 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
 using UnityEngine;
-using YuchiGames.POM.Client.Data;
-using YuchiGames.POM.Server.Data;
+using YuchiGames.POM.Data;
 using YuchiGames.POM.Client.Network;
 
 namespace YuchiGames.POM.Client

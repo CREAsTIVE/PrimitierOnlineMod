@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using YuchiGames.POM.Server.Data;
+using YuchiGames.POM.Data;
 using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server

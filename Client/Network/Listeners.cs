@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using MelonLoader;
 using MessagePack;
-using YuchiGames.POM.Server.Data;
+using YuchiGames.POM.Data;
 
 namespace YuchiGames.POM.Client.Network
 {
@@ -26,7 +26,7 @@ namespace YuchiGames.POM.Client.Network
                             switch (message)
                             {
                                 case SendPlayerPosMessage sendPlayerPosMessage:
-                                    MelonLogger.Msg("Received player position message from {0}.", sendPlayerPosMessage.PlayerID);
+                                    //MelonLogger.Msg("Received player position message from {0}.", sendPlayerPosMessage.PlayerID);
                                     break;
                                 default:
                                     throw new Exception("Unknown message type.");

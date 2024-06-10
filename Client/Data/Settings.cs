@@ -1,4 +1,4 @@
-﻿namespace YuchiGames.POM.Client.Data
+﻿namespace YuchiGames.POM.Data
 {
     public class ClientSettings
     {

@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Server.Data
+namespace YuchiGames.POM.Data
 {
     [Union(0, typeof(ConnectMessage))]
     [Union(1, typeof(DisconnectMessage))]
