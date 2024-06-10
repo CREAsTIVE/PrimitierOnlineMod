@@ -9,14 +9,11 @@ namespace YuchiGames.POM.Server.Data
     public class SendPlayerPosMessage : IUdpMessage
     {
         [Key(0)]
-        public string PlayerID { get; set; }
-        [Key(1)]
         public PlayerModel PlayerPos { get; set; }
 
         [SerializationConstructor]
-        public SendPlayerPosMessage(string playerID, PlayerModel playerPos)
+        public SendPlayerPosMessage(PlayerModel playerPos)
         {
-            PlayerID = playerID;
             PlayerPos = playerPos;
         }
     }

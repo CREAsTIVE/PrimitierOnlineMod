@@ -19,11 +19,17 @@ namespace YuchiGames.POM.Client.Network
                     stream.Write(buffer, 0, buffer.Length);
                     stream.Read(buffer, 0, buffer.Length);
 
-                    message = MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
-                    if (message is FailureMessage)
-                        throw new Exception("Failure message received.");
-
-                    return message;
+                    switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
+                    {
+                        case SuccessMessage success:
+                            return success;
+                        case SuccessConnectionMessage successConnect:
+                            return successConnect;
+                        case FailureMessage failure:
+                            return failure;
+                        default:
+                            throw new Exception("Unknown message type.");
+                    }
                 }
             }
             catch (Exception)

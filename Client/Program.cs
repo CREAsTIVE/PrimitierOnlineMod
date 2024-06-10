@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using UnityEngine;
 using YuchiGames.POM.Client.Data;
+using YuchiGames.POM.Client.Network;
 
 namespace YuchiGames.POM.Client
 {
@@ -30,6 +31,13 @@ namespace YuchiGames.POM.Client
 
                 if (settings is null)
                     throw new Exception("Settings not found.");
+
+                Listeners listeners = new Listeners();
+                Thread udpThread = new Thread(listeners.Udp);
+                udpThread.Start();
+
+                Senders senders = new Senders();
+                senders.Tcp(new ConnectMessage(settings.Version, settings.Name));
             }
             catch (Exception e)
             {
@@ -41,7 +49,7 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                PlayerTransforms[0] = GameObject.Find("/Player/LeftHand").transofrm;
+                PlayerTransforms[0] = GameObject.Find("/Player/LeftHand").transform;
                 PlayerTransforms[1] = GameObject.Find("/Player/RightHand").transform;
             }
             catch (Exception e)
@@ -66,8 +74,8 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                LoggerInstance.Msg("Player 1 position: {0}.", PlayerObject[0].position);
-                LoggerInstance.Msg("Player 2 position: {0}.", PlayerObject[1].position);
+                LoggerInstance.Msg("Player 1 position: {0}.", PlayerTransforms[0].position);
+                LoggerInstance.Msg("Player 2 position: {0}.", PlayerTransforms[1].position);
             }
             catch (Exception e)
             {
