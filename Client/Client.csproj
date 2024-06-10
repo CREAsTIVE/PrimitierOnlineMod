@@ -7,6 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="..\Server\Data\Files.cs" Link="Data\Files.cs" />
+		<Compile Include="..\Server\Data\Models.cs" Link="Data\Models.cs" />
+		<Compile Include="..\Server\Data\TcpMessages.cs" Link="Data\TcpMessages.cs" />
+		<Compile Include="..\Server\Data\UdpMessages.cs" Link="Data\UdpMessages.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="LavaGang.MelonLoader" Version="0.6.1" />
 		<PackageReference Include="MessagePack" Version="2.5.140" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
@@ -39,6 +46,10 @@
 		<None Update="settings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Data\" />
 	</ItemGroup>
 
 </Project>

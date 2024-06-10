@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using MessagePack;
-using YuchiGames.POM.Client.Data;
+using YuchiGames.POM.Server.Data;
 
 namespace YuchiGames.POM.Client.Network
 {
