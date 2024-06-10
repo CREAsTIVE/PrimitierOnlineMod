@@ -17,7 +17,7 @@ namespace YuchiGames.POM.Client
                 return settings;
             }
         }
-        private GameObject[] PlayerObject = new GameObject[2];
+        private Transform[] PlayerTransforms = new Transform[2];
 
         public override void OnInitializeMelon()
         {
@@ -41,8 +41,8 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                PlayerObject[0] = GameObject.Find("/Player/LeftHand");
-                PlayerObject[1] = GameObject.Find("/Player/RightHand");
+                PlayerTransforms[0] = GameObject.Find("/Player/LeftHand").transofrm;
+                PlayerTransforms[1] = GameObject.Find("/Player/RightHand").transform;
             }
             catch (Exception e)
             {
@@ -66,8 +66,8 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                LoggerInstance.Msg("Player 1 position: {0}.", PlayerObject[0].transform.position);
-                LoggerInstance.Msg("Player 2 position: {0}.", PlayerObject[1].transform.position);
+                LoggerInstance.Msg("Player 1 position: {0}.", PlayerObject[0].position);
+                LoggerInstance.Msg("Player 2 position: {0}.", PlayerObject[1].position);
             }
             catch (Exception e)
             {
