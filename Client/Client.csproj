@@ -50,6 +50,7 @@
 
 	<ItemGroup>
 		<Folder Include="Data\" />
+		<Folder Include="Libs/" />
 	</ItemGroup>
 
 </Project>
