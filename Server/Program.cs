@@ -6,6 +6,12 @@ using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server
 {
+    /// <summary>
+    /// Custom types used to manage user data.
+    /// </summary>
+    /// <param name="ID">The ID of the user.</param>
+    /// <param name="UserName">The name of the user.</param>
+    /// <param name="EndPoint">The IP address and port of the user.</param>
     class UserData
     {
         public int ID { get; set; }
@@ -20,6 +26,9 @@ namespace YuchiGames.POM.Server
         }
     }
 
+    /// <summary>
+    /// This class is used to run the server.
+    /// </summary>
     class Program
     {
         private static ServerSettings? _settings;

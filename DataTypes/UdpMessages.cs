@@ -6,7 +6,7 @@ namespace YuchiGames.POM.Data
     public interface IUdpMessage { }
 
     [MessagePackObject]
-    public class SendPlayerPosMessage : IUdpMessage
+    public struct SendPlayerPosMessage : IUdpMessage
     {
         [Key(0)]
         public PlayerModel PlayerPos { get; set; }

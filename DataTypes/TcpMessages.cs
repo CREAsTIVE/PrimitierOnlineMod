@@ -13,7 +13,7 @@ namespace YuchiGames.POM.Data
     /// ConnectMessage is sent by the client to the server to establish a connection.
     /// </summary>
     [MessagePackObject]
-    public class ConnectMessage : ITcpMessage
+    public struct ConnectMessage : ITcpMessage
     {
         [Key(0)]
         public string Version { get; set; }
@@ -29,10 +29,10 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public class DisconnectMessage : ITcpMessage { }
+    public struct DisconnectMessage : ITcpMessage { }
 
     [MessagePackObject]
-    public class SuccessConnectionMessage : ITcpMessage
+    public struct SuccessConnectionMessage : ITcpMessage
     {
         [Key(0)]
         public int YourID { get; set; }
@@ -48,10 +48,10 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public class SuccessMessage : ITcpMessage { }
+    public struct SuccessMessage : ITcpMessage { }
 
     [MessagePackObject]
-    public class FailureMessage : ITcpMessage
+    public struct FailureMessage : ITcpMessage
     {
         [Key(0)]
         public Exception ExceptionMessage { get; set; }

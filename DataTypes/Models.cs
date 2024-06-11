@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Data
     public interface IModel { }
 
     [MessagePackObject]
-    public class PlayerModel : IModel
+    public struct PlayerModel : IModel
     {
         [Key(0)]
         public PosRot Head { get; set; }
@@ -26,7 +26,7 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public class ObjectModel : IModel
+    public struct ObjectModel : IModel
     {
         [Key(0)]
         public string UUID { get; set; }
@@ -42,7 +42,7 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public class PosRot : IModel
+    public struct PosRot : IModel
     {
         [Key(0)]
         public float[] Pos { get; set; }

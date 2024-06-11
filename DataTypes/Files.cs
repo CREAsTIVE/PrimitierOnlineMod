@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Data
     public interface IFile { }
 
     [MessagePackObject]
-    public class VRMFile : IFile
+    public struct VRMFile : IFile
     {
         [Key(0)]
         public byte[] Data { get; set; }
@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public class MapFile : IFile
+    public struct MapFile : IFile
     {
         [Key(0)]
         public byte[] Data { get; }
@@ -28,32 +28,10 @@ namespace YuchiGames.POM.Data
         public int MaxLength { get; }
 
         [SerializationConstructor]
-        public MapFile(string path, int maxLength)
+        public MapFile(byte[] data, int maxLength)
         {
-            FileInfo fileInfo = new FileInfo(path);
-            if (!fileInfo.Exists)
-            {
-                throw new FileNotFoundException("File not found", path);
-            }
-            if (fileInfo.Length > maxLength)
-            {
-                throw new InvalidDataException("File is too large");
-            }
-
-            using (FileStream fileStream = fileInfo.OpenRead())
-            {
-                Data = new byte[fileStream.Length];
-                int numBytesToRead = (int)fileStream.Length;
-                int numBytesRead = 0;
-                while (numBytesToRead > 0)
-                {
-                    int n = fileStream.Read(Data, numBytesRead, numBytesToRead);
-                    if (n == 0)
-                        break;
-                    numBytesRead += n;
-                    numBytesToRead -= n;
-                }
-            }
+            Data = data;
+            MaxLength = maxLength;
         }
     }
 }
