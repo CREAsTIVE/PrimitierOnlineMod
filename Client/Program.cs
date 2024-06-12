@@ -37,7 +37,19 @@ namespace YuchiGames.POM.Client
                 udpThread.Start();
 
                 Senders senders = new Senders();
-                senders.Tcp(new ConnectMessage(settings.Version, settings.Name));
+                ITcpMessage receiveMessage = senders.Tcp(new ConnectMessage(settings.Version, settings.Name));
+
+                switch (receiveMessage)
+                {
+                    case SuccessConnectionMessage successConnectionMessage:
+                        LoggerInstance.Msg($"Success Connection: {successConnectionMessage.YourID}, {successConnectionMessage.IDList}");
+                        break;
+                    case FailureMessage failureMessage:
+                        LoggerInstance.Error(failureMessage.ToString());
+                        break;
+                    default:
+                        throw new Exception("Unknown message type.");
+                }
             }
             catch (Exception e)
             {
@@ -74,8 +86,8 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                LoggerInstance.Msg("Player 1 position: {0}.", PlayerTransforms[0].position);
-                LoggerInstance.Msg("Player 2 position: {0}.", PlayerTransforms[1].position);
+                //LoggerInstance.Msg("Player 1 position: {0}.", PlayerTransforms[0].position);
+                //LoggerInstance.Msg("Player 2 position: {0}.", PlayerTransforms[1].position);
             }
             catch (Exception e)
             {
@@ -87,7 +99,20 @@ namespace YuchiGames.POM.Client
         {
             try
             {
+                Senders senders = new Senders();
+                ITcpMessage receiveMessage = senders.Tcp(new DisconnectMessage());
 
+                switch (receiveMessage)
+                {
+                    case SuccessMessage successMessage:
+                        LoggerInstance.Msg("Success Disconnection.");
+                        break;
+                    case FailureMessage failureMessage:
+                        LoggerInstance.Error(failureMessage.ToString());
+                        break;
+                    default:
+                        throw new Exception("Unknown message type.");
+                }
             }
             catch (Exception e)
             {
