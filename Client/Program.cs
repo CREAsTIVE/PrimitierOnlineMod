@@ -3,19 +3,34 @@ using Microsoft.Extensions.Configuration;
 using UnityEngine;
 using YuchiGames.POM.Data;
 using YuchiGames.POM.Client.Network;
+using System.Net;
 
 namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
-        private static ClientSettings? settings;
+        private static ClientSettings? _settings;
         public static ClientSettings Settings
         {
             get
             {
-                if (settings is null)
+                if (_settings is null)
                     throw new Exception("Settings not found.");
-                return settings;
+                return _settings;
+            }
+        }
+        private static IPEndPoint? _endPoint;
+        public static IPEndPoint EndPoint
+        {
+            get
+            {
+                if (_endPoint is null)
+                    throw new Exception("End point not found.");
+                return _endPoint;
+            }
+            set
+            {
+                _endPoint = value;
             }
         }
         private Transform[] PlayerTransforms = new Transform[2];
@@ -27,9 +42,9 @@ namespace YuchiGames.POM.Client
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile($"{Directory.GetCurrentDirectory()}/Mods/settings.json")
                     .Build();
-                settings = config.Get<ClientSettings>();
+                _settings = config.Get<ClientSettings>();
 
-                if (settings is null)
+                if (_settings is null)
                     throw new Exception("Settings not found.");
 
                 Listeners listeners = new Listeners();
@@ -37,7 +52,7 @@ namespace YuchiGames.POM.Client
                 udpThread.Start();
 
                 Senders senders = new Senders();
-                ITcpMessage receiveMessage = senders.Tcp(new ConnectMessage(settings.Version, settings.Name));
+                ITcpMessage receiveMessage = senders.Tcp(new ConnectMessage(_settings.Version, _settings.Name));
 
                 switch (receiveMessage)
                 {
