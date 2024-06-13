@@ -23,22 +23,37 @@
 
 	<ItemGroup>
 		<Reference Include="Il2CppInterop.Common">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Common.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Common.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Common.dll</HintPath>
+		</Reference>
+		<Reference Include="Il2CppInterop.Common">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Common.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Common.dll</HintPath>
 		</Reference>
 		<Reference Include="Il2CppInterop.Runtime">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Runtime.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Runtime.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Il2CppInterop.Runtime">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Runtime.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Dependencies\SupportModules\Il2CppInterop.Runtime.dll</HintPath>
 		</Reference>
 		<Reference Include="Il2Cppmscorlib">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2Cppmscorlib.dll')">/Users/maedayuuto/Documents/POMDlls/Il2Cppmscorlib.dll</HintPath>
+		</Reference>
+		<Reference Include="Il2Cppmscorlib">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
 		</Reference>
 		<Reference Include="MelonLoader">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
@@ -49,7 +64,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Data\" />
 		<Folder Include="Libs/" />
 	</ItemGroup>
 
