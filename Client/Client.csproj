@@ -65,6 +65,7 @@
 
 	<ItemGroup>
 		<Folder Include="Libs/" />
+		<Folder Include="MessageMethods/" />
 	</ItemGroup>
 
 </Project>
