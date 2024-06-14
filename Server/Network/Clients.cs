@@ -11,7 +11,7 @@ namespace YuchiGames.POM.Server.Network
     {
         public void Tcp(TcpClient client)
         {
-            Log.Debug("Created new Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+            Log.Debug("Created new Tcp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
 
             try
             {
@@ -48,7 +48,7 @@ namespace YuchiGames.POM.Server.Network
                 Log.Error(e.Message);
             }
 
-            Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+            Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
         }
 
         public void Udp(UdpReceiveResult result)
@@ -56,7 +56,7 @@ namespace YuchiGames.POM.Server.Network
             IPEndPoint remoteEndPoint = result.RemoteEndPoint;
             byte[] receivedData = result.Buffer;
 
-            Log.Debug("Created new Udp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+            Log.Debug("Created new Udp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
 
             try
             {
@@ -93,7 +93,7 @@ namespace YuchiGames.POM.Server.Network
                 Log.Error(e.Message);
             }
 
-            Log.Debug("Closed Udp Client thread. ThreadID: {0}", Thread.CurrentThread.ManagedThreadId);
+            Log.Debug("Closed Udp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
         }
     }
 }

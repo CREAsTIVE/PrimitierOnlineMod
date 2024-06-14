@@ -31,40 +31,40 @@ namespace YuchiGames.POM.Server
     /// </summary>
     class Program
     {
-        private static ServerSettings? _settings;
+        private static ServerSettings? s_settings;
         public static ServerSettings Settings
         {
             get
             {
-                if (_settings is null)
+                if (s_settings is null)
                     throw new Exception("Settings not found.");
-                return _settings;
+                return s_settings;
             }
         }
-        private static UserData[]? _userData;
+        private static UserData[]? s_userData;
         public static UserData[] UserData
         {
             get
             {
-                if (_userData is null)
+                if (s_userData is null)
                     throw new Exception("User data not found.");
-                return _userData;
+                return s_userData;
             }
             set
             {
-                _userData = value;
+                s_userData = value;
             }
         }
-        private static object _lockUserData = new object();
+        private static object s_lockUserData = new object();
         public static object LockUserData
         {
             get
             {
-                return _lockUserData;
+                return s_lockUserData;
             }
             set
             {
-                _lockUserData = value;
+                s_lockUserData = value;
             }
         }
 
@@ -75,15 +75,15 @@ namespace YuchiGames.POM.Server
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile("settings.json")
                     .Build();
-                _settings = config.Get<ServerSettings>();
-                if (_settings is null)
+                s_settings = config.Get<ServerSettings>();
+                if (s_settings is null)
                     throw new Exception("Settings not found.");
 
                 Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(config)
                     .CreateLogger();
 
-                _userData = new UserData[_settings.MaxPlayer];
+                s_userData = new UserData[s_settings.MaxPlayer];
 
                 Program program = new Program();
                 program.Start();

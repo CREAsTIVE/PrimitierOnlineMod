@@ -9,31 +9,31 @@ namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
-        private static ClientSettings? _settings;
+        private static ClientSettings? s_settings;
         public static ClientSettings Settings
         {
             get
             {
-                if (_settings is null)
+                if (s_settings is null)
                     throw new Exception("Settings not found.");
-                return _settings;
+                return s_settings;
             }
         }
-        private static IPEndPoint? _endPoint;
+        private static IPEndPoint? s_endPoint;
         public static IPEndPoint EndPoint
         {
             get
             {
-                if (_endPoint is null)
+                if (s_endPoint is null)
                     throw new Exception("End point not found.");
-                return _endPoint;
+                return s_endPoint;
             }
             set
             {
-                _endPoint = value;
+                s_endPoint = value;
             }
         }
-        private Transform[] PlayerTransforms = new Transform[2];
+        private Transform[] _playerTransforms = new Transform[2];
 
         public override void OnInitializeMelon()
         {
@@ -42,9 +42,9 @@ namespace YuchiGames.POM.Client
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile($"{Directory.GetCurrentDirectory()}/Mods/settings.json")
                     .Build();
-                _settings = config.Get<ClientSettings>();
+                s_settings = config.Get<ClientSettings>();
 
-                if (_settings is null)
+                if (s_settings is null)
                     throw new Exception("Settings not found.");
 
                 Listeners listeners = new Listeners();
@@ -52,7 +52,7 @@ namespace YuchiGames.POM.Client
                 udpThread.Start();
 
                 Senders senders = new Senders();
-                ITcpMessage receiveMessage = senders.Tcp(new ConnectMessage(_settings.Version, _settings.Name));
+                ITcpMessage receiveMessage = senders.Tcp(new ConnectMessage(s_settings.Version, s_settings.Name));
 
                 switch (receiveMessage)
                 {
@@ -76,8 +76,8 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                PlayerTransforms[0] = GameObject.Find("/Player/LeftHand").transform;
-                PlayerTransforms[1] = GameObject.Find("/Player/RightHand").transform;
+                _playerTransforms[0] = GameObject.Find("/Player/LeftHand").transform;
+                _playerTransforms[1] = GameObject.Find("/Player/RightHand").transform;
             }
             catch (Exception e)
             {
