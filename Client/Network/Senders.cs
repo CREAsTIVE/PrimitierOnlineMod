@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using MessagePack;
 using YuchiGames.POM.Data;
 
@@ -46,6 +47,18 @@ namespace YuchiGames.POM.Client.Network
                 {
                     client.Send(buffer, buffer.Length);
                 }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IPEndPoint Connect()
+        {
+            try
+            {
+                return new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
             }
             catch (Exception)
             {
