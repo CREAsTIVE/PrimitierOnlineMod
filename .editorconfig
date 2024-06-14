@@ -192,55 +192,55 @@ csharp_preserve_single_line_statements = true
 
 # Naming rules
 
-dotnet_naming_rule.class_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.class_should_be_pascal_case.severity = warning
 dotnet_naming_rule.class_should_be_pascal_case.symbols = class
 dotnet_naming_rule.class_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
+dotnet_naming_rule.interface_should_be_begins_with_i.severity = warning
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
 dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
 
-dotnet_naming_rule.struct_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.struct_should_be_pascal_case.severity = warning
 dotnet_naming_rule.struct_should_be_pascal_case.symbols = struct
 dotnet_naming_rule.struct_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.method_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.method_should_be_pascal_case.severity = warning
 dotnet_naming_rule.method_should_be_pascal_case.symbols = method
 dotnet_naming_rule.method_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.private_method_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.private_method_should_be_pascal_case.severity = warning
 dotnet_naming_rule.private_method_should_be_pascal_case.symbols = private_method
 dotnet_naming_rule.private_method_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.static_method_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.static_method_should_be_pascal_case.severity = warning
 dotnet_naming_rule.static_method_should_be_pascal_case.symbols = static_method
 dotnet_naming_rule.static_method_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.property_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.property_should_be_pascal_case.severity = warning
 dotnet_naming_rule.property_should_be_pascal_case.symbols = property
 dotnet_naming_rule.property_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.public_or_protected_field_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.public_or_protected_field_should_be_pascal_case.severity = warning
 dotnet_naming_rule.public_or_protected_field_should_be_pascal_case.symbols = public_or_protected_field
 dotnet_naming_rule.public_or_protected_field_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.static_field_should_be_begins_with_s_.severity = suggestion
+dotnet_naming_rule.static_field_should_be_begins_with_s_.severity = warning
 dotnet_naming_rule.static_field_should_be_begins_with_s_.symbols = static_field
 dotnet_naming_rule.static_field_should_be_begins_with_s_.style = begins_with_s_
 
-dotnet_naming_rule.private_or_internal_field_should_be_camel_case.severity = suggestion
-dotnet_naming_rule.private_or_internal_field_should_be_camel_case.symbols = private_or_internal_field
-dotnet_naming_rule.private_or_internal_field_should_be_camel_case.style = camel_case
+dotnet_naming_rule.private_or_internal_field_should_be_begins_with__.severity = warning
+dotnet_naming_rule.private_or_internal_field_should_be_begins_with__.symbols = private_or_internal_field
+dotnet_naming_rule.private_or_internal_field_should_be_begins_with__.style = begins_with__
 
-dotnet_naming_rule.private_or_internal_static_field_should_be_begins_with_s_.severity = suggestion
+dotnet_naming_rule.private_or_internal_static_field_should_be_begins_with_s_.severity = warning
 dotnet_naming_rule.private_or_internal_static_field_should_be_begins_with_s_.symbols = private_or_internal_static_field
 dotnet_naming_rule.private_or_internal_static_field_should_be_begins_with_s_.style = begins_with_s_
 
-dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.types_should_be_pascal_case.severity = warning
 dotnet_naming_rule.types_should_be_pascal_case.symbols = types
 dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = warning
 dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
@@ -319,3 +319,8 @@ dotnet_naming_style.begins_with_s_.required_prefix = s_
 dotnet_naming_style.begins_with_s_.required_suffix = 
 dotnet_naming_style.begins_with_s_.word_separator = 
 dotnet_naming_style.begins_with_s_.capitalization = camel_case
+
+dotnet_naming_style.begins_with__.required_prefix = _
+dotnet_naming_style.begins_with__.required_suffix = 
+dotnet_naming_style.begins_with__.word_separator = 
+dotnet_naming_style.begins_with__.capitalization = camel_case
