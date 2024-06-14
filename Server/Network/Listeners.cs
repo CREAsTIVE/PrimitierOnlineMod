@@ -34,9 +34,6 @@ namespace YuchiGames.POM.Server.Network
 
         public async void Udp()
         {
-            if (Program.Settings is null)
-                throw new Exception("Settings not found.");
-
             try
             {
                 using (UdpClient listener = new UdpClient(Program.Settings.Port))
