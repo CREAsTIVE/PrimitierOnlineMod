@@ -322,5 +322,11 @@ dotnet_naming_style.begins_with_s_.capitalization = camel_case
 
 #### Diagnostic configuration ####
 
+# IDE0063: Use simple 'using' statement
+csharp_prefer_simple_using_statement = false
+
+# IDE0066: Use switch expression
+csharp_style_prefer_switch_expression = false
+
 # IDE0090: Simplify new expression
-dotnet_diagnostic.IDE0090.severity = none
+csharp_style_implicit_object_creation_when_type_is_apparent = false
