@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Server.MessageMethods
 {
     public class Connect
     {
-        public ITcpMessage Process(ConnectMessage connectMessage, IPEndPoint remoteEndPoint)
+        public static ITcpMessage Process(ConnectMessage connectMessage, IPEndPoint remoteEndPoint)
         {
             try
             {

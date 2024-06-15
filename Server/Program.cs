@@ -68,7 +68,7 @@ namespace YuchiGames.POM.Server
             }
         }
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             try
             {
@@ -85,22 +85,15 @@ namespace YuchiGames.POM.Server
 
                 s_userData = new UserData[s_settings.MaxPlayer];
 
-                Program program = new Program();
-                program.Start();
+                Thread tcpThread = new Thread(Listeners.Tcp);
+                Thread udpThread = new Thread(Listeners.Udp);
+                tcpThread.Start();
+                udpThread.Start();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
-
-        private void Start()
-        {
-            Listeners listeners = new Listeners();
-            Thread tcpThread = new Thread(listeners.Tcp);
-            Thread udpThread = new Thread(listeners.Udp);
-            tcpThread.Start();
-            udpThread.Start();
         }
     }
 }

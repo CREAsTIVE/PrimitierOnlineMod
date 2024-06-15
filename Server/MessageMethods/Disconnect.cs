@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Server.MessageMethods
 {
     public class Disconnect
     {
-        public ITcpMessage Process(IPEndPoint remoteEndPoint)
+        public static ITcpMessage Process(IPEndPoint remoteEndPoint)
         {
             try
             {

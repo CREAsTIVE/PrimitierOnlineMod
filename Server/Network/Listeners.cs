@@ -4,9 +4,9 @@ using Serilog;
 
 namespace YuchiGames.POM.Server.Network
 {
-    public class Listeners
+    public static class Listeners
     {
-        public void Tcp()
+        public static void Tcp()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
 
@@ -18,7 +18,7 @@ namespace YuchiGames.POM.Server.Network
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    _ = Task.Run(() => new Clients().Tcp(client));
+                    _ = Task.Run(() => Clients.Tcp(client));
                 }
             }
             catch (Exception e)
@@ -32,7 +32,7 @@ namespace YuchiGames.POM.Server.Network
             }
         }
 
-        public async void Udp()
+        public static async void Udp()
         {
             try
             {
@@ -43,7 +43,7 @@ namespace YuchiGames.POM.Server.Network
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        _ = Task.Run(() => new Clients().Udp(result));
+                        _ = Task.Run(() => Clients.Udp(result));
                     }
                 }
             }

@@ -7,9 +7,9 @@ using MessagePack;
 
 namespace YuchiGames.POM.Server.Network
 {
-    public class Clients
+    public static class Clients
     {
-        public void Tcp(TcpClient client)
+        public static void Tcp(TcpClient client)
         {
             Log.Debug("Created new Tcp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
 
@@ -30,10 +30,10 @@ namespace YuchiGames.POM.Server.Network
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
                         case ConnectMessage connect:
-                            message = new Connect().Process(connect, remoteEndPoint);
+                            message = Connect.Process(connect, remoteEndPoint);
                             break;
                         case DisconnectMessage disconnect:
-                            message = new Disconnect().Process(remoteEndPoint);
+                            message = Disconnect.Process(remoteEndPoint);
                             break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");
@@ -51,7 +51,7 @@ namespace YuchiGames.POM.Server.Network
             Log.Debug("Closed Tcp Client thread. ThreadID: {0}", Environment.CurrentManagedThreadId);
         }
 
-        public void Udp(UdpReceiveResult result)
+        public static void Udp(UdpReceiveResult result)
         {
             IPEndPoint remoteEndPoint = result.RemoteEndPoint;
             byte[] receivedData = result.Buffer;
