@@ -58,7 +58,17 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                return new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
+                using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp))
+                {
+                    socket.Connect(Program.Settings.IP, Program.Settings.Port);
+                    byte[] buffer = new byte[1024];
+                    buffer = MessagePackSerializer.Serialize(new ConnectMessage(Program.Settings.Version, Program.Settings.Name));
+                    socket.Send(buffer, buffer.Length, SocketFlags.None);
+
+                    if (socket.RemoteEndPoint is null)
+                        throw new Exception("Failed to connect to server.");
+                    return (IPEndPoint)socket.RemoteEndPoint;
+                }
             }
             catch (Exception)
             {

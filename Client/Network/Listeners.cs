@@ -12,7 +12,7 @@ namespace YuchiGames.POM.Client.Network
             {
                 using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Udp))
                 {
-                    socket.Bind(Program.EndPoint);
+                    socket.Bind(new IPEndPoint(IPAddress.Any, Program.EndPoint.Port));
                     socket.Listen();
 
                     byte[] buffer = new byte[1024];
