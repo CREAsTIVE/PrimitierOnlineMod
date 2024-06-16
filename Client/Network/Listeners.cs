@@ -6,7 +6,7 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Listeners
     {
-        public void Udp()
+        public static void Udp()
         {
             try
             {
@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Client.Network
                     {
                         Socket handler = socket.Accept();
                         handler.Receive(buffer);
-                        _ = Task.Run(() => new Clients().Udp(buffer));
+                        _ = Task.Run(() => Clients.Udp(buffer));
                     }
                 }
             }

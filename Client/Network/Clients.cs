@@ -5,7 +5,7 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Clients
     {
-        public void Udp(byte[] buffer)
+        public static void Udp(byte[] buffer)
         {
             try
             {

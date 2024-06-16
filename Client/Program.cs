@@ -33,6 +33,18 @@ namespace YuchiGames.POM.Client
                 s_endPoint = value;
             }
         }
+        private static int s_myID;
+        public static int MyID
+        {
+            get
+            {
+                return s_myID;
+            }
+            set
+            {
+                s_myID = value;
+            }
+        }
 
         public override void OnInitializeMelon()
         {
@@ -46,10 +58,8 @@ namespace YuchiGames.POM.Client
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
 
-                Senders senders = new Senders();
-                s_endPoint = senders.Connect();
-                Listeners listners = new Listeners();
-                Thread udpThread = new Thread(listners.Udp);
+                Senders.FirstConnect();
+                Thread udpThread = new Thread(Listeners.Udp);
             }
             catch (Exception e)
             {

@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Senders
     {
-        public ITcpMessage Tcp(ITcpMessage message)
+        public static ITcpMessage Tcp(ITcpMessage message)
         {
             try
             {
@@ -23,8 +23,10 @@ namespace YuchiGames.POM.Client.Network
                     ITcpMessage receiveMessage = MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
                     switch (receiveMessage)
                     {
-                        case SuccessMessage or SuccessConnectionMessage or FailureMessage:
+                        case SuccessMessage:
                             return receiveMessage;
+                        case FailureMessage failureMessage:
+                            throw failureMessage.ExceptionMessage;
                         default:
                             throw new Exception("Unknown message type.");
                     }
@@ -36,7 +38,7 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        public void Udp(IUdpMessage message)
+        public static void Udp(IUdpMessage message)
         {
             try
             {
@@ -54,7 +56,7 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        public IPEndPoint Connect()
+        public static void FirstConnect()
         {
             try
             {
@@ -64,10 +66,21 @@ namespace YuchiGames.POM.Client.Network
                     byte[] buffer = new byte[1024];
                     buffer = MessagePackSerializer.Serialize(new ConnectMessage(Program.Settings.Version, Program.Settings.Name));
                     socket.Send(buffer, buffer.Length, SocketFlags.None);
+                    socket.Receive(buffer, buffer.Length, SocketFlags.None);
 
-                    if (socket.RemoteEndPoint is null)
-                        throw new Exception("Failed to connect to server.");
-                    return (IPEndPoint)socket.RemoteEndPoint;
+                    switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
+                    {
+                        case SuccessConnectionMessage successConnectionMessage:
+                            if (socket.LocalEndPoint is null)
+                                throw new Exception("Local end point not found.");
+                            Program.EndPoint = (IPEndPoint)socket.LocalEndPoint;
+                            Program.MyID = successConnectionMessage.YourID;
+                            break;
+                        case FailureMessage failureMessage:
+                            throw failureMessage.ExceptionMessage;
+                        default:
+                            throw new Exception("Unknown message type.");
+                    }
                 }
             }
             catch (Exception)
