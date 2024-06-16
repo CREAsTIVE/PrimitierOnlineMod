@@ -45,6 +45,20 @@ namespace YuchiGames.POM.Client
                 s_myID = value;
             }
         }
+        private static int[]? s_idList;
+        public static int[] IDList
+        {
+            get
+            {
+                if (s_idList is null)
+                    throw new Exception("ID list not found.");
+                return s_idList;
+            }
+            set
+            {
+                s_idList = value;
+            }
+        }
 
         public override void OnInitializeMelon()
         {
@@ -58,8 +72,8 @@ namespace YuchiGames.POM.Client
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
 
-                Senders.FirstConnect();
                 Thread udpThread = new Thread(Listeners.Udp);
+                udpThread.Start();
             }
             catch (Exception e)
             {
