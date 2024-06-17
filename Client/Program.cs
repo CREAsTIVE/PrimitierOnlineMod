@@ -69,9 +69,6 @@ namespace YuchiGames.POM.Client
                     .Build();
                 s_settings = config.Get<ClientSettings>();
 
-                if (s_settings is null)
-                    throw new Exception("Settings not found.");
-
                 Thread udpThread = new Thread(Listeners.Udp);
                 udpThread.Start();
             }
