@@ -1,14 +1,17 @@
 ﻿using MelonLoader;
+using System.Net.Sockets;
 using YuchiGames.POM.Data;
 
 namespace YuchiGames.POM.Client.Network
 {
     public class Clients
     {
-        public static void Udp(byte[] buffer)
+        public static void Udp(UdpReceiveResult result)
         {
             try
             {
+                byte[] buffer = new byte[1024];
+                buffer = result.Buffer;
                 IUdpMessage message = MessagePack.MessagePackSerializer.Deserialize<IUdpMessage>(buffer);
 
                 switch (message)

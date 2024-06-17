@@ -6,21 +6,20 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Listeners
     {
-        public static void Udp()
+        public static async void Udp()
         {
             try
             {
-                using (Socket socket = new Socket(SocketType.Stream, ProtocolType.Udp))
+                using (UdpClient listener = new UdpClient(Program.Settings.Port))
                 {
-                    socket.Bind(new IPEndPoint(IPAddress.Any, Program.EndPoint.Port));
-                    socket.Listen();
+                    if (listener.Client.LocalEndPoint is null)
+                        throw new Exception("Local end point not found.");
+                    Program.EndPoint = (IPEndPoint)listener.Client.LocalEndPoint;
 
-                    byte[] buffer = new byte[1024];
                     while (true)
                     {
-                        Socket handler = socket.Accept();
-                        handler.Receive(buffer);
-                        _ = Task.Run(() => Clients.Udp(buffer));
+                        UdpReceiveResult result = await listener.ReceiveAsync();
+                        _ = Task.Run(() => Clients.Udp(result));
                     }
                 }
             }
