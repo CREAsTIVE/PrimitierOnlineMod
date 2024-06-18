@@ -3,15 +3,12 @@
 namespace YuchiGames.POM.Data
 {
     [Union(0, typeof(ConnectMessage))]
-    [Union(1, typeof(DisconnectMessage))]
-    [Union(2, typeof(SuccessConnectionMessage))]
+    [Union(1, typeof(SuccessConnectionMessage))]
+    [Union(2, typeof(DisconnectMessage))]
     [Union(3, typeof(SuccessMessage))]
     [Union(4, typeof(FailureMessage))]
     public interface ITcpMessage { }
 
-    /// <summary>
-    /// ConnectMessage is sent by the client to the server to establish a connection.
-    /// </summary>
     [MessagePackObject]
     public struct ConnectMessage : ITcpMessage
     {
@@ -29,9 +26,6 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public struct DisconnectMessage : ITcpMessage { }
-
-    [MessagePackObject]
     public struct SuccessConnectionMessage : ITcpMessage
     {
         [Key(0)]
@@ -46,6 +40,9 @@ namespace YuchiGames.POM.Data
             IDList = idList;
         }
     }
+
+    [MessagePackObject]
+    public struct DisconnectMessage : ITcpMessage { }
 
     [MessagePackObject]
     public struct SuccessMessage : ITcpMessage { }
