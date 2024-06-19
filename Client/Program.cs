@@ -68,9 +68,14 @@ namespace YuchiGames.POM.Client
                     .AddJsonFile($"{Directory.GetCurrentDirectory()}/Mods/settings.json")
                     .Build();
                 s_settings = config.Get<ClientSettings>();
+                if (s_settings is null)
+                    throw new Exception("Settings not found.");
 
                 Thread udpThread = new Thread(Listeners.Udp);
                 udpThread.Start();
+
+                ITcpMessage connectMessage = new ConnectMessage(s_settings.Version);
+                ITcpMessage receiveMessage = Senders.Tcp(connectMessage);
             }
             catch (Exception e)
             {

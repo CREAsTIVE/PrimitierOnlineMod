@@ -14,14 +14,11 @@ namespace YuchiGames.POM.Data
     {
         [Key(0)]
         public string Version { get; set; }
-        [Key(1)]
-        public string UserName { get; set; }
 
         [SerializationConstructor]
-        public ConnectMessage(string version, string userName)
+        public ConnectMessage(string version)
         {
             Version = version;
-            UserName = userName;
         }
     }
 
