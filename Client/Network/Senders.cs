@@ -24,7 +24,7 @@ namespace YuchiGames.POM.Client.Network
                         ITcpMessage receiveMessage = MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
                         switch (receiveMessage)
                         {
-                            case SuccessMessage:
+                            case SuccessMessage or SuccessConnectionMessage:
                                 return receiveMessage;
                             case FailureMessage failureMessage:
                                 throw failureMessage.ExceptionMessage;

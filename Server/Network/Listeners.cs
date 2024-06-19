@@ -43,7 +43,8 @@ namespace YuchiGames.POM.Server.Network
                     while (true)
                     {
                         UdpReceiveResult result = await listener.ReceiveAsync();
-                        _ = Task.Run(() => Clients.Udp(result));
+                        if (Utils.ContainAddress(result.RemoteEndPoint))
+                            _ = Task.Run(() => Clients.Udp(result));
                     }
                 }
             }

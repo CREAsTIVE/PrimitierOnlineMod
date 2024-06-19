@@ -8,6 +8,8 @@ namespace YuchiGames.POM.Client.Network
     {
         public static async void Udp()
         {
+            Melon<Program>.Logger.Msg("Udp listener started on port {0}.", Program.Settings.Port);
+
             try
             {
                 using (UdpClient listener = new UdpClient(Program.Settings.Port))
