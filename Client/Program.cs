@@ -83,6 +83,7 @@ namespace YuchiGames.POM.Client
                     case SuccessConnectionMessage successConnectionMessage:
                         s_myID = successConnectionMessage.YourID;
                         s_idList = successConnectionMessage.IDList;
+                        LoggerInstance.Msg($"Connected to server. My ID: {s_myID}, ID list: {string.Join(", ", s_idList)}");
                         break;
                     case FailureMessage failureMessage:
                         throw failureMessage.ExceptionMessage;
