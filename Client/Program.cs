@@ -76,6 +76,15 @@ namespace YuchiGames.POM.Client
 
                 ITcpMessage connectMessage = new ConnectMessage(s_settings.Version);
                 ITcpMessage receiveMessage = Senders.Tcp(connectMessage);
+                switch (receiveMessage)
+                {
+                    case SuccessConnectionMessage successConnectionMessage:
+                        s_myID = successConnectionMessage.YourID;
+                        s_idList = successConnectionMessage.IDList;
+                        break;
+                    case FailureMessage failureMessage:
+                        throw failureMessage.ExceptionMessage;
+                }
             }
             catch (Exception e)
             {
@@ -87,7 +96,10 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-
+                GameObject playerObject = GameObject.Find("Player");
+                GameObject Head = playerObject.transform.Find("Head").gameObject;
+                GameObject leftHand = playerObject.transform.Find("LeftHand").gameObject;
+                GameObject rightHand = playerObject.transform.Find("RightHand").gameObject;
             }
             catch (Exception e)
             {
