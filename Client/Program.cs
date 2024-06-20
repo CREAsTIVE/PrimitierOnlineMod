@@ -60,6 +60,8 @@ namespace YuchiGames.POM.Client
             }
         }
 
+        private static GameObject[] s_playerObjects = new GameObject[2];
+
         public override void OnInitializeMelon()
         {
             try
@@ -96,10 +98,13 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                GameObject playerObject = GameObject.Find("Player");
-                GameObject Head = playerObject.transform.Find("Head").gameObject;
-                GameObject leftHand = playerObject.transform.Find("LeftHand").gameObject;
-                GameObject rightHand = playerObject.transform.Find("RightHand").gameObject;
+                if (sceneName == "Main")
+                {
+                    LoggerInstance.Msg($"Scene loaded: {sceneName}, SceneIndex: {buildIndex}");
+                    s_playerObjects[0] = GameObject.Find("Player/XR Origin/Camera Offset/LeftHand Controller");
+                    s_playerObjects[1] = GameObject.Find("Player/XR Origin/Camera Offset/RightHand Controller");
+                    LoggerInstance.Msg($"Player objects found. {s_playerObjects[0].name}, {s_playerObjects[1].name}");
+                }
             }
             catch (Exception e)
             {
@@ -123,7 +128,7 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-
+                LoggerInstance.Msg($"LeftHand: {s_playerObjects[0].transform.position}, RightHand: {s_playerObjects[1].transform.position}");
             }
             catch (Exception e)
             {
