@@ -45,6 +45,10 @@
 			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
 			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
+		<Reference Include="0Harmony">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/0Harmony.dll')">/Users/maedayuuto/Documents/POMDlls/0Harmony.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
