@@ -60,7 +60,8 @@ namespace YuchiGames.POM.Client
             }
         }
 
-        private static GameObject[] s_playerObjects = new GameObject[2];
+        private static GameObject[] s_handObjects = new GameObject[2];
+        private static GameObject[] s_vrmObjects = new GameObject[15];
 
         public override void OnInitializeMelon()
         {
@@ -99,12 +100,28 @@ namespace YuchiGames.POM.Client
         {
             try
             {
+                LoggerInstance.Msg($"Scene loaded: {sceneName}, SceneIndex: {buildIndex}");
                 if (sceneName == "Main")
                 {
-                    LoggerInstance.Msg($"Scene loaded: {sceneName}, SceneIndex: {buildIndex}");
-                    s_playerObjects[0] = GameObject.Find("Player/XR Origin/Camera Offset/LeftHand Controller");
-                    s_playerObjects[1] = GameObject.Find("Player/XR Origin/Camera Offset/RightHand Controller");
-                    LoggerInstance.Msg($"Player objects found. {s_playerObjects[0].name}, {s_playerObjects[1].name}");
+                    s_handObjects[0] = GameObject.Find("Player/XR Origin/Camera Offset/LeftHand Controller");
+                    s_handObjects[1] = GameObject.Find("Player/XR Origin/Camera Offset/RightHand Controller");
+
+                    string vrmObjectPath = "Player/AvatarParent/VRM1/Root/Global/Position/J_Bip_C_Hips";
+                    s_vrmObjects[0] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_C_Neck/J_Bip_C_Head");
+                    s_vrmObjects[1] = GameObject.Find($"{vrmObjectPath}");
+                    s_vrmObjects[2] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine");
+                    s_vrmObjects[3] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_L_Shoulder/J_Bip_L_UpperArm");
+                    s_vrmObjects[4] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_R_Shoulder/J_Bip_R_UpperArm");
+                    s_vrmObjects[5] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_L_Shoulder/J_Bip_L_UpperArm/J_Bip_L_LowerArm");
+                    s_vrmObjects[6] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_R_Shoulder/J_Bip_R_UpperArm/J_Bip_R_LowerArm");
+                    s_vrmObjects[7] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_L_Shoulder/J_Bip_L_UpperArm/J_Bip_L_LowerArm/J_Bip_L_Hand");
+                    s_vrmObjects[8] = GameObject.Find($"{vrmObjectPath}/J_Bip_C_Spine/J_Bip_C_Chest/J_Bip_C_UpperChest/J_Bip_R_Shoulder/J_Bip_R_UpperArm/J_Bip_R_LowerArm/J_Bip_R_Hand");
+                    s_vrmObjects[9] = GameObject.Find($"{vrmObjectPath}/J_Bip_L_UpperLeg");
+                    s_vrmObjects[10] = GameObject.Find($"{vrmObjectPath}/J_Bip_R_UpperLeg");
+                    s_vrmObjects[11] = GameObject.Find($"{vrmObjectPath}/J_Bip_L_UpperLeg/J_Bip_L_LowerLeg");
+                    s_vrmObjects[12] = GameObject.Find($"{vrmObjectPath}/J_Bip_R_UpperLeg/J_Bip_R_LowerLeg");
+                    s_vrmObjects[13] = GameObject.Find($"{vrmObjectPath}/J_Bip_L_UpperLeg/J_Bip_L_LowerLeg/J_Bip_L_Foot");
+                    s_vrmObjects[14] = GameObject.Find($"{vrmObjectPath}/J_Bip_R_UpperLeg/J_Bip_R_LowerLeg/J_Bip_R_Foot");
                 }
             }
             catch (Exception e)
@@ -129,7 +146,6 @@ namespace YuchiGames.POM.Client
         {
             try
             {
-                LoggerInstance.Msg($"LeftHand: {s_playerObjects[0].transform.position}, RightHand: {s_playerObjects[1].transform.position}");
             }
             catch (Exception e)
             {
