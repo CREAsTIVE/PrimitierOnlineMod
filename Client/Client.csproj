@@ -14,7 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Condition="!Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')" Include="LavaGang.MelonLoader" Version="0.6.1" />
 		<PackageReference Include="MessagePack" Version="2.5.140" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
@@ -22,8 +21,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')" Include="MelonLoader">
-			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
+		<Reference Include="MelonLoader">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll')">/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll</HintPath>
 		</Reference>
 		<Reference Include="0Harmony">
 			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll</HintPath>
