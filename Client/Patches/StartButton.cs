@@ -7,9 +7,10 @@ namespace YuchiGames.POM.Client.Patches
     [HarmonyPatch(typeof(StartButton), nameof(StartButton.OnPress))]
     class StartButtonPatch
     {
-        private static void Prefix()
+        private static bool Prefix()
         {
             Melon<Program>.Logger.Msg("StartButton.OnPress() called!");
+            return false;
         }
 
         private static void Postfix()
