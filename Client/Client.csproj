@@ -7,10 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\DataTypes\Files.cs" Link="Data\Files.cs" />
-		<Compile Include="..\DataTypes\Objects.cs" Link="Data\Objects.cs" />
-		<Compile Include="..\DataTypes\TcpMessages.cs" Link="Data\TcpMessages.cs" />
-		<Compile Include="..\DataTypes\UdpMessages.cs" Link="Data\UdpMessages.cs" />
+		<Compile Include="..\DataTypes\FileTypes.cs" Link="DataTypes\FileTypes.cs" />
+		<Compile Include="..\DataTypes\ObjectTypes.cs" Link="DataTypes\ObjectTypes.cs" />
+		<Compile Include="..\DataTypes\TcpMessages.cs" Link="DataTypes\TcpMessages.cs" />
+		<Compile Include="..\DataTypes\UdpMessages.cs" Link="DataTypes\UdpMessages.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

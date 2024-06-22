@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Data
+namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(ConnectMessage))]
     [Union(1, typeof(SuccessConnectionMessage))]
@@ -13,7 +13,7 @@ namespace YuchiGames.POM.Data
     public struct ConnectMessage : ITcpMessage
     {
         [Key(0)]
-        public string Version { get; set; }
+        public string Version { get; }
 
         [SerializationConstructor]
         public ConnectMessage(string version)
@@ -26,9 +26,9 @@ namespace YuchiGames.POM.Data
     public struct SuccessConnectionMessage : ITcpMessage
     {
         [Key(0)]
-        public int YourID { get; set; }
+        public int YourID { get; }
         [Key(1)]
-        public int[] IDList { get; set; }
+        public int[] IDList { get; }
 
         [SerializationConstructor]
         public SuccessConnectionMessage(int yourID, int[] idList)
@@ -48,7 +48,7 @@ namespace YuchiGames.POM.Data
     public struct FailureMessage : ITcpMessage
     {
         [Key(0)]
-        public Exception ExceptionMessage { get; set; }
+        public Exception ExceptionMessage { get; }
 
         [SerializationConstructor]
         public FailureMessage(Exception exception)

@@ -1,6 +1,6 @@
 ﻿using MelonLoader;
 using System.Net.Sockets;
-using YuchiGames.POM.Data;
+using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {

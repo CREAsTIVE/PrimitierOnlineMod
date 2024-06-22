@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Serilog;
-using YuchiGames.POM.Data;
+using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Server.MessageMethods;
 using MessagePack;
 

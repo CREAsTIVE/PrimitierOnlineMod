@@ -1,7 +1,7 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
 using UnityEngine;
-using YuchiGames.POM.Data;
+using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Client.Network;
 using System.Net;
 
@@ -73,22 +73,6 @@ namespace YuchiGames.POM.Client
                 s_settings = config.Get<ClientSettings>();
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
-
-                Thread udpThread = new Thread(Listeners.Udp);
-                udpThread.Start();
-
-                ITcpMessage connectMessage = new ConnectMessage(s_settings.Version);
-                ITcpMessage receiveMessage = Senders.Tcp(connectMessage);
-                switch (receiveMessage)
-                {
-                    case SuccessConnectionMessage successConnectionMessage:
-                        s_myID = successConnectionMessage.YourID;
-                        s_idList = successConnectionMessage.IDList;
-                        LoggerInstance.Msg($"Connected to server. My ID: {s_myID}, ID list: {string.Join(", ", s_idList)}");
-                        break;
-                    case FailureMessage failureMessage:
-                        throw failureMessage.ExceptionMessage;
-                }
             }
             catch (Exception e)
             {

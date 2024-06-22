@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.Data
+namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(SendPlayerPosMessage))]
     public interface IUdpMessage { }
@@ -9,15 +9,20 @@ namespace YuchiGames.POM.Data
     public struct SendPlayerPosMessage : IUdpMessage
     {
         [Key(0)]
-        public int PlayerId { get; set; }
+        public int PlayerId { get; }
         [Key(1)]
-        public PlayerModel PlayerPos { get; set; }
+        public bool IsVRMBody { get; }
+        [Key(2)]
+        public BaseBody BaseBody { get; }
+        [Key(3)]
+        public VRMBody VrmBody { get; }
 
-        [SerializationConstructor]
-        public SendPlayerPosMessage(int playerId, PlayerModel playerPos)
+        public SendPlayerPosMessage(int playerId, bool isVRMBody, BaseBody baseBody, VRMBody vrmBody)
         {
             PlayerId = playerId;
-            PlayerPos = playerPos;
+            IsVRMBody = isVRMBody;
+            BaseBody = baseBody;
+            VrmBody = vrmBody;
         }
     }
 }
