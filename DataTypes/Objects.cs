@@ -2,12 +2,29 @@
 
 namespace YuchiGames.POM.Data
 {
-    [Union(0, typeof(PlayerModel))]
-    [Union(1, typeof(ObjectModel))]
-    public interface IModel { }
+    [Union(0, typeof(BaseBody))]
+    [Union(1, typeof(VRMBody))]
+    [Union(2, typeof(PrimitiveObject))]
+    public interface IObject { }
 
     [MessagePackObject]
-    public struct PlayerModel : IModel
+    public struct BaseBody : IObject
+    {
+        [Key(0)]
+        public PosRot LeftHand { get; set; }
+        [Key(1)]
+        public PosRot RightHand { get; set; }
+
+        [SerializationConstructor]
+        public BaseBody(PosRot leftHand, PosRot rightHand)
+        {
+            LeftHand = leftHand;
+            RightHand = rightHand;
+        }
+    }
+
+    [MessagePackObject]
+    public struct VRMBody : IObject
     {
         [Key(0)]
         public PosRot Head { get; set; }
@@ -17,7 +34,7 @@ namespace YuchiGames.POM.Data
         public PosRot RightHand { get; set; }
 
         [SerializationConstructor]
-        public PlayerModel(PosRot head, PosRot leftHand, PosRot rightHand)
+        public VRMBody(PosRot head, PosRot leftHand, PosRot rightHand)
         {
             Head = head;
             LeftHand = leftHand;
@@ -26,30 +43,26 @@ namespace YuchiGames.POM.Data
     }
 
     [MessagePackObject]
-    public struct ObjectModel : IModel
+    public struct PrimitiveObject : IObject
     {
         [Key(0)]
         public string UUID { get; set; }
-        [Key(2)]
+        [Key(1)]
         public PosRot Position { get; set; }
 
         [SerializationConstructor]
-        public ObjectModel(string uuid, PosRot position)
+        public PrimitiveObject(string uuid, PosRot position)
         {
             UUID = uuid;
             Position = position;
         }
     }
 
-    [MessagePackObject]
-    public struct PosRot : IModel
+    public struct PosRot
     {
-        [Key(0)]
         public float[] Pos { get; set; }
-        [Key(1)]
         public float[] Rot { get; set; }
 
-        [SerializationConstructor]
         public PosRot(float[] pos, float[] rot)
         {
             Pos = pos;

@@ -8,7 +8,7 @@
 
 	<ItemGroup>
 		<Compile Include="..\DataTypes\Files.cs" Link="Data\Files.cs" />
-		<Compile Include="..\DataTypes\Models.cs" Link="Data\Models.cs" />
+		<Compile Include="..\DataTypes\Objects.cs" Link="Data\Objects.cs" />
 		<Compile Include="..\DataTypes\TcpMessages.cs" Link="Data\TcpMessages.cs" />
 		<Compile Include="..\DataTypes\UdpMessages.cs" Link="Data\UdpMessages.cs" />
 	</ItemGroup>
