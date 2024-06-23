@@ -11,6 +11,8 @@ namespace YuchiGames.POM.Server.MessageMethods
         {
             try
             {
+                IPEndPoint clientEndPoint = new IPEndPoint(remoteEndPoint.Address, connectMessage.Port);
+
                 if (Utils.ContainAddress(remoteEndPoint))
                 {
                     throw new Exception($"Already connected to {remoteEndPoint}.");

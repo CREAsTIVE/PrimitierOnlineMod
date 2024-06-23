@@ -19,20 +19,6 @@ namespace YuchiGames.POM.Client
                 return s_settings;
             }
         }
-        private static IPEndPoint? s_endPoint;
-        public static IPEndPoint EndPoint
-        {
-            get
-            {
-                if (s_endPoint is null)
-                    throw new Exception("End point not found.");
-                return s_endPoint;
-            }
-            set
-            {
-                s_endPoint = value;
-            }
-        }
         private static int s_myID;
         public static int MyID
         {
@@ -73,6 +59,9 @@ namespace YuchiGames.POM.Client
                 s_settings = config.Get<ClientSettings>();
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
+
+                Thread udpThread = new Thread(Listeners.Udp);
+                udpThread.Start();
             }
             catch (Exception e)
             {

@@ -14,11 +14,14 @@ namespace YuchiGames.POM.DataTypes
     {
         [Key(0)]
         public string Version { get; }
+        [Key(1)]
+        public int Port { get; }
 
         [SerializationConstructor]
-        public ConnectMessage(string version)
+        public ConnectMessage(string version, int port)
         {
             Version = version;
+            Port = port;
         }
     }
 

@@ -6,6 +6,17 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Listeners
     {
+        private static IPEndPoint? s_udpEndPoint;
+        public static IPEndPoint UdpEndPoint
+        {
+            get
+            {
+                if (s_udpEndPoint is null)
+                    throw new Exception("End point not found.");
+                return s_udpEndPoint;
+            }
+        }
+
         public static async void Udp()
         {
             Melon<Program>.Logger.Msg("Udp listener started on port {0}.", Program.Settings.Port);
@@ -16,7 +27,7 @@ namespace YuchiGames.POM.Client.Network
                 {
                     if (listener.Client.LocalEndPoint is null)
                         throw new Exception("Local end point not found.");
-                    Program.EndPoint = (IPEndPoint)listener.Client.LocalEndPoint;
+                    s_udpEndPoint = (IPEndPoint)listener.Client.LocalEndPoint;
 
                     while (true)
                     {

@@ -15,7 +15,6 @@ namespace YuchiGames.POM.Client.Network
 
                 using (TcpClient client = new TcpClient(Program.Settings.IP, Program.Settings.Port))
                 {
-                    client.Client.Bind(Program.EndPoint);
                     using (NetworkStream stream = client.GetStream())
                     {
                         stream.Write(buffer, 0, buffer.Length);
@@ -49,7 +48,6 @@ namespace YuchiGames.POM.Client.Network
 
                 using (UdpClient client = new UdpClient(Program.Settings.IP, Program.Settings.Port))
                 {
-                    client.Client.Bind(Program.EndPoint);
                     client.Send(buffer, buffer.Length);
                 }
             }
