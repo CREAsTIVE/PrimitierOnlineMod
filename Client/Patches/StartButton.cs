@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
-using UnityEngine;
 using YuchiGames.POM.Client.Network;
 using YuchiGames.POM.DataTypes;
 
@@ -12,7 +11,7 @@ namespace YuchiGames.POM.Client.Patches
     {
         private static bool Prefix()
         {
-            Melon<Program>.Logger.Msg("StartButton.OnPress() called!");
+            Melon<Program>.Logger.Msg("StartButton.OnPress() Prefix called!");
             try
             {
                 ITcpMessage connectMessage = new ConnectMessage(Program.Settings.Version, Listeners.UdpEndPoint.Port);
@@ -22,11 +21,11 @@ namespace YuchiGames.POM.Client.Patches
                     case SuccessConnectionMessage successConnectionMessage:
                         Program.MyID = successConnectionMessage.YourID;
                         Program.IDList = successConnectionMessage.IDList;
-                        break;
+                        return true;
                     case FailureMessage failureMessage:
                         throw failureMessage.ExceptionMessage;
                 }
-                return true;
+                return false;
             }
             catch (Exception e)
             {
@@ -37,7 +36,7 @@ namespace YuchiGames.POM.Client.Patches
 
         private static void Postfix()
         {
-            Melon<Program>.Logger.Msg("StartButton.OnPress() finished!");
+            Melon<Program>.Logger.Msg("StartButton.OnPress() Postfix called!");
         }
     }
 }
