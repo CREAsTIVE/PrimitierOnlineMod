@@ -1,13 +1,14 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
+using UnityEngine;
 using YuchiGames.POM.Client.Network;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Patches
 {
     [HarmonyPatch(typeof(StartButton), nameof(StartButton.OnPress))]
-    class StartButtonPatch
+    class StartButton_OnPress
     {
         private static bool Prefix()
         {

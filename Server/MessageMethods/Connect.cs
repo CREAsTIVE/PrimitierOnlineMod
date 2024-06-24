@@ -13,9 +13,9 @@ namespace YuchiGames.POM.Server.MessageMethods
             {
                 IPEndPoint clientEndPoint = new IPEndPoint(remoteEndPoint.Address, connectMessage.Port);
 
-                if (Utils.ContainAddress(remoteEndPoint))
+                if (Utils.ContainAddress(clientEndPoint))
                 {
-                    throw new Exception($"Already connected to {remoteEndPoint}.");
+                    throw new Exception($"Already connected to {clientEndPoint}.");
                 }
 
                 if (connectMessage.Version != Program.Settings.Version)
@@ -31,8 +31,8 @@ namespace YuchiGames.POM.Server.MessageMethods
                         if (Program.UserData[i] == default)
                         {
                             yourID = i + 1;
-                            Program.UserData[i] = new UserData(yourID, remoteEndPoint);
-                            Log.Information("Connected to {0}.", remoteEndPoint);
+                            Program.UserData[i] = new UserData(yourID, clientEndPoint);
+                            Log.Information("Connected to {0}.", clientEndPoint);
                             break;
                         }
                     }
