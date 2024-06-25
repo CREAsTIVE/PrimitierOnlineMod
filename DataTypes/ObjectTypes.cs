@@ -72,7 +72,7 @@
         public PosRot(float[] pos, float[] rot)
         {
             if (pos.Length != 3 || rot.Length != 3)
-                throw new System.ArgumentException("Invalid array length");
+                throw new ArgumentException("Invalid array length");
             Pos = pos;
             Rot = rot;
         }

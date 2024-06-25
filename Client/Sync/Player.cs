@@ -1,5 +1,8 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using YuchiGames.POM.Client.Assets;
+using YuchiGames.POM.Client.Network;
+using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Sync
 {
@@ -25,6 +28,8 @@ namespace YuchiGames.POM.Client.Sync
         {
             try
             {
+                if (ToggleOnline.IsOnline)
+                    return;
                 if (sceneName == "Main")
                 {
                     s_handTransforms[0] = GameObject.Find("Player/XR Origin/Camera Offset/LeftHand Controller").transform;
@@ -58,7 +63,35 @@ namespace YuchiGames.POM.Client.Sync
         {
             try
             {
-
+                if (ToggleOnline.IsOnline)
+                    return;
+                SendPlayerPosMessage sendPlayerPosMessage = new SendPlayerPosMessage(
+                    Program.MyID,
+                    s_isVRM,
+                    new BaseBody(
+                        Utils.ConvertToPosRot(s_handTransforms[0]),
+                        Utils.ConvertToPosRot(s_handTransforms[1]),
+                        Utils.ConvertToPosRot(s_handTransforms[2])
+                        ),
+                    new VRMBody(
+                        Utils.ConvertToPosRot(s_vrmTransforms[0]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[1]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[2]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[3]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[4]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[5]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[6]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[7]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[8]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[9]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[10]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[11]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[12]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[13]),
+                        Utils.ConvertToPosRot(s_vrmTransforms[14])
+                        )
+                    );
+                Senders.Udp(sendPlayerPosMessage);
             }
             catch (Exception e)
             {

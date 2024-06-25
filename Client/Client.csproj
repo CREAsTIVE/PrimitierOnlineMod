@@ -53,6 +53,10 @@
 			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
 			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll</HintPath>
 		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.UI.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.UI.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
