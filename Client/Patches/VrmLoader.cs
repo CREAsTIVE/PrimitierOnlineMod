@@ -1,18 +1,15 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
-using UnityEngine;
-using YuchiGames.POM.Client.Network;
-using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Patches
 {
-    [HarmonyPatch(typeof(StartButton), nameof(StartButton.OnPress))]
-    class StartButton_OnPress
+    [HarmonyPatch(typeof(VrmLoader), nameof(VrmLoader.avatarVisibility))]
+    class VrmLoader_avatarVisibility
     {
-        private static bool Prefix()
+        private static bool Prefix(bool __result)
         {
-            Melon<Program>.Logger.Msg("StartButton.OnPress() Prefix called!");
+            Melon<Program>.Logger.Msg($"VrmLoader.avatarVisibility({__result}) Prefix called!");
             try
             {
                 return true;
@@ -26,7 +23,7 @@ namespace YuchiGames.POM.Client.Patches
 
         private static void Postfix()
         {
-            Melon<Program>.Logger.Msg("StartButton.OnPress() Postfix called!");
+            Melon<Program>.Logger.Msg("VrmLoader.avatarVisibility() Postfix called!");
         }
     }
 }

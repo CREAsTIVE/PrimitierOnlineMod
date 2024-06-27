@@ -9,12 +9,16 @@ namespace YuchiGames.POM.Server
     class UserData
     {
         public int ID { get; set; }
-        public IPEndPoint EndPoint { get; set; }
+        public IPAddress Address { get; set; }
+        public int TcpPort { get; set; }
+        public int UdpPort { get; set; }
 
-        public UserData(int id, IPEndPoint endPoint)
+        public UserData(int id, IPAddress address, int tcpPort, int udpPort)
         {
             ID = id;
-            EndPoint = endPoint;
+            Address = address;
+            TcpPort = tcpPort;
+            UdpPort = udpPort;
         }
     }
 

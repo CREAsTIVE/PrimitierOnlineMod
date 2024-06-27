@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using Serilog;
 using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Server.Network;
@@ -11,11 +12,9 @@ namespace YuchiGames.POM.Server.MessageMethods
         {
             try
             {
-                IPEndPoint clientEndPoint = new IPEndPoint(remoteEndPoint.Address, connectMessage.Port);
-
-                if (Utils.ContainAddress(clientEndPoint))
+                if (Utils.IsConnected(remoteEndPoint))
                 {
-                    throw new Exception($"Already connected to {clientEndPoint}.");
+                    throw new Exception($"Already connected to {remoteEndPoint}.");
                 }
 
                 if (connectMessage.Version != Program.Settings.Version)
@@ -31,19 +30,21 @@ namespace YuchiGames.POM.Server.MessageMethods
                         if (Program.UserData[i] == default)
                         {
                             yourID = i + 1;
-                            Program.UserData[i] = new UserData(yourID, clientEndPoint);
-                            Log.Information("Connected to {0}.", clientEndPoint);
+                            Program.UserData[i] = new UserData(yourID, remoteEndPoint.Address, connectMessage.TcpPort, connectMessage.UdpPort);
+                            Log.Information("Connected to {0}.", remoteEndPoint);
                             break;
                         }
                     }
                 }
 
                 int[] idList = new int[Program.Settings.MaxPlayer];
+                int j = 0;
                 for (int i = 0; i < Program.UserData.Length; i++)
                 {
                     if (Program.UserData[i] != default)
                     {
-                        idList[i] = i + 1;
+                        idList[j] = Program.UserData[i].ID;
+                        j++;
                     }
                 }
 

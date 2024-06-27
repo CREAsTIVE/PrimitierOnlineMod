@@ -6,6 +6,16 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Listeners
     {
+        private static IPEndPoint? s_tcpEndPoint;
+        public static IPEndPoint TcpEndPoint
+        {
+            get
+            {
+                if (s_tcpEndPoint is null)
+                    throw new Exception("End point not found.");
+                return s_tcpEndPoint;
+            }
+        }
         private static IPEndPoint? s_udpEndPoint;
         public static IPEndPoint UdpEndPoint
         {
@@ -14,6 +24,33 @@ namespace YuchiGames.POM.Client.Network
                 if (s_udpEndPoint is null)
                     throw new Exception("End point not found.");
                 return s_udpEndPoint;
+            }
+        }
+
+        public static void Tcp()
+        {
+            TcpListener listener = new TcpListener(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
+
+            try
+            {
+                listener.Start();
+                s_tcpEndPoint = (IPEndPoint)listener.LocalEndpoint;
+                Melon<Program>.Logger.Msg("Tcp listener started on port {0}.", Program.Settings.Port);
+
+                while (true)
+                {
+                    TcpClient client = listener.AcceptTcpClient();
+                    _ = Task.Run(() => Clients.Tcp(client));
+                }
+            }
+            catch (Exception e)
+            {
+                Melon<Program>.Logger.Error(e.Message);
+            }
+            finally
+            {
+                listener.Stop();
+                Melon<Program>.Logger.Msg("Tcp listener stopped on port {0}.", Program.Settings.Port);
             }
         }
 

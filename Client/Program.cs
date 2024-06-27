@@ -55,7 +55,9 @@ namespace YuchiGames.POM.Client
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
 
+                Thread tcpThread = new Thread(Listeners.Tcp);
                 Thread udpThread = new Thread(Listeners.Udp);
+                tcpThread.Start();
                 udpThread.Start();
             }
             catch (Exception e)

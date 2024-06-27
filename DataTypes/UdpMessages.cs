@@ -3,13 +3,16 @@
 namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(SendPlayerPosMessage))]
-    public interface IUdpMessage { }
+    public interface IUdpMessage
+    {
+        int ID { get; }
+    }
 
     [MessagePackObject]
     public struct SendPlayerPosMessage : IUdpMessage
     {
         [Key(0)]
-        public int PlayerId { get; }
+        public int ID { get; }
         [Key(1)]
         public bool IsVRMBody { get; }
         [Key(2)]
@@ -17,9 +20,10 @@ namespace YuchiGames.POM.DataTypes
         [Key(3)]
         public VRMBody VrmBody { get; }
 
-        public SendPlayerPosMessage(int playerId, bool isVRMBody, BaseBody baseBody, VRMBody vrmBody)
+        [SerializationConstructor]
+        public SendPlayerPosMessage(int id, bool isVRMBody, BaseBody baseBody, VRMBody vrmBody)
         {
-            PlayerId = playerId;
+            ID = id;
             IsVRMBody = isVRMBody;
             BaseBody = baseBody;
             VrmBody = vrmBody;

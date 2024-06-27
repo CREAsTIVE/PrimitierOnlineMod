@@ -11,7 +11,7 @@ namespace YuchiGames.POM.Server.MessageMethods
         {
             try
             {
-                if (!Utils.ContainAddress(remoteEndPoint))
+                if (!Utils.IsConnected(remoteEndPoint))
                 {
                     throw new Exception($"Not connected to {remoteEndPoint}.");
                 }
@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Server.MessageMethods
                 {
                     for (int i = 0; i < Program.UserData.Length; i++)
                     {
-                        if (Program.UserData[i].EndPoint == remoteEndPoint)
+                        if (Program.UserData[i].Address.Equals(remoteEndPoint.Address))
                         {
                             Program.UserData[i] = default!;
                             Log.Information("Disconnected from {0}.", remoteEndPoint);

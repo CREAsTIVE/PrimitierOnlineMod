@@ -1,12 +1,11 @@
 ﻿using MelonLoader;
 using UnityEngine;
-using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Network;
 using YuchiGames.POM.DataTypes;
 
-namespace YuchiGames.POM.Client.Sync
+namespace YuchiGames.POM.Client.Assets
 {
-    class Player : MelonMod
+    class PlayerSync : MelonMod
     {
         private static bool s_isVRM = false;
         public static bool IsVRM

@@ -62,24 +62,36 @@ namespace YuchiGames.POM.Server.Network
             {
                 using (UdpClient client = new UdpClient())
                 {
-                    if (!Utils.ContainAddress(remoteEndPoint))
+                    IUdpMessage udpMessage = MessagePackSerializer.Deserialize<IUdpMessage>(receivedData);
+
+                    for (int i = 0; i < Program.UserData.Length; i++)
                     {
-                        throw new Exception($"Not connected to {remoteEndPoint}.");
+                        if (Program.UserData[i] == default)
+                            continue;
+                        if (
+                            Program.UserData[i].Address.Equals(remoteEndPoint.Address) &&
+                            Program.UserData[i].ID == udpMessage.ID
+                            )
+                        {
+                            break;
+                        }
+                        if (i == Program.UserData.Length - 1)
+                        {
+                            throw new Exception($"Not connected to {remoteEndPoint}.");
+                        }
                     }
 
-                    switch (MessagePackSerializer.Deserialize<IUdpMessage>(receivedData))
+                    switch (udpMessage)
                     {
-                        case SendPlayerPosMessage sendPlayerPosMessage:
+                        case SendPlayerPosMessage:
                             for (int i = 0; i < Program.UserData.Length; i++)
                             {
                                 if (Program.UserData[i] == default)
-                                {
                                     continue;
-                                }
-                                if (!Program.UserData[i].EndPoint.Address.Equals(remoteEndPoint.Address))
+                                if (!Program.UserData[i].Address.Equals(remoteEndPoint.Address))
                                 {
-                                    client.SendAsync(receivedData, receivedData.Length, Program.UserData[i].EndPoint);
-                                    Log.Information("Sent data to {0}.", Program.UserData[i].EndPoint);
+                                    client.SendAsync(receivedData, receivedData.Length, new IPEndPoint(Program.UserData[i].Address, Program.UserData[i].UdpPort));
+                                    Log.Information("Sent data to {0}.", Program.UserData[i].Address);
                                 }
                             }
                             break;

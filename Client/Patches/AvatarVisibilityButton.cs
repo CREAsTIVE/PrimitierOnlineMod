@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
-using YuchiGames.POM.Client.Sync;
+using YuchiGames.POM.Client.Assets;
 
 namespace YuchiGames.POM.Client.Patches
 {
@@ -13,7 +13,7 @@ namespace YuchiGames.POM.Client.Patches
             Melon<Program>.Logger.Msg($"AvatarVisibilityButton.SwitchState({state}) Prefix called!");
             try
             {
-                Player.IsVRM = state;
+                PlayerSync.IsVRM = state;
                 return true;
             }
             catch (Exception e)
