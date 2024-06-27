@@ -22,9 +22,8 @@ namespace YuchiGames.POM.Server.Network
                         throw new Exception("RemoteEndPoint not found.");
                     IPEndPoint remoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
 
-                    int bufferLength = 1024;
-                    byte[] buffer = new byte[bufferLength];
-                    stream.Read(buffer, 0, bufferLength);
+                    byte[] buffer = new byte[1024];
+                    stream.Read(buffer, 0, buffer.Length);
 
                     ITcpMessage message;
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
