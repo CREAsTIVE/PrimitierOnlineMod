@@ -21,7 +21,7 @@ namespace YuchiGames.POM.Client.Patches
                 //     return false;
                 // }
                 // Melon<Program>.Logger.Msg($"AvatarVisibilityButton.SwitchState() WorldField: {WorldField.GetValue}");
-                bool aaa = Traverse.Create(typeof(VrmLoader)).Field("_avatarVisibility").GetValue<bool>();
+                bool aaa = Traverse.Create(typeof(VrmLoader)).Field("NativeFieldInfoPtr_avatarVisibility").GetValue<bool>();
                 Melon<Program>.Logger.Msg($"aaa: {aaa}");
                 return true;
             }
