@@ -29,13 +29,13 @@ namespace YuchiGames.POM.Client.Network
 
         public static void Tcp()
         {
-            TcpListener listener = new TcpListener(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
+            TcpListener listener = new TcpListener(IPAddress.Parse(Program.Settings.IP), Program.Settings.TcpPort);
 
             try
             {
                 listener.Start();
                 s_tcpEndPoint = (IPEndPoint)listener.LocalEndpoint;
-                Melon<Program>.Logger.Msg("Tcp listener started on port {0}.", Program.Settings.Port);
+                Melon<Program>.Logger.Msg("Tcp listener started on port {0}.", Program.Settings.TcpPort);
 
                 while (true)
                 {
@@ -50,17 +50,17 @@ namespace YuchiGames.POM.Client.Network
             finally
             {
                 listener.Stop();
-                Melon<Program>.Logger.Msg("Tcp listener stopped on port {0}.", Program.Settings.Port);
+                Melon<Program>.Logger.Msg("Tcp listener stopped on port {0}.", Program.Settings.TcpPort);
             }
         }
 
         public static async void Udp()
         {
-            Melon<Program>.Logger.Msg("Udp listener started on port {0}.", Program.Settings.Port);
+            Melon<Program>.Logger.Msg("Udp listener started on port {0}.", Program.Settings.TcpPort);
 
             try
             {
-                using (UdpClient listener = new UdpClient(Program.Settings.Port))
+                using (UdpClient listener = new UdpClient(Program.Settings.TcpPort))
                 {
                     if (listener.Client.LocalEndPoint is null)
                         throw new Exception("Local end point not found.");
@@ -78,7 +78,7 @@ namespace YuchiGames.POM.Client.Network
                 Melon<Program>.Logger.Error(e.Message);
             }
 
-            Melon<Program>.Logger.Msg("Udp listener stopped on port {0}.", Program.Settings.Port);
+            Melon<Program>.Logger.Msg("Udp listener stopped on port {0}.", Program.Settings.TcpPort);
         }
     }
 }

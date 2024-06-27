@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Client.Network;
+using YuchiGames.POM.Client.Assets;
 
 namespace YuchiGames.POM.Client
 {

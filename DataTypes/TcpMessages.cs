@@ -4,9 +4,10 @@ namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(ConnectMessage))]
     [Union(1, typeof(SuccessConnectionMessage))]
-    [Union(2, typeof(DisconnectMessage))]
-    [Union(3, typeof(SuccessMessage))]
-    [Union(4, typeof(FailureMessage))]
+    [Union(2, typeof(JoinedMessage))]
+    [Union(3, typeof(DisconnectMessage))]
+    [Union(4, typeof(SuccessMessage))]
+    [Union(5, typeof(FailureMessage))]
     public interface ITcpMessage { }
 
     [MessagePackObject]
@@ -41,6 +42,19 @@ namespace YuchiGames.POM.DataTypes
         {
             YourID = yourID;
             IDList = idList;
+        }
+    }
+
+    [MessagePackObject]
+    public struct JoinedMessage : ITcpMessage
+    {
+        [Key(0)]
+        public int ID { get; }
+
+        [SerializationConstructor]
+        public JoinedMessage(int id)
+        {
+            ID = id;
         }
     }
 

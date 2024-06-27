@@ -1,29 +1,17 @@
 ﻿using MelonLoader;
 using UnityEngine;
 using YuchiGames.POM.Client.Network;
+using YuchiGames.POM.Client.Patches;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Assets
 {
-    class PlayerSync : MelonMod
+    static class PlayerSync
     {
-        private static bool s_isVRM = false;
-        public static bool IsVRM
-        {
-            get
-            {
-                return s_isVRM;
-            }
-            set
-            {
-                s_isVRM = value;
-            }
-        }
-
         private static Transform[] s_handTransforms = new Transform[2];
         private static Transform[] s_vrmTransforms = new Transform[15];
 
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        public static void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
             try
             {
@@ -54,11 +42,11 @@ namespace YuchiGames.POM.Client.Assets
             }
             catch (Exception e)
             {
-                MelonLogger.Error(e);
+                Melon<Program>.Logger.Error(e);
             }
         }
 
-        public override void OnFixedUpdate()
+        public static void OnFixedUpdate()
         {
             try
             {
@@ -66,7 +54,7 @@ namespace YuchiGames.POM.Client.Assets
                     return;
                 SendPlayerPosMessage sendPlayerPosMessage = new SendPlayerPosMessage(
                     Program.MyID,
-                    s_isVRM,
+                    AvatarVisibilityButton_SwitchState.IsVRM,
                     new BaseBody(
                         Utils.ConvertToPosRot(s_handTransforms[0]),
                         Utils.ConvertToPosRot(s_handTransforms[1]),
@@ -94,7 +82,7 @@ namespace YuchiGames.POM.Client.Assets
             }
             catch (Exception e)
             {
-                MelonLogger.Error(e);
+                Melon<Program>.Logger.Error(e);
             }
         }
     }
