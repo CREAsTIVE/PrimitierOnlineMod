@@ -17,14 +17,14 @@ namespace YuchiGames.POM.Client.Network
                     byte[] buffer = new byte[1024];
                     stream.Read(buffer, 0, buffer.Length);
 
-                    ITcpMessage message;
+                    // ITcpMessage message;
                     switch (MessagePack.MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
                         default:
                             throw new Exception("Received unknown message.");
                     }
-                    buffer = MessagePack.MessagePackSerializer.Serialize(message);
-                    stream.Write(buffer, 0, buffer.Length);
+                    // buffer = MessagePack.MessagePackSerializer.Serialize(message);
+                    // stream.Write(buffer, 0, buffer.Length);
                 }
             }
             catch (Exception e)
