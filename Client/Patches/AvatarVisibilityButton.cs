@@ -15,7 +15,12 @@ namespace YuchiGames.POM.Client.Patches
             {
                 PlayerSync.IsVRM = state;
                 var WorldField = typeof(VrmLoader).GetField("avatarVisibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                Melon<Program>.Logger.Msg($"AvatarVisibilityButton.SwitchState() WorldField: {WorldField}");
+                if (WorldField == null)
+                {
+                    Melon<Program>.Logger.Error("AvatarVisibilityButton.SwitchState() WorldField is null!");
+                    return false;
+                }
+                Melon<Program>.Logger.Msg($"AvatarVisibilityButton.SwitchState() WorldField: {WorldField.GetValue}");
                 return true;
             }
             catch (Exception e)
