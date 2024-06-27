@@ -27,7 +27,7 @@ namespace YuchiGames.POM.Client.Assets
         {
             try
             {
-                if (ToggleOnline.IsOnline)
+                if (!ToggleOnline.IsOnline)
                     return;
                 if (sceneName == "Main")
                 {
@@ -62,7 +62,7 @@ namespace YuchiGames.POM.Client.Assets
         {
             try
             {
-                if (ToggleOnline.IsOnline)
+                if (!ToggleOnline.IsOnline)
                     return;
                 SendPlayerPosMessage sendPlayerPosMessage = new SendPlayerPosMessage(
                     Program.MyID,

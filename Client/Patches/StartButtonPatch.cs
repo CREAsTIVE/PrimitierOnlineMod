@@ -1,9 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
-using UnityEngine;
-using YuchiGames.POM.Client.Network;
-using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Patches
 {
