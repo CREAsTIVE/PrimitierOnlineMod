@@ -1,8 +1,7 @@
 ﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
-using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Client.Network;
-using YuchiGames.POM.Client.Assets;
+using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client
 {
@@ -60,6 +59,8 @@ namespace YuchiGames.POM.Client
                 Thread udpThread = new Thread(Listeners.Udp);
                 tcpThread.Start();
                 udpThread.Start();
+
+                Senders.Udp(new TestMessage(1));
             }
             catch (Exception e)
             {

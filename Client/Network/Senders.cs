@@ -1,39 +1,29 @@
-﻿using System.Net.Sockets;
-using MelonLoader;
-using MessagePack;
+﻿using MelonLoader;
+using System.Net;
+using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class Senders
+    public static class Senders
     {
         public static ITcpMessage Tcp(ITcpMessage message)
         {
             try
             {
-                byte[] buffer = new byte[1024];
-                buffer = MessagePackSerializer.Serialize(message);
-
-                using (TcpClient client = new TcpClient(Program.Settings.IP, Program.Settings.TcpPort))
+                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.TcpPort);
+                using (TcpClient client = new TcpClient(remoteEndPoint))
+                using (NetworkStream stream = client.GetStream())
                 {
-                    using (NetworkStream stream = client.GetStream())
-                    {
-                        stream.Write(buffer, 0, buffer.Length);
-                        stream.Read(buffer, 0, buffer.Length);
-                        Melon<Program>.Logger.Msg($"Received: {BitConverter.ToString(buffer)} bytes.");
+                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-                        ITcpMessage receiveMessage = MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
-                        switch (receiveMessage)
-                        {
-                            case SuccessMessage:
-                            case SuccessConnectionMessage:
-                                return receiveMessage;
-                            case FailureMessage failureMessage:
-                                throw failureMessage.ExceptionMessage;
-                            default:
-                                throw new Exception("Unknown message type.");
-                        }
-                    }
+                    byte[] buffer = new byte[1024];
+                    buffer = MessagePack.MessagePackSerializer.Serialize(message);
+
+                    stream.Write(buffer, 0, buffer.Length);
+                    stream.Read(buffer, 0, buffer.Length);
+
+                    return MessagePack.MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
                 }
             }
             catch (Exception)
@@ -46,11 +36,14 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                byte[] buffer = new byte[1024];
-                buffer = MessagePackSerializer.Serialize(message);
-
-                using (UdpClient client = new UdpClient(Program.Settings.IP, Program.Settings.UdpPort))
+                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.UdpPort);
+                using (UdpClient client = new UdpClient(remoteEndPoint))
                 {
+                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+                    byte[] buffer = new byte[1024];
+                    buffer = MessagePack.MessagePackSerializer.Serialize(message);
+
                     client.Send(buffer, buffer.Length);
                 }
             }
