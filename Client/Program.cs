@@ -60,7 +60,7 @@ namespace YuchiGames.POM.Client
                 tcpThread.Start();
                 udpThread.Start();
 
-                Senders.Udp(new TestMessage(1));
+                // Senders.Udp(new TestMessage(1));
             }
             catch (Exception e)
             {

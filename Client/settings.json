@@ -1,7 +1,7 @@
 {
   "name": "YuchiGames",
-  "Version": "0.0.0",
+  "version": "0.0.0",
   "ip": "127.0.0.1",
-  "tcpport": 54162,
-  "udpport": 54163
+  "port": 54162,
+  "listenPort": 54163
 }

@@ -6,37 +6,16 @@ namespace YuchiGames.POM.Client.Network
 {
     public static class Listeners
     {
-        private static IPEndPoint? s_tcpIPEndPoint;
-        public static IPEndPoint TcpIPEndPoint
-        {
-            get
-            {
-                if (s_tcpIPEndPoint is null)
-                    throw new Exception("TCP IPEndPoint not found.");
-                return s_tcpIPEndPoint;
-            }
-        }
-        private static IPEndPoint? s_udpIPEndPoint;
-        public static IPEndPoint UdpIPEndPoint
-        {
-            get
-            {
-                if (s_udpIPEndPoint is null)
-                    throw new Exception("UDP IPEndPoint not found.");
-                return s_udpIPEndPoint;
-            }
-        }
-
         public static void Tcp()
         {
-            TcpListener listener = new TcpListener(IPAddress.Parse(Program.Settings.IP), Program.Settings.TcpPort);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.ListenPort);
+            TcpListener listener = new TcpListener(localEndPoint);
 
             try
             {
                 listener.Start();
-                s_tcpIPEndPoint = (IPEndPoint)listener.LocalEndpoint;
 
-                Melon<Program>.Logger.Msg($"Tcp server started on port {Program.Settings.TcpPort}.");
+                Melon<Program>.Logger.Msg($"Tcp server started on port {localEndPoint.Port}.");
 
                 while (true)
                 {
@@ -51,23 +30,19 @@ namespace YuchiGames.POM.Client.Network
             finally
             {
                 listener.Stop();
-                Melon<Program>.Logger.Msg($"Tcp server stopped on port {Program.Settings.TcpPort}.");
+                Melon<Program>.Logger.Msg($"Tcp server stopped on port {localEndPoint.Port}.");
             }
         }
 
         public static async void Udp()
         {
-            IPEndPoint remoteEndPont = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.UdpPort);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.ListenPort);
 
             try
             {
-                using (UdpClient listener = new UdpClient(remoteEndPont))
+                using (UdpClient listener = new UdpClient(localEndPoint))
                 {
-                    if (listener.Client.LocalEndPoint is null)
-                        throw new Exception("LocalEndPoint not found.");
-                    s_udpIPEndPoint = (IPEndPoint)listener.Client.LocalEndPoint;
-
-                    Melon<Program>.Logger.Msg($"Udp server started on port {Program.Settings.UdpPort}.");
+                    Melon<Program>.Logger.Msg($"Udp server started on port {localEndPoint.Port}.");
 
                     while (true)
                     {
@@ -81,7 +56,7 @@ namespace YuchiGames.POM.Client.Network
                 Melon<Program>.Logger.Error(e.Message);
             }
 
-            Melon<Program>.Logger.Msg($"Udp server stopped on port {Program.Settings.UdpPort}.");
+            Melon<Program>.Logger.Msg($"Udp server stopped on port {localEndPoint.Port}.");
         }
     }
 }

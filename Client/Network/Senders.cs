@@ -11,12 +11,10 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.TcpPort);
+                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
                 using (TcpClient client = new TcpClient(remoteEndPoint))
                 using (NetworkStream stream = client.GetStream())
                 {
-                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-
                     byte[] buffer = new byte[1024];
                     buffer = MessagePack.MessagePackSerializer.Serialize(message);
 
@@ -36,7 +34,7 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.UdpPort);
+                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
                 using (UdpClient client = new UdpClient(remoteEndPoint))
                 {
                     client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
