@@ -35,13 +35,11 @@ namespace YuchiGames.POM.Client.Network
             try
             {
                 IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
-                using (UdpClient client = new UdpClient(remoteEndPoint))
+                using (UdpClient client = new UdpClient())
                 {
-                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-
+                    client.Connect(remoteEndPoint);
                     byte[] buffer = new byte[1024];
                     buffer = MessagePack.MessagePackSerializer.Serialize(message);
-
                     client.Send(buffer, buffer.Length);
                 }
             }
