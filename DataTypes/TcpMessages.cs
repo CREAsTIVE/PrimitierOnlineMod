@@ -16,16 +16,13 @@ namespace YuchiGames.POM.DataTypes
         [Key(0)]
         public string Version { get; }
         [Key(1)]
-        public int TcpPort { get; }
-        [Key(2)]
-        public int UdpPort { get; }
+        public int Port { get; }
 
         [SerializationConstructor]
-        public ConnectMessage(string version, int tcpPort, int udpPort)
+        public ConnectMessage(string version, int port)
         {
             Version = version;
-            TcpPort = tcpPort;
-            UdpPort = udpPort;
+            Port = port;
         }
     }
 

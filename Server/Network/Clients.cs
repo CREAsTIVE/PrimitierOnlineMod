@@ -89,7 +89,7 @@ namespace YuchiGames.POM.Server.Network
                                     continue;
                                 if (!Program.UserData[i].Address.Equals(remoteEndPoint.Address))
                                 {
-                                    client.SendAsync(receivedData, receivedData.Length, new IPEndPoint(Program.UserData[i].Address, Program.UserData[i].UdpPort));
+                                    client.SendAsync(receivedData, receivedData.Length, new IPEndPoint(Program.UserData[i].Address, Program.UserData[i].Port));
                                     Log.Information("Sent data to {0}.", Program.UserData[i].Address);
                                 }
                             }

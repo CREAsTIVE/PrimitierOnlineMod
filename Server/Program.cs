@@ -10,15 +10,13 @@ namespace YuchiGames.POM.Server
     {
         public int ID { get; set; }
         public IPAddress Address { get; set; }
-        public int TcpPort { get; set; }
-        public int UdpPort { get; set; }
+        public int Port { get; set; }
 
-        public UserData(int id, IPAddress address, int tcpPort, int udpPort)
+        public UserData(int id, IPAddress address, int port)
         {
             ID = id;
             Address = address;
-            TcpPort = tcpPort;
-            UdpPort = udpPort;
+            Port = port;
         }
     }
 

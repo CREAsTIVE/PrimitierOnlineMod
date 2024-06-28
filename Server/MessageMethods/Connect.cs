@@ -28,7 +28,7 @@ namespace YuchiGames.POM.Server.MessageMethods
                         if (Program.UserData[i] == default)
                         {
                             yourID = i + 1;
-                            Program.UserData[i] = new UserData(yourID, remoteEndPoint.Address, connectMessage.TcpPort, connectMessage.UdpPort);
+                            Program.UserData[i] = new UserData(yourID, remoteEndPoint.Address, connectMessage.Port);
                             Log.Information("Connected to {0}.", remoteEndPoint);
                             break;
                         }
