@@ -8,12 +8,12 @@ namespace YuchiGames.POM.Server.Network
     {
         public static void Tcp()
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.TcpPort);
+            TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
 
             try
             {
                 listener.Start();
-                Log.Information("Tcp server started on port {0}.", Program.Settings.TcpPort);
+                Log.Information("Tcp server started on port {0}.", Program.Settings.Port);
 
                 while (true)
                 {
@@ -28,7 +28,7 @@ namespace YuchiGames.POM.Server.Network
             finally
             {
                 listener.Stop();
-                Log.Information("Tcp server stopped on port {0}.", Program.Settings.TcpPort);
+                Log.Information("Tcp server stopped on port {0}.", Program.Settings.Port);
             }
         }
 
@@ -36,9 +36,9 @@ namespace YuchiGames.POM.Server.Network
         {
             try
             {
-                using (UdpClient listener = new UdpClient(Program.Settings.UdpPort))
+                using (UdpClient listener = new UdpClient(Program.Settings.Port))
                 {
-                    Log.Information("Udp server started on port {0}.", Program.Settings.UdpPort);
+                    Log.Information("Udp server started on port {0}.", Program.Settings.Port);
 
                     while (true)
                     {
@@ -52,7 +52,7 @@ namespace YuchiGames.POM.Server.Network
                 Log.Error(e.Message);
             }
 
-            Log.Information("Udp server stopped on port {0}.", Program.Settings.UdpPort);
+            Log.Information("Udp server stopped on port {0}.", Program.Settings.Port);
         }
     }
 }

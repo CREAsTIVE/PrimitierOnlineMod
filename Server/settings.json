@@ -2,8 +2,7 @@
   "name": "DevServer",
   "description": "POMテストのためのサーバー",
   "version": "0.0.0",
-  "tcpPort": 54162,
-  "udpPort": 54163,
+  "port": 54162,
   "maxPlayer": 15,
   "Serilog": {
     "Using": [
