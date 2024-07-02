@@ -1,18 +1,30 @@
-﻿using MelonLoader;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public static class Senders
+    public class Sender
     {
-        public static ITcpMessage Tcp(ITcpMessage message)
+        private IPEndPoint _remoteEndPoint;
+        public IPEndPoint RemoteEndPoint
+        {
+            get
+            {
+                return _remoteEndPoint;
+            }
+        }
+
+        public Sender(string ip, int port)
+        {
+            _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+        }
+
+        public ITcpMessage Tcp(ITcpMessage message)
         {
             try
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
-                using (TcpClient client = new TcpClient(remoteEndPoint))
+                using (TcpClient client = new TcpClient(_remoteEndPoint))
                 using (NetworkStream stream = client.GetStream())
                 {
                     byte[] buffer = new byte[1024];
@@ -30,14 +42,13 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        public static void Udp(IUdpMessage message)
+        public void Udp(IUdpMessage message)
         {
             try
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Parse(Program.Settings.IP), Program.Settings.Port);
                 using (UdpClient client = new UdpClient())
                 {
-                    client.Connect(remoteEndPoint);
+                    client.Connect(_remoteEndPoint);
                     byte[] buffer = new byte[1024];
                     buffer = MessagePack.MessagePackSerializer.Serialize(message);
                     client.Send(buffer, buffer.Length);
