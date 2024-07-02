@@ -21,7 +21,7 @@ namespace YuchiGames.POM.Client.Network
         private CancellationTokenSource _tcpCancelTokenSource;
         private CancellationTokenSource _udpCancelTokenSource;
 
-        public event EventHandler OnJoined;
+        public event EventHandler Joined;
 
         public Listener(int port)
         {
@@ -30,6 +30,7 @@ namespace YuchiGames.POM.Client.Network
             _udpListener = new UdpClient(_localEndPoint);
             _tcpCancelTokenSource = new CancellationTokenSource();
             _udpCancelTokenSource = new CancellationTokenSource();
+            Joined += (sender, e) => { };
         }
         public Listener(string ip, int port)
         {
@@ -38,6 +39,7 @@ namespace YuchiGames.POM.Client.Network
             _udpListener = new UdpClient(_localEndPoint);
             _tcpCancelTokenSource = new CancellationTokenSource();
             _udpCancelTokenSource = new CancellationTokenSource();
+            Joined += (sender, e) => { };
         }
 
         public void Start()
