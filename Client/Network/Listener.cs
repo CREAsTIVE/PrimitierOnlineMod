@@ -45,6 +45,7 @@ namespace YuchiGames.POM.Client.Network
         private UdpClient _udpListener;
         private CancellationTokenSource _tcpCancelTokenSource;
         private CancellationTokenSource _udpCancelTokenSource;
+        private bool _isRunning;
 
         public event EventHandler<JoinedEventArgs>? JoinedEvent;
         public event EventHandler<ReceivePlayerPosEventArgs>? ReceivePlayerPosEvent;
@@ -70,12 +71,15 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                _tcpListener.Start();
+                if (_isRunning)
+                    throw new Exception("Listener is already running.");
+
                 Thread tcpThread = new Thread(() => Tcp(_tcpCancelTokenSource.Token));
                 tcpThread.Start();
-
                 Thread udpThread = new Thread(() => Udp(_udpCancelTokenSource.Token));
                 udpThread.Start();
+
+                _isRunning = true;
             }
             catch (Exception e)
             {
@@ -86,8 +90,13 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
+                if (!_isRunning)
+                    throw new Exception("Listener is not running.");
+
                 _tcpCancelTokenSource.Cancel();
                 _udpCancelTokenSource.Cancel();
+
+                _isRunning = false;
             }
             catch (Exception e)
             {

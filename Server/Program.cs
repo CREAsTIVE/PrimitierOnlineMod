@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Server
         }
     }
 
-    class Program
+    static class Program
     {
         private static ServerSettings? s_settings;
         public static ServerSettings Settings
@@ -63,6 +63,8 @@ namespace YuchiGames.POM.Server
         {
             try
             {
+                if (!File.Exists("settings.json"))
+                    throw new FileNotFoundException();
                 IConfigurationRoot config = new ConfigurationBuilder()
                     .AddJsonFile("settings.json")
                     .Build();

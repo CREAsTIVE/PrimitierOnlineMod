@@ -43,6 +43,7 @@ namespace YuchiGames.POM.Client
                 s_idList = value;
             }
         }
+        private static Listener? s_listener;
 
         public override void OnInitializeMelon()
         {
@@ -55,13 +56,20 @@ namespace YuchiGames.POM.Client
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
 
-                Listener listener = new Listener(s_settings.ListenPort);
-                listener.Start();
+                s_listener = new Listener(s_settings.IP, s_settings.ListenPort);
+                s_listener.Start();
             }
             catch (Exception e)
             {
                 LoggerInstance.Error(e.Message);
             }
+        }
+
+        public override void OnApplicationQuit()
+        {
+            if (s_listener is null)
+                throw new Exception("Listener not found.");
+            s_listener.Stop();
         }
     }
 }
