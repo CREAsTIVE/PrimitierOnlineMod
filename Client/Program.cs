@@ -49,8 +49,11 @@ namespace YuchiGames.POM.Client
         {
             try
             {
+                string path = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
+                if (!File.Exists(path))
+                    throw new FileNotFoundException();
                 IConfigurationRoot config = new ConfigurationBuilder()
-                    .AddJsonFile($"{Directory.GetCurrentDirectory()}/Mods/settings.json")
+                    .AddJsonFile(path)
                     .Build();
                 s_settings = config.Get<ClientSettings>();
                 if (s_settings is null)

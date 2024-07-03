@@ -69,45 +69,32 @@ namespace YuchiGames.POM.Client.Network
 
         public void Start()
         {
-            try
-            {
-                if (_isRunning)
-                    throw new Exception("Listener is already running.");
+            if (_isRunning)
+                throw new Exception("Listener is already running.");
 
-                Thread tcpThread = new Thread(() => Tcp(_tcpCancelTokenSource.Token));
-                tcpThread.Start();
-                Thread udpThread = new Thread(() => Udp(_udpCancelTokenSource.Token));
-                udpThread.Start();
+            Thread tcpThread = new Thread(() => Tcp(_tcpCancelTokenSource.Token));
+            tcpThread.Start();
+            Thread udpThread = new Thread(() => Udp(_udpCancelTokenSource.Token));
+            udpThread.Start();
 
-                _isRunning = true;
-            }
-            catch (Exception e)
-            {
-                Melon<Program>.Logger.Error(e.Message);
-            }
+            _isRunning = true;
         }
         public void Stop()
         {
-            try
-            {
-                if (!_isRunning)
-                    throw new Exception("Listener is not running.");
+            if (!_isRunning)
+                throw new Exception("Listener is not running.");
 
-                _tcpCancelTokenSource.Cancel();
-                _udpCancelTokenSource.Cancel();
+            _tcpCancelTokenSource.Cancel();
+            _udpCancelTokenSource.Cancel();
 
-                _isRunning = false;
-            }
-            catch (Exception e)
-            {
-                Melon<Program>.Logger.Error(e.Message);
-            }
+            _isRunning = false;
         }
 
         private void Tcp(CancellationToken token)
         {
             try
             {
+                _tcpListener.Start();
                 Melon<Program>.Logger.Msg($"Tcp server started on port {LocalEndPoint.Port}.");
 
                 while (!token.IsCancellationRequested)
@@ -120,7 +107,7 @@ namespace YuchiGames.POM.Client.Network
             }
             catch (OperationCanceledException)
             {
-                Melon<Program>.Logger.Msg($"Tcp server canceled on port {LocalEndPoint.Port}.");
+                Melon<Program>.Logger.Warning($"Tcp server canceled on port {LocalEndPoint.Port}.");
             }
             catch (Exception e)
             {
@@ -211,17 +198,17 @@ namespace YuchiGames.POM.Client.Network
 
         protected virtual void OnReceivePlayerPosEvent(ReceivePlayerPosEventArgs e)
         {
-            EventHandler<ReceivePlayerPosEventArgs>? receivePlayerPosHandler = ReceivePlayerPosEvent;
-
-            if (receivePlayerPosHandler != null)
-                receivePlayerPosHandler(this, e);
+            if (ReceivePlayerPosEvent == null)
+                return;
+            EventHandler<ReceivePlayerPosEventArgs> handler = ReceivePlayerPosEvent;
+            handler(this, e);
         }
         protected virtual void OnJoinedEvent(JoinedEventArgs e)
         {
-            EventHandler<JoinedEventArgs>? joinedHandler = JoinedEvent;
-
-            if (joinedHandler != null)
-                joinedHandler(this, e);
+            if (JoinedEvent == null)
+                return;
+            EventHandler<JoinedEventArgs> handler = JoinedEvent;
+            handler(this, e);
         }
     }
 }
