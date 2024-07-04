@@ -70,7 +70,7 @@ namespace YuchiGames.POM.Client.Network
         public void Start()
         {
             if (_isRunning)
-                throw new Exception("Listener is already running.");
+                throw new InvalidOperationException("Listener is already running.");
 
             Thread tcpThread = new Thread(() => Tcp(_tcpCancelTokenSource.Token));
             tcpThread.Start();
@@ -82,7 +82,7 @@ namespace YuchiGames.POM.Client.Network
         public void Stop()
         {
             if (!_isRunning)
-                throw new Exception("Listener is not running.");
+                throw new InvalidOperationException("Listener is not running.");
 
             _tcpCancelTokenSource.Cancel();
             _udpCancelTokenSource.Cancel();
