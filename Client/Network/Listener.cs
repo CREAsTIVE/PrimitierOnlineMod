@@ -6,28 +6,13 @@ using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class JoinedEventArgs : EventArgs
+    public class ReceiveMessageEventsArgs : EventArgs
     {
-        public int ID { get; set; }
+        public ITcpMessage Message { get; set; }
 
-        public JoinedEventArgs(int id)
+        public ReceiveMessageEventsArgs(ITcpMessage message)
         {
-            ID = id;
-        }
-    }
-    public class ReceivePlayerPosEventArgs : EventArgs
-    {
-        public int ID { get; set; }
-        public bool IsVRMBody { get; set; }
-        public BaseBody BaseBody { get; set; }
-        public VRMBody VRMBody { get; set; }
-
-        public ReceivePlayerPosEventArgs(int id, bool isVRMBody, BaseBody baseBody, VRMBody vrmBody)
-        {
-            ID = id;
-            IsVRMBody = isVRMBody;
-            BaseBody = baseBody;
-            VRMBody = vrmBody;
+            Message = message;
         }
     }
 
@@ -47,8 +32,7 @@ namespace YuchiGames.POM.Client.Network
         private CancellationTokenSource _udpCancelTokenSource;
         private bool _isRunning;
 
-        public event EventHandler<JoinedEventArgs>? JoinedEvent;
-        public event EventHandler<ReceivePlayerPosEventArgs>? ReceivePlayerPosEvent;
+        public event EventHandler<ReceiveMessageEventsArgs>? JoinedEvent;
 
         public Listener(int port)
         {
@@ -135,9 +119,6 @@ namespace YuchiGames.POM.Client.Network
 
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
-                        case JoinedMessage connect:
-                            OnJoinedEvent(new JoinedEventArgs(connect.ID));
-                            break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }
@@ -183,9 +164,6 @@ namespace YuchiGames.POM.Client.Network
 
                 switch (MessagePackSerializer.Deserialize<IUdpMessage>(receivedData))
                 {
-                    case SendPlayerPosMessage playerPos:
-                        OnReceivePlayerPosEvent(new ReceivePlayerPosEventArgs(playerPos.ID, playerPos.IsVRMBody, playerPos.BaseBody, playerPos.VrmBody));
-                        break;
                     default:
                         throw new Exception($"Received unknown message from {remoteEndPoint}.");
                 }
@@ -196,18 +174,11 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        protected virtual void OnReceivePlayerPosEvent(ReceivePlayerPosEventArgs e)
-        {
-            if (ReceivePlayerPosEvent == null)
-                return;
-            EventHandler<ReceivePlayerPosEventArgs> handler = ReceivePlayerPosEvent;
-            handler(this, e);
-        }
-        protected virtual void OnJoinedEvent(JoinedEventArgs e)
+        protected virtual void OnJoinedEvent(ReceiveMessageEventsArgs e)
         {
             if (JoinedEvent == null)
                 return;
-            EventHandler<JoinedEventArgs> handler = JoinedEvent;
+            EventHandler<ReceiveMessageEventsArgs> handler = JoinedEvent;
             handler(this, e);
         }
     }
