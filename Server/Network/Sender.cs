@@ -1,12 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 
-namespace Server.Network
+namespace YuchiGames.POM.Server.Network
 {
-    internal class Sender
+    public class Sender
     {
+        private IPEndPoint _remoteEndPoint;
+        public IPEndPoint RemoteEndPoint
+        {
+            get
+            {
+                return _remoteEndPoint;
+            }
+        }
+
+        public Sender(string ip, int port)
+        {
+            _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+        }
+        public Sender(IPEndPoint remoteEndPoint)
+        {
+            _remoteEndPoint = remoteEndPoint;
+        }
     }
 }
