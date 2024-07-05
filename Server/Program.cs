@@ -78,10 +78,8 @@ namespace YuchiGames.POM.Server
 
                 s_userData = new UserData[s_settings.MaxPlayer];
 
-                Thread tcpThread = new Thread(Listeners.Tcp);
-                Thread udpThread = new Thread(Listeners.Udp);
-                tcpThread.Start();
-                udpThread.Start();
+                Listener listener = new Listener(s_settings.Port);
+                listener.Start();
             }
             catch (Exception e)
             {
