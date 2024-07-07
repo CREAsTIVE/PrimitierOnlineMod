@@ -3,9 +3,29 @@ using Serilog;
 using System.Net;
 using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Server.MessageMethods;
 
 namespace YuchiGames.POM.Server
 {
+    public class ReceiveTcpMessageEventsArgs : EventArgs
+    {
+        public ITcpMessage Message { get; set; }
+
+        public ReceiveTcpMessageEventsArgs(ITcpMessage message)
+        {
+            Message = message;
+        }
+    }
+    public class ReceiveUdpMessageEventsArgs : EventArgs
+    {
+        public IUdpMessage Message { get; set; }
+
+        public ReceiveUdpMessageEventsArgs(IUdpMessage message)
+        {
+            Message = message;
+        }
+    }
+
     public class Listener
     {
         private IPEndPoint _localEndPoint;
@@ -16,6 +36,7 @@ namespace YuchiGames.POM.Server
                 return _localEndPoint;
             }
         }
+
         private CancellationTokenSource _tcpCancelTokenSource;
         private CancellationTokenSource _udpCancelTokenSource;
         private bool _isRunning;
@@ -107,9 +128,14 @@ namespace YuchiGames.POM.Server
                     byte[] buffer = new byte[1024];
                     stream.Read(buffer, 0, buffer.Length);
 
-                    ITcpMessage message;
+                    ITcpMessage responseMessage;
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
+                        case ConnectMessage connectMessage:
+                            responseMessage = Connect.Process(connectMessage, remoteEndPoint);
+                            byte[] responseBuffer = MessagePackSerializer.Serialize(responseMessage);
+                            stream.Write(responseBuffer, 0, responseBuffer.Length);
+                            break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }

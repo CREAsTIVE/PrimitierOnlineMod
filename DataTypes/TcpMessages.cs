@@ -2,13 +2,28 @@
 
 namespace YuchiGames.POM.DataTypes
 {
-    [Union(0, typeof(ConnectMessage))]
-    [Union(1, typeof(SuccessConnectionMessage))]
-    [Union(2, typeof(JoinedMessage))]
-    [Union(3, typeof(DisconnectMessage))]
-    [Union(4, typeof(SuccessMessage))]
-    [Union(5, typeof(FailureMessage))]
+    [Union(0, typeof(SuccessMessage))]
+    [Union(1, typeof(FailureMessage))]
+    [Union(2, typeof(ConnectMessage))]
+    [Union(3, typeof(SuccessConnectionMessage))]
+    [Union(4, typeof(JoinedMessage))]
     public interface ITcpMessage { }
+
+    [MessagePackObject]
+    public struct SuccessMessage : ITcpMessage { }
+
+    [MessagePackObject]
+    public struct FailureMessage : ITcpMessage
+    {
+        [Key(0)]
+        public Exception ExceptionMessage { get; }
+
+        [SerializationConstructor]
+        public FailureMessage(Exception exception)
+        {
+            ExceptionMessage = exception;
+        }
+    }
 
     [MessagePackObject]
     public struct ConnectMessage : ITcpMessage
@@ -52,25 +67,6 @@ namespace YuchiGames.POM.DataTypes
         public JoinedMessage(int id)
         {
             ID = id;
-        }
-    }
-
-    [MessagePackObject]
-    public struct DisconnectMessage : ITcpMessage { }
-
-    [MessagePackObject]
-    public struct SuccessMessage : ITcpMessage { }
-
-    [MessagePackObject]
-    public struct FailureMessage : ITcpMessage
-    {
-        [Key(0)]
-        public Exception ExceptionMessage { get; }
-
-        [SerializationConstructor]
-        public FailureMessage(Exception exception)
-        {
-            ExceptionMessage = exception;
         }
     }
 }

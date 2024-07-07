@@ -6,11 +6,20 @@ using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class ReceiveMessageEventsArgs : EventArgs
+    public class ReceiveTcpMessageEventsArgs : EventArgs
     {
         public ITcpMessage Message { get; set; }
 
-        public ReceiveMessageEventsArgs(ITcpMessage message)
+        public ReceiveTcpMessageEventsArgs(ITcpMessage message)
+        {
+            Message = message;
+        }
+    }
+    public class ReceiveUdpMessageEventsArgs : EventArgs
+    {
+        public IUdpMessage Message { get; set; }
+
+        public ReceiveUdpMessageEventsArgs(IUdpMessage message)
         {
             Message = message;
         }
@@ -32,7 +41,7 @@ namespace YuchiGames.POM.Client.Network
         private CancellationTokenSource _udpCancelTokenSource;
         private bool _isRunning;
 
-        public event EventHandler<ReceiveMessageEventsArgs>? JoinedEvent;
+        public event EventHandler<ReceiveTcpMessageEventsArgs>? JoinedEvent;
 
         public Listener(int port)
         {
@@ -119,6 +128,9 @@ namespace YuchiGames.POM.Client.Network
 
                     switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                     {
+                        case JoinedMessage joinedMessage:
+                            OnJoinedEvent(new ReceiveTcpMessageEventsArgs(joinedMessage));
+                            break;
                         default:
                             throw new Exception($"Received unknown message from {remoteEndPoint}.");
                     }
@@ -174,11 +186,11 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        protected virtual void OnJoinedEvent(ReceiveMessageEventsArgs e)
+        protected virtual void OnJoinedEvent(ReceiveTcpMessageEventsArgs e)
         {
             if (JoinedEvent == null)
                 return;
-            EventHandler<ReceiveMessageEventsArgs> handler = JoinedEvent;
+            EventHandler<ReceiveTcpMessageEventsArgs> handler = JoinedEvent;
             handler(this, e);
         }
     }

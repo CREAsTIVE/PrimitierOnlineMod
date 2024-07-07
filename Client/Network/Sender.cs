@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using MelonLoader;
+using System.Net;
 using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 
@@ -24,15 +25,15 @@ namespace YuchiGames.POM.Client.Network
         {
             try
             {
-                using (TcpClient client = new TcpClient(_remoteEndPoint))
-                using (NetworkStream stream = client.GetStream())
+                using (TcpClient client = new TcpClient())
                 {
+                    client.Connect(_remoteEndPoint);
+                    using NetworkStream stream = client.GetStream();
                     byte[] buffer = new byte[1024];
                     buffer = MessagePack.MessagePackSerializer.Serialize(message);
-
                     stream.Write(buffer, 0, buffer.Length);
+                    buffer = new byte[1024];
                     stream.Read(buffer, 0, buffer.Length);
-
                     return MessagePack.MessagePackSerializer.Deserialize<ITcpMessage>(buffer);
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using Serilog;
 using YuchiGames.POM.DataTypes;
 
@@ -14,11 +15,12 @@ namespace YuchiGames.POM.Server.MessageMethods
                 {
                     throw new Exception($"Already connected to {remoteEndPoint}.");
                 }
-
-                if (connectMessage.Version != Program.Settings.Version)
-                {
-                    throw new Exception($"Version mismatch. Server version: {Program.Settings.Version}, Client version: {connectMessage.Version}.");
-                }
+                AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
+                if (assemblyName.Version is null)
+                    throw new Exception("Assembly version is null");
+                Version version = assemblyName.Version;
+                if (connectMessage.Version != version.ToString())
+                    throw new Exception($"Version mismatch. Server version: {version.ToString()}, Client version: {connectMessage.Version}.");
 
                 int yourID = 0;
                 lock (Program.LockUserData)
