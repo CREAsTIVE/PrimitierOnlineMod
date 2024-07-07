@@ -35,6 +35,7 @@ namespace YuchiGames.POM.Client.Network
                 return _localEndPoint;
             }
         }
+
         private TcpListener _tcpListener;
         private UdpClient _udpListener;
         private CancellationTokenSource _tcpCancelTokenSource;

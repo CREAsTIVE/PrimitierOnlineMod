@@ -62,11 +62,14 @@ namespace YuchiGames.POM.DataTypes
     {
         [Key(0)]
         public int ID { get; }
+        [Key(1)]
+        public int IDList { get; }
 
         [SerializationConstructor]
-        public JoinedMessage(int id)
+        public JoinedMessage(int id, int idList)
         {
             ID = id;
+            IDList = idList;
         }
     }
 }

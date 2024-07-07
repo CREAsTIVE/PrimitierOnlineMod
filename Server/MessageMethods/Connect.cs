@@ -5,7 +5,7 @@ using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
-    public class Connect
+    public static class Connect
     {
         public static ITcpMessage Process(ConnectMessage connectMessage, IPEndPoint remoteEndPoint)
         {

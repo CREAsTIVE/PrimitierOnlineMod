@@ -4,7 +4,7 @@ using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Server.MessageMethods
 {
-    public class Disconnect
+    public static class Disconnect
     {
         public static ITcpMessage Process(IPEndPoint remoteEndPoint)
         {
