@@ -1,6 +1,5 @@
 {
   "name": "YuchiGames",
   "ip": "127.0.0.1",
-  "port": 54162,
-  "listenPort": 54163
+  "port": 54162
 }
