@@ -6,7 +6,7 @@ namespace YuchiGames.POM.Server.MessageMethods
     {
         public static void Process(int ID)
         {
-            Sender sender = new Sender();
+            //Sender sender = new Sender();
         }
     }
 }
