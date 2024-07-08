@@ -7,20 +7,22 @@ namespace YuchiGames.POM.Client.Network
 {
     public class Sender
     {
-        private string _ip;
-        private int _port;
         private IPEndPoint _localEndPoint;
         private EventBasedNetListener _listener;
         private NetManager _client;
         private Thread _pollEventsThread;
 
-        public Sender(string ip, int port)
+        public Sender()
         {
-            _ip = ip;
-            _port = port;
-            _localEndPoint = new IPEndPoint(IPAddress.Parse(_ip), _port);
+            _localEndPoint = new IPEndPoint(
+                IPAddress.Parse(Program.Settings.IP),
+                Program.Settings.Port
+                );
             _listener = new EventBasedNetListener();
-            _client = new NetManager(_listener);
+            _client = new NetManager(_listener)
+            {
+                AutoRecycle = true
+            };
             _pollEventsThread = new Thread(PollEvents);
 
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;

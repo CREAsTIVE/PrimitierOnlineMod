@@ -13,7 +13,10 @@ namespace YuchiGames.POM.Server.Network
         public Listener()
         {
             _listener = new EventBasedNetListener();
-            _server = new NetManager(_listener);
+            _server = new NetManager(_listener)
+            {
+                AutoRecycle = true
+            };
             _pollEventsThread = new Thread(PollEvents);
 
             _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
