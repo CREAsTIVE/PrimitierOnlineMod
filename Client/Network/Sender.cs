@@ -1,11 +1,12 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using MelonLoader;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class Sender
+    public class Sender : MelonMod
     {
         private EventBasedNetListener _listener;
         private NetManager _client;
@@ -52,13 +53,9 @@ namespace YuchiGames.POM.Client.Network
             _client.Stop();
         }
 
-        public void PollEvents()
+        public override void OnUpdate()
         {
-            Log.Debug("PollEvents occurred.");
-            while (_client.IsRunning)
-            {
-                _client.PollEvents();
-            }
+            _client.PollEvents();
         }
 
         public void SendTcp(ITcpMessage message)
