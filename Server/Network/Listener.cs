@@ -44,13 +44,13 @@ namespace YuchiGames.POM.Server.Network
         private void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
-            Log.Information($"Client connected: {peer.Address}");
+            Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
         }
 
         private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
-            Log.Information($"Client disconnected: {peer.Address}, {disconnectInfo.Reason}");
+            Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
         }
 
         public void Start()

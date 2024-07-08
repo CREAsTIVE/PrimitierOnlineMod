@@ -32,7 +32,7 @@ namespace YuchiGames.POM.Client
                 throw new Exception("Settings not found.");
 
             _sender = new Sender(s_settings.IP, s_settings.Port);
-            _sender.Start();
+            _sender.Connect();
         }
 
         public override void OnApplicationQuit()

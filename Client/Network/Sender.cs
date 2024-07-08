@@ -22,9 +22,24 @@ namespace YuchiGames.POM.Client.Network
             _listener = new EventBasedNetListener();
             _client = new NetManager(_listener);
             _pollEventsThread = new Thread(PollEvents);
+
+            _listener.PeerConnectedEvent += PeerConnectedEventHandler;
+            _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
         }
 
-        public void Start()
+        private void PeerConnectedEventHandler(NetPeer peer)
+        {
+            Log.Debug("PeerConnectedEvent occurred.");
+            Log.Information($"Connected to server: {peer.Address}:{peer.Port}, {peer.Id}");
+        }
+
+        private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
+        {
+            Log.Debug("PeerDisconnectedEvent occurred.");
+            Log.Information($"Disconnected from server: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
+        }
+
+        public void Connect()
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
             if (version is null)
@@ -44,7 +59,7 @@ namespace YuchiGames.POM.Client.Network
             }
         }
 
-        public void Stop()
+        public void Disconnect()
         {
             _client.Stop();
         }
