@@ -60,19 +60,19 @@ namespace YuchiGames.POM.Server.Network
         private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
-
+            byte[] buffer = new byte[1024];
+            reader.GetBytes(buffer, buffer.Length);
+            Log.Debug($"Received: {BitConverter.ToString(buffer)}");
             switch (deliveryMethod)
             {
                 case DeliveryMethod.ReliableOrdered:
-                    Log.Information("ReliableOrdered");
+                    Log.Debug("ReliableOrdered");
                     break;
                 case DeliveryMethod.Unreliable:
-                    Log.Information("Unreliable");
+                    Log.Debug("Unreliable");
+                    _server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
                     break;
             }
-            byte[] buffer = new byte[1024];
-            reader.GetBytes(buffer, buffer.Length);
-            Log.Information($"Received: {BitConverter.ToString(buffer)}");
         }
 
         public void Start()
