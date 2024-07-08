@@ -37,7 +37,7 @@ namespace YuchiGames.POM.Client.Network
 
         public void PollEvents()
         {
-            Melon<Program>.Logger.Msg("PollEvents occurred.");
+            Log.Debug("PollEvents occurred.");
             while (_client.IsRunning)
             {
                 _client.PollEvents();
