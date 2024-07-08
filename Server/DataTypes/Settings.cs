@@ -3,12 +3,12 @@
     public class ServerSettings
     {
         public int Port { get; set; }
-        public int MaxPlayer { get; set; }
+        public int MaxPlayers { get; set; }
 
-        public ServerSettings(int port, int maxPlayer)
+        public ServerSettings(int port, int maxPlayers)
         {
             Port = port;
-            MaxPlayer = maxPlayer;
+            MaxPlayers = maxPlayers;
         }
     }
 }

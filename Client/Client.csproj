@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AssemblyVersion>0.0.0.0</AssemblyVersion>
+		<AssemblyVersion>0.1.0.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -65,10 +65,6 @@
 		<None Update="settings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Network\" />
 	</ItemGroup>
 
 </Project>

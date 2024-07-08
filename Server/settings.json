@@ -1,6 +1,6 @@
 {
   "port": 54162,
-  "maxPlayer": 15,
+  "maxPlayers": 15,
   "Serilog": {
     "Using": [
       "Serilog.Settings.Configuration",

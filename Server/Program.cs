@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using LiteNetLib;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+using System.Reflection;
 using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server
 {
@@ -19,25 +22,21 @@ namespace YuchiGames.POM.Server
 
         private static void Main()
         {
-            try
-            {
-                if (!File.Exists("settings.json"))
-                    throw new FileNotFoundException();
-                IConfigurationRoot config = new ConfigurationBuilder()
-                    .AddJsonFile("settings.json")
-                    .Build();
-                s_settings = config.Get<ServerSettings>();
-                if (s_settings is null)
-                    throw new Exception("Settings not found.");
+            if (!File.Exists("settings.json"))
+                throw new FileNotFoundException();
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .AddJsonFile("settings.json")
+                .Build();
+            s_settings = config.Get<ServerSettings>();
+            if (s_settings is null)
+                throw new Exception("Settings not found.");
 
-                Log.Logger = new LoggerConfiguration()
-                    .ReadFrom.Configuration(config)
-                    .CreateLogger();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+
+            Listener listener = new Listener();
+            listener.Start();
         }
     }
 }
