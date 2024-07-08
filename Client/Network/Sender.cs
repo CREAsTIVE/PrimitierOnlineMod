@@ -51,6 +51,11 @@ namespace YuchiGames.POM.Client.Network
             _client.Connect(_localEndPoint, version.ToString());
         }
 
+        public void Disconnect()
+        {
+            _client.Stop();
+        }
+
         public void PollEvents()
         {
             Log.Debug("PollEvents occurred.");
@@ -58,11 +63,6 @@ namespace YuchiGames.POM.Client.Network
             {
                 _client.PollEvents();
             }
-        }
-
-        public void Disconnect()
-        {
-            _client.Stop();
         }
     }
 }

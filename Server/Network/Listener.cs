@@ -82,6 +82,12 @@ namespace YuchiGames.POM.Server.Network
             _pollEventsThread.Start();
         }
 
+        public void Stop()
+        {
+            Log.Information("Server stopped.");
+            _server.Stop();
+        }
+
         public void PollEvents()
         {
             Log.Debug("PollEvent occurred.");
@@ -89,12 +95,6 @@ namespace YuchiGames.POM.Server.Network
             {
                 _server.PollEvents();
             }
-        }
-
-        public void Stop()
-        {
-            Log.Information("Server stopped.");
-            _server.Stop();
         }
     }
 }
