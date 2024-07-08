@@ -1,22 +1,18 @@
 ﻿using LiteNetLib;
-using System.Net;
+using LiteNetLib.Utils;
 using System.Reflection;
+using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
     public class Sender
     {
-        private IPEndPoint _localEndPoint;
         private EventBasedNetListener _listener;
         private NetManager _client;
         private Thread _pollEventsThread;
 
         public Sender()
         {
-            _localEndPoint = new IPEndPoint(
-                IPAddress.Parse(Program.Settings.IP),
-                Program.Settings.Port
-                );
             _listener = new EventBasedNetListener();
             _client = new NetManager(_listener)
             {
@@ -48,7 +44,7 @@ namespace YuchiGames.POM.Client.Network
 
             _client.Start();
             _pollEventsThread.Start();
-            _client.Connect(_localEndPoint, version.ToString());
+            _client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
         }
 
         public void Disconnect()
@@ -63,6 +59,24 @@ namespace YuchiGames.POM.Client.Network
             {
                 _client.PollEvents();
             }
+        }
+
+        public void SendTcp(ITcpMessage message)
+        {
+            byte[] buffer = new byte[1024];
+            buffer = MessagePack.MessagePackSerializer.Serialize(message);
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(buffer);
+            _client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+        }
+
+        public void SendUdp(IUdpMessage message)
+        {
+            byte[] buffer = new byte[1024];
+            buffer = MessagePack.MessagePackSerializer.Serialize(message);
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(buffer);
+            _client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);
         }
     }
 }
