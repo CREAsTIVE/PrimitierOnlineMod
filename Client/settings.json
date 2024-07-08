@@ -1,4 +1,5 @@
 {
   "ip": "127.0.0.1",
-  "port": 54162
+  "port": 54162,
+  "minimumLogLevel": "Debug"
 }
