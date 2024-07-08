@@ -22,6 +22,7 @@ namespace YuchiGames.POM.Server.Network
             _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
             _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
+            _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
         }
 
         private void ConnectionRequestEventHandler(ConnectionRequest request)
@@ -54,6 +55,24 @@ namespace YuchiGames.POM.Server.Network
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
+        }
+
+        private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
+        {
+            Log.Debug("NetworkReceiveEvent occurred.");
+
+            switch (deliveryMethod)
+            {
+                case DeliveryMethod.ReliableOrdered:
+                    Log.Information("ReliableOrdered");
+                    break;
+                case DeliveryMethod.Unreliable:
+                    Log.Information("Unreliable");
+                    break;
+            }
+            byte[] buffer = new byte[1024];
+            reader.GetBytes(buffer, buffer.Length);
+            Log.Information($"Received: {BitConverter.ToString(buffer)}");
         }
 
         public void Start()

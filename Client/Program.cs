@@ -31,7 +31,7 @@ namespace YuchiGames.POM.Client
             if (s_settings is null)
                 throw new Exception("Settings not found.");
 
-            _sender = new Sender(s_settings.IP, s_settings.Port);
+            _sender = new Sender();
             _sender.Connect();
         }
 
@@ -39,7 +39,7 @@ namespace YuchiGames.POM.Client
         {
             if (_sender is null)
                 throw new Exception("Sender not found.");
-            _sender.Stop();
+            _sender.Disconnect();
         }
     }
 }
