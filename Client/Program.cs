@@ -35,6 +35,13 @@ namespace YuchiGames.POM.Client
             _sender.Connect();
         }
 
+        public override void OnUpdate()
+        {
+            if (_sender is null)
+                throw new Exception("Sender not found.");
+            _sender.PollEventsHandler();
+        }
+
         public override void OnApplicationQuit()
         {
             if (_sender is null)
