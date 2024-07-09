@@ -1,15 +1,15 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using MelonLoader;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class Sender : MelonMod
+    public class Sender
     {
         private EventBasedNetListener _listener;
         private NetManager _client;
+        private Thread _pollEventsThread;
 
         public Sender()
         {
@@ -18,6 +18,7 @@ namespace YuchiGames.POM.Client.Network
             {
                 AutoRecycle = true
             };
+            _pollEventsThread = new Thread(PollEvents);
 
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
             _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
@@ -51,6 +52,7 @@ namespace YuchiGames.POM.Client.Network
                 throw new Exception("Version not found.");
 
             _client.Start();
+            _pollEventsThread.Start();
             _client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
         }
 
@@ -59,9 +61,13 @@ namespace YuchiGames.POM.Client.Network
             _client.Stop();
         }
 
-        public override void OnUpdate()
+        public void PollEvents()
         {
-            _client.PollEvents();
+            Log.Debug("PollEvent occurred.");
+            while (_client.IsRunning)
+            {
+                _client.PollEvents();
+            }
         }
 
         public void SendTcp(ITcpMessage message)
