@@ -1,5 +1,7 @@
 ﻿using LiteNetLib;
 using Serilog;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 
 namespace YuchiGames.POM.Server.Network
@@ -23,6 +25,7 @@ namespace YuchiGames.POM.Server.Network
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
             _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
             _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
+            _listener.NetworkErrorEvent += NetworkErrorEventHandler;
         }
 
         private void ConnectionRequestEventHandler(ConnectionRequest request)
@@ -73,6 +76,12 @@ namespace YuchiGames.POM.Server.Network
                     _server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
                     break;
             }
+        }
+
+        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
+        {
+            Log.Debug("NetworkErrorEvent occurred.");
+            Log.Error($"Error: {socketError}");
         }
 
         public void Start()

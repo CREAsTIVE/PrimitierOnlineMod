@@ -1,5 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
@@ -21,6 +23,7 @@ namespace YuchiGames.POM.Client.Network
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
             _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
             _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
+            _listener.NetworkErrorEvent += NetworkErrorEventHandler;
         }
 
         private void PeerConnectedEventHandler(NetPeer peer)
@@ -41,6 +44,12 @@ namespace YuchiGames.POM.Client.Network
             byte[] buffer = new byte[1024];
             reader.GetBytes(buffer, buffer.Length);
             Log.Debug($"Received data: {BitConverter.ToString(buffer)}");
+        }
+
+        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
+        {
+            Log.Debug("NetworkErrorEvent occurred.");
+            Log.Error($"Error: {socketError}");
         }
 
         public void Connect()
