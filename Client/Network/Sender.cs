@@ -27,18 +27,21 @@ namespace YuchiGames.POM.Client.Network
         private void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
-            Log.Information($"Connected to server: {peer.Address}:{peer.Port}, {peer.Id}");
+            Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
         }
 
         private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
-            Log.Information($"Disconnected from server: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
+            Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
         }
 
         private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
+            byte[] buffer = new byte[1024];
+            reader.GetBytes(buffer, buffer.Length);
+            Log.Debug($"Received data: {BitConverter.ToString(buffer)}");
         }
 
         public void Connect()
