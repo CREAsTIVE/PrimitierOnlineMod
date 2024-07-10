@@ -20,10 +20,11 @@ namespace YuchiGames.POM.Server
 
         private static void Main()
         {
-            if (!File.Exists("settings.json"))
+            string path = "settings.json";
+            if (!File.Exists(path))
                 throw new FileNotFoundException();
             IConfigurationRoot config = new ConfigurationBuilder()
-                .AddJsonFile("settings.json")
+                .AddJsonFile(path)
                 .Build();
             s_settings = config.Get<ServerSettings>();
             if (s_settings is null)
