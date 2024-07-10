@@ -33,8 +33,7 @@ namespace YuchiGames.POM.Server
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
-            Listener listener = new Listener();
-            listener.Start();
+            Listener.Start();
         }
     }
 }

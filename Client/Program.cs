@@ -17,7 +17,6 @@ namespace YuchiGames.POM.Client
                 return s_settings;
             }
         }
-        private Sender? _sender;
 
         public override void OnInitializeMelon()
         {
@@ -31,22 +30,17 @@ namespace YuchiGames.POM.Client
             if (s_settings is null)
                 throw new Exception("Settings not found.");
 
-            _sender = new Sender();
-            _sender.Connect();
+            Sender.Connect();
         }
 
         public override void OnUpdate()
         {
-            if (_sender is null)
-                throw new Exception("Sender not found.");
-            _sender.PollEventsHandler();
+            Sender.PollEventsHandler();
         }
 
         public override void OnApplicationQuit()
         {
-            if (_sender is null)
-                throw new Exception("Sender not found.");
-            _sender.Disconnect();
+            Sender.Disconnect();
         }
     }
 }

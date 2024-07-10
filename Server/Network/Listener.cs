@@ -6,29 +6,29 @@ using System.Reflection;
 
 namespace YuchiGames.POM.Server.Network
 {
-    public class Listener
+    public static class Listener
     {
-        private EventBasedNetListener _listener;
-        private NetManager _server;
-        private Thread _pollEventsThread;
+        private static EventBasedNetListener s_listener;
+        private static NetManager s_server;
+        private static Thread s_pollEventsThread;
 
-        public Listener()
+        static Listener()
         {
-            _listener = new EventBasedNetListener();
-            _server = new NetManager(_listener)
+            s_listener = new EventBasedNetListener();
+            s_server = new NetManager(s_listener)
             {
                 AutoRecycle = true
             };
-            _pollEventsThread = new Thread(PollEvents);
+            s_pollEventsThread = new Thread(PollEvents);
 
-            _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
-            _listener.PeerConnectedEvent += PeerConnectedEventHandler;
-            _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
-            _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
-            _listener.NetworkErrorEvent += NetworkErrorEventHandler;
+            s_listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
+            s_listener.PeerConnectedEvent += PeerConnectedEventHandler;
+            s_listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
+            s_listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
+            s_listener.NetworkErrorEvent += NetworkErrorEventHandler;
         }
 
-        private void ConnectionRequestEventHandler(ConnectionRequest request)
+        private static void ConnectionRequestEventHandler(ConnectionRequest request)
         {
             Log.Debug("ConnectionRequestEvent occurred.");
 
@@ -36,7 +36,7 @@ namespace YuchiGames.POM.Server.Network
             if (version is null)
                 throw new Exception("Version not found.");
 
-            if (_server.ConnectedPeersCount < Program.Settings.MaxPlayers)
+            if (s_server.ConnectedPeersCount < Program.Settings.MaxPlayers)
             {
                 Log.Information($"Request accepted: {request.RemoteEndPoint}");
                 request.AcceptIfKey(version.ToString());
@@ -48,19 +48,19 @@ namespace YuchiGames.POM.Server.Network
             }
         }
 
-        private void PeerConnectedEventHandler(NetPeer peer)
+        private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
         }
 
-        private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
+        private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
         }
 
-        private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
+        private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
             byte[] buffer = new byte[1024];
@@ -73,36 +73,36 @@ namespace YuchiGames.POM.Server.Network
                     break;
                 case DeliveryMethod.Unreliable:
                     Log.Debug("Unreliable");
-                    _server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
+                    s_server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
                     break;
             }
         }
 
-        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
+        private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
             Log.Debug("NetworkErrorEvent occurred.");
             Log.Error($"Error: {socketError}");
         }
 
-        public void Start()
+        public static void Start()
         {
             Log.Information("Server started.");
-            _server.Start(Program.Settings.Port);
-            _pollEventsThread.Start();
+            s_server.Start(Program.Settings.Port);
+            s_pollEventsThread.Start();
         }
 
-        public void Stop()
+        public static void Stop()
         {
             Log.Information("Server stopped.");
-            _server.Stop();
+            s_server.Stop();
         }
 
-        public void PollEvents()
+        public static void PollEvents()
         {
             Log.Debug("PollEvent occurred.");
-            while (_server.IsRunning)
+            while (s_server.IsRunning)
             {
-                _server.PollEvents();
+                s_server.PollEvents();
             }
         }
     }

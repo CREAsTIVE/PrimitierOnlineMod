@@ -7,38 +7,38 @@ using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Network
 {
-    public class Sender
+    public static class Sender
     {
-        private EventBasedNetListener _listener;
-        private NetManager _client;
+        private static EventBasedNetListener s_listener;
+        private static NetManager s_client;
 
-        public Sender()
+        static Sender()
         {
-            _listener = new EventBasedNetListener();
-            _client = new NetManager(_listener)
+            s_listener = new EventBasedNetListener();
+            s_client = new NetManager(s_listener)
             {
                 AutoRecycle = true
             };
 
-            _listener.PeerConnectedEvent += PeerConnectedEventHandler;
-            _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
-            _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
-            _listener.NetworkErrorEvent += NetworkErrorEventHandler;
+            s_listener.PeerConnectedEvent += PeerConnectedEventHandler;
+            s_listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
+            s_listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
+            s_listener.NetworkErrorEvent += NetworkErrorEventHandler;
         }
 
-        private void PeerConnectedEventHandler(NetPeer peer)
+        private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
         }
 
-        private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
+        private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
         }
 
-        private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
+        private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
             byte[] buffer = new byte[1024];
@@ -46,48 +46,48 @@ namespace YuchiGames.POM.Client.Network
             Log.Debug($"Received data: {BitConverter.ToString(buffer)}");
         }
 
-        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
+        private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
             Log.Debug("NetworkErrorEvent occurred.");
             Log.Error($"Error: {socketError}");
         }
 
-        public void Connect()
+        public static void Connect()
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
             if (version is null)
                 throw new Exception("Version not found.");
 
-            _client.Start();
-            _client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
+            s_client.Start();
+            s_client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
         }
 
-        public void Disconnect()
+        public static void Disconnect()
         {
-            _client.Stop();
+            s_client.Stop();
         }
 
-        public void PollEventsHandler()
+        public static void PollEventsHandler()
         {
-            _client.PollEvents();
+            s_client.PollEvents();
         }
 
-        public void SendTcp(ITcpMessage message)
-        {
-            byte[] buffer = new byte[1024];
-            buffer = MessagePack.MessagePackSerializer.Serialize(message);
-            NetDataWriter writer = new NetDataWriter();
-            writer.Put(buffer);
-            _client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
-        }
-
-        public void SendUdp(IUdpMessage message)
+        public static void SendTcp(ITcpMessage message)
         {
             byte[] buffer = new byte[1024];
             buffer = MessagePack.MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
-            _client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);
+            s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+        }
+
+        public static void SendUdp(IUdpMessage message)
+        {
+            byte[] buffer = new byte[1024];
+            buffer = MessagePack.MessagePackSerializer.Serialize(message);
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(buffer);
+            s_client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);
         }
     }
 }
