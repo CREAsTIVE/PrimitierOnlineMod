@@ -9,6 +9,17 @@ namespace YuchiGames.POM.Client.Network
 {
     public static class Sender
     {
+        private static int s_ping = -1;
+        public static int Ping
+        {
+            get => s_ping;
+        }
+        private static bool s_isRunning = false;
+        public static bool IsRunning
+        {
+            get => s_isRunning;
+        }
+
         private static EventBasedNetListener s_listener;
         private static NetManager s_client;
 
@@ -67,9 +78,14 @@ namespace YuchiGames.POM.Client.Network
             s_client.Stop();
         }
 
-        public static void PollEventsHandler()
+        public static void OnUpdate()
         {
+            if (!s_client.IsRunning)
+                return;
             s_client.PollEvents();
+            if (s_client.FirstPeer != null)
+                s_ping = s_client.FirstPeer.Ping;
+            s_isRunning = s_client.IsRunning;
         }
 
         public static void SendTcp(ITcpMessage message)
