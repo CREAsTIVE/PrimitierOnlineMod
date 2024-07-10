@@ -33,14 +33,14 @@ namespace YuchiGames.POM.Client
             Sender.Connect();
         }
 
-        public override void OnUpdate()
-        {
-            Sender.PollEventsHandler();
-        }
-
         public override void OnApplicationQuit()
         {
             Sender.Disconnect();
+        }
+
+        public override void OnUpdate()
+        {
+            Sender.PollEventsHandler();
         }
     }
 }
