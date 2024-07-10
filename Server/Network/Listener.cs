@@ -66,15 +66,18 @@ namespace YuchiGames.POM.Server.Network
             byte[] buffer = new byte[1024];
             reader.GetBytes(buffer, buffer.Length);
             Log.Debug($"Received: {BitConverter.ToString(buffer)}");
-            switch (deliveryMethod)
+            if (deliveryMethod == DeliveryMethod.ReliableOrdered)
             {
-                case DeliveryMethod.ReliableOrdered:
-                    Log.Debug("ReliableOrdered");
-                    break;
-                case DeliveryMethod.Unreliable:
-                    Log.Debug("Unreliable");
-                    s_server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
-                    break;
+                Log.Debug("ReliableOrdered Message");
+            }
+            else if (deliveryMethod == DeliveryMethod.Unreliable)
+            {
+                Log.Debug("Unreliable Message");
+                s_server.SendToAll(buffer, DeliveryMethod.Unreliable, peer);
+            }
+            else
+            {
+                Log.Debug("Unknown Message");
             }
         }
 
