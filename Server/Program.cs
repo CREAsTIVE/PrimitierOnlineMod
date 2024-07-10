@@ -35,6 +35,8 @@ namespace YuchiGames.POM.Server
                 .CreateLogger();
 
             Listener.Start();
+            while (!Console.KeyAvailable) { }
+            Listener.Stop();
         }
     }
 }

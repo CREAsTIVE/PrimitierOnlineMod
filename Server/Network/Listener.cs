@@ -101,9 +101,7 @@ namespace YuchiGames.POM.Server.Network
         {
             Log.Debug("PollEvent occurred.");
             while (s_server.IsRunning)
-            {
                 s_server.PollEvents();
-            }
         }
     }
 }
