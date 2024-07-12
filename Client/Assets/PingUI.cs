@@ -3,7 +3,7 @@ using YuchiGames.POM.Client.Network;
 
 namespace YuchiGames.POM.Client.Assets
 {
-    class PingUI
+    public class PingUI
     {
         public static void DrawPing()
         {

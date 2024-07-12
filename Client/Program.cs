@@ -1,5 +1,8 @@
-﻿using MelonLoader;
+﻿using Il2Cpp;
+using MelonLoader;
 using Microsoft.Extensions.Configuration;
+using UnityEngine;
+using UnityEngine.Windows;
 using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Network;
 using YuchiGames.POM.DataTypes;
@@ -39,6 +42,14 @@ namespace YuchiGames.POM.Client
         public override void OnApplicationQuit()
         {
             Sender.Disconnect();
+        }
+
+        public override void OnLateUpdate()
+        {
+            if (UnityEngine.Input.GetKeyDown(KeyCode.V))
+            {
+
+            }
         }
     }
 }
