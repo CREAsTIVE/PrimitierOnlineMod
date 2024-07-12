@@ -9,14 +9,4 @@
             Data = data;
         }
     }
-
-    public struct MapFile
-    {
-        public byte[] Data { get; }
-
-        public MapFile(byte[] data)
-        {
-            Data = data;
-        }
-    }
 }
