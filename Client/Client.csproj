@@ -56,7 +56,7 @@
 			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.InputLegacyModule">
-		  <HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+			<HintPath>D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
