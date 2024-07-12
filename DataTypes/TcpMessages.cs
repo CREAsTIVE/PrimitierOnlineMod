@@ -3,7 +3,7 @@
 namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(JoinedMessage))]
-    [Union(1, typeof(LeaveMessage))]
+    [Union(1, typeof(LeftMessage))]
     public interface ITcpMessage { }
 
     [MessagePackObject]
