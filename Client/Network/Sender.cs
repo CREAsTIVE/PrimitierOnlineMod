@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using MessagePack;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -52,9 +53,38 @@ namespace YuchiGames.POM.Client.Network
         private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
-            byte[] buffer = new byte[1024];
-            reader.GetBytes(buffer, buffer.Length);
-            Log.Debug($"Received data: {BitConverter.ToString(buffer)}");
+            if (deliveryMethod == DeliveryMethod.ReliableOrdered)
+            {
+                byte[] buffer = new byte[1024];
+                reader.GetBytes(buffer, buffer.Length);
+                switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
+                {
+                    case JoinedMessage joinedMessage:
+                        Log.Debug($"Received JoinedMessage. {joinedMessage.ID}");
+                        break;
+                    case LeftMessage leftMessage:
+                        Log.Debug($"Received LeftMessage. {leftMessage.ID}");
+                        break;
+                    default:
+                        Log.Debug("Unknown Message");
+                        break;
+                }
+            }
+            else if (deliveryMethod == DeliveryMethod.Unreliable)
+            {
+                byte[] buffer = new byte[1024];
+                reader.GetBytes(buffer, buffer.Length);
+                switch (MessagePackSerializer.Deserialize<IUdpMessage>(buffer))
+                {
+                    default:
+                        Log.Debug("Unknown Message");
+                        break;
+                }
+            }
+            else
+            {
+                Log.Debug("Unknown DeliveryMethod Message");
+            }
         }
 
         private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
@@ -65,10 +95,8 @@ namespace YuchiGames.POM.Client.Network
 
         public static void Connect()
         {
-            Version? version = Assembly.GetExecutingAssembly().GetName().Version;
-            if (version is null)
-                throw new Exception("Version not found.");
-
+            Version? version = Assembly.GetExecutingAssembly().GetName().Version
+                ?? throw new Exception("Version not found.");
             s_client.Start();
             s_client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
         }
@@ -91,7 +119,7 @@ namespace YuchiGames.POM.Client.Network
         public static void SendTcp(ITcpMessage message)
         {
             byte[] buffer = new byte[1024];
-            buffer = MessagePack.MessagePackSerializer.Serialize(message);
+            buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
             s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
@@ -100,7 +128,7 @@ namespace YuchiGames.POM.Client.Network
         public static void SendUdp(IUdpMessage message)
         {
             byte[] buffer = new byte[1024];
-            buffer = MessagePack.MessagePackSerializer.Serialize(message);
+            buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
             s_client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);
