@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Serilog;
 using YuchiGames.POM.DataTypes;
-using YuchiGames.POM.Server.Network;
 
 namespace YuchiGames.POM.Server
 {
@@ -34,9 +33,9 @@ namespace YuchiGames.POM.Server
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
-            Listener.Start();
+            NetworkManager.Start();
             while (!Console.KeyAvailable) { }
-            Listener.Stop();
+            NetworkManager.Stop();
         }
     }
 }
