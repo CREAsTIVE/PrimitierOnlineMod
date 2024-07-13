@@ -10,6 +10,11 @@ namespace YuchiGames.POM.Client
 {
     public static class NetworkManager
     {
+        private static int s_id = -1;
+        public static int ID
+        {
+            get => s_id;
+        }
         private static int s_ping = -1;
         public static int Ping
         {
@@ -19,6 +24,11 @@ namespace YuchiGames.POM.Client
         public static bool IsRunning
         {
             get => s_isRunning;
+        }
+        private static bool s_isConnected = false;
+        public static bool IsConnected
+        {
+            get => s_isConnected;
         }
 
         private static EventBasedNetListener s_listener;
@@ -41,12 +51,17 @@ namespace YuchiGames.POM.Client
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
+            s_id = peer.Id;
+            s_isConnected = true;
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
         }
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
+            s_id = -1;
+            s_ping = -1;
+            s_isConnected = false;
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
         }
 
@@ -64,6 +79,9 @@ namespace YuchiGames.POM.Client
                         break;
                     case LeaveMessage leaveMessage:
                         Log.Debug($"Received LeaveMessage. {leaveMessage.ID}");
+                        break;
+                    case UpdateVRMMessage updateVRMMessage:
+                        Log.Debug($"Received UpdateVRMMessage. {updateVRMMessage.ID}, {updateVRMMessage.Data.Length} bytes.");
                         break;
                     default:
                         Log.Debug("Unknown Message");

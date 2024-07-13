@@ -37,11 +37,14 @@ namespace YuchiGames.POM.DataTypes
     public struct UpdateVRMMessage : ITcpMessage
     {
         [Key(0)]
+        public int ID { get; }
+        [Key(1)]
         public byte[] Data { get; }
 
         [SerializationConstructor]
-        public UpdateVRMMessage(byte[] data)
+        public UpdateVRMMessage(int id, byte[] data)
         {
+            ID = id;
             Data = data;
         }
     }
