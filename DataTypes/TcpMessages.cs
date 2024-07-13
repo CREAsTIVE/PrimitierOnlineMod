@@ -2,33 +2,47 @@
 
 namespace YuchiGames.POM.DataTypes
 {
-    [Union(0, typeof(JoinedMessage))]
-    [Union(1, typeof(LeftMessage))]
+    [Union(0, typeof(JoinMessage))]
+    [Union(1, typeof(LeaveMessage))]
+    [Union(2, typeof(UpdateVRMMessage))]
     public interface ITcpMessage { }
 
     [MessagePackObject]
-    public struct JoinedMessage : ITcpMessage
+    public struct JoinMessage : ITcpMessage
     {
         [Key(0)]
         public int ID { get; }
 
         [SerializationConstructor]
-        public JoinedMessage(int id)
+        public JoinMessage(int id)
         {
             ID = id;
         }
     }
 
     [MessagePackObject]
-    public struct LeftMessage : ITcpMessage
+    public struct LeaveMessage : ITcpMessage
     {
         [Key(0)]
         public int ID { get; }
 
         [SerializationConstructor]
-        public LeftMessage(int id)
+        public LeaveMessage(int id)
         {
             ID = id;
+        }
+    }
+
+    [MessagePackObject]
+    public struct UpdateVRMMessage : ITcpMessage
+    {
+        [Key(0)]
+        public byte[] Data { get; }
+
+        [SerializationConstructor]
+        public UpdateVRMMessage(byte[] data)
+        {
+            Data = data;
         }
     }
 }

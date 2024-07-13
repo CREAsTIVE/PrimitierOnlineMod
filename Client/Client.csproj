@@ -23,6 +23,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Reference Include="Il2CppVRM10">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRM10.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRM10.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppVRM10.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppVRM10.dll</HintPath>
+		</Reference>
 		<Reference Include="MelonLoader">
 			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
 			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll')">/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll</HintPath>

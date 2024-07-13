@@ -59,11 +59,11 @@ namespace YuchiGames.POM.Client
                 reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                 {
-                    case JoinedMessage joinedMessage:
-                        Log.Debug($"Received JoinedMessage. {joinedMessage.ID}");
+                    case JoinMessage joinMessage:
+                        Log.Debug($"Received JoinMessage. {joinMessage.ID}");
                         break;
-                    case LeftMessage leftMessage:
-                        Log.Debug($"Received LeftMessage. {leftMessage.ID}");
+                    case LeaveMessage leaveMessage:
+                        Log.Debug($"Received LeaveMessage. {leaveMessage.ID}");
                         break;
                     default:
                         Log.Debug("Unknown Message");
