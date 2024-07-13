@@ -73,7 +73,8 @@ namespace YuchiGames.POM.Server
             Log.Debug("NetworkReceiveEvent occurred.");
             if (deliveryMethod == DeliveryMethod.ReliableOrdered)
             {
-                byte[] buffer = new byte[1024];
+                Log.Debug($"RawDataSize: {reader.RawDataSize}");
+                byte[] buffer = new byte[reader.RawDataSize];
                 reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                 {

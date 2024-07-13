@@ -13,6 +13,9 @@ namespace YuchiGames.POM.Client.Patches
             string path = VrmLoader.GetAvatarDirectory();
             string[] files = Directory.GetFiles(path, "*.vrm");
             byte[] data = File.ReadAllBytes(files[0]);
+            Log.Debug($"DataSize: {data.Length}");
+            ITcpMessage message = new UpdateVRMMessage(NetworkManager.ID, data);
+            NetworkManager.SendTcp(message);
             return true;
         }
 
