@@ -1,5 +1,19 @@
 ﻿namespace YuchiGames.POM.DataTypes
 {
+    public struct PosRot
+    {
+        public float[] Pos { get; }
+        public float[] Rot { get; }
+
+        public PosRot(float[] pos, float[] rot)
+        {
+            if (pos.Length != 3 || rot.Length != 3)
+                throw new ArgumentException("Invalid array length");
+            Pos = pos;
+            Rot = rot;
+        }
+    }
+
     public struct BaseBody
     {
         public PosRot Head { get; }
@@ -49,32 +63,6 @@
             RLowerLeg = rLowerLeg;
             LFoot = lFoot;
             RFoot = rFoot;
-        }
-    }
-
-    public struct PrimitiveObject
-    {
-        public string UUID { get; }
-        public PosRot Position { get; }
-
-        public PrimitiveObject(string uuid, PosRot position)
-        {
-            UUID = uuid;
-            Position = position;
-        }
-    }
-
-    public struct PosRot
-    {
-        public float[] Pos { get; }
-        public float[] Rot { get; }
-
-        public PosRot(float[] pos, float[] rot)
-        {
-            if (pos.Length != 3 || rot.Length != 3)
-                throw new ArgumentException("Invalid array length");
-            Pos = pos;
-            Rot = rot;
         }
     }
 }
