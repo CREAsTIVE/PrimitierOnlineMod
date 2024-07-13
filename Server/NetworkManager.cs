@@ -52,9 +52,9 @@ namespace YuchiGames.POM.Server
         {
             Log.Debug("PeerConnectedEvent occurred.");
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
-            ITcpMessage joinedMessage = new JoinedMessage(peer.Id);
+            ITcpMessage joinMessage = new JoinMessage(peer.Id);
             byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(joinedMessage);
+            buffer = MessagePackSerializer.Serialize(joinMessage);
             s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
         }
 
@@ -62,9 +62,9 @@ namespace YuchiGames.POM.Server
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
-            ITcpMessage leftMessage = new LeftMessage(peer.Id);
+            ITcpMessage leaveMessage = new LeaveMessage(peer.Id);
             byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(leftMessage);
+            buffer = MessagePackSerializer.Serialize(leaveMessage);
             s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
         }
 
