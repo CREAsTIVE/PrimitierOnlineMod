@@ -42,9 +42,9 @@ namespace YuchiGames.POM.Client
 
         public override void OnLateUpdate()
         {
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Home))
+            if (Input.GetKeyDown(KeyCode.F1))
             {
-
+                InfoUI.Show = !InfoUI.Show;
             }
         }
     }
