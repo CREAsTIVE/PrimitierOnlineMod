@@ -32,7 +32,7 @@ namespace YuchiGames.POM.Client
                 throw new Exception("Settings not found.");
 
             MelonEvents.OnUpdate.Subscribe(NetworkManager.OnUpdate);
-            MelonEvents.OnGUI.Subscribe(PingUI.DrawPing);
+            MelonEvents.OnGUI.Subscribe(InfoUI.Ping);
         }
 
         public override void OnApplicationQuit()
