@@ -51,6 +51,7 @@ namespace YuchiGames.POM.Server
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
+
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
             ITcpMessage joinMessage = new JoinMessage(peer.Id);
             byte[] buffer = new byte[1024];

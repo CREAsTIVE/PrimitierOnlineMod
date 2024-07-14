@@ -2,9 +2,9 @@
 {
     public class ClientSettings
     {
-        public string IP { get; set; }
-        public int Port { get; set; }
-        public string MinimumLogLevel { get; set; }
+        public string IP { get; }
+        public int Port { get; }
+        public string MinimumLogLevel { get; }
 
         public ClientSettings(string ip, int port, string minimumLogLevel)
         {
