@@ -4,7 +4,8 @@ namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(JoinMessage))]
     [Union(1, typeof(LeaveMessage))]
-    [Union(2, typeof(UpdateVRMMessage))]
+    [Union(2, typeof(UploadVRMMessage))]
+    [Union(3, typeof(ServerInfoMessage))]
     public interface ITcpMessage { }
 
     [MessagePackObject]
@@ -34,7 +35,7 @@ namespace YuchiGames.POM.DataTypes
     }
 
     [MessagePackObject]
-    public struct UpdateVRMMessage : ITcpMessage
+    public struct UploadVRMMessage : ITcpMessage
     {
         [Key(0)]
         public int ID { get; }
@@ -42,10 +43,26 @@ namespace YuchiGames.POM.DataTypes
         public byte[] Data { get; }
 
         [SerializationConstructor]
-        public UpdateVRMMessage(int id, byte[] data)
+        public UploadVRMMessage(int id, byte[] data)
         {
             ID = id;
             Data = data;
+        }
+    }
+
+    [MessagePackObject]
+    public struct ServerInfoMessage : ITcpMessage
+    {
+        [Key(0)]
+        public int MaxPlayers { get; }
+        [Key(1)]
+        public byte[][] AvatarData { get; }
+
+        [SerializationConstructor]
+        public ServerInfoMessage(int maxPlayers, byte[][] avatarData)
+        {
+            MaxPlayers = maxPlayers;
+            AvatarData = avatarData;
         }
     }
 }

@@ -24,9 +24,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Il2CppVRM10">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRM10.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRM10.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppVRM10.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppVRM10.dll</HintPath>
+		<Reference Include="Il2CppUniGLTF">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppUniGLTF.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppUniGLTF.dll</HintPath>
+		</Reference>
+		<Reference Include="Il2CppVRMShaders.GLTF.IO.Runtime">
+			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
+			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppVRMShaders.GLTF.IO.Runtime.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
 		</Reference>
 		<Reference Include="MelonLoader">
 			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>

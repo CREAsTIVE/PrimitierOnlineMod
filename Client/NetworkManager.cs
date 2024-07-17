@@ -51,37 +51,53 @@ namespace YuchiGames.POM.Client
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug("PeerConnectedEvent occurred.");
-            s_id = peer.Id;
+
             s_isConnected = true;
-            Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
+            s_id = peer.RemoteId;
+            Log.Information($"Connected to Server: {s_id}, {peer.Address}:{peer.Port}");
         }
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
+
+            s_isConnected = false;
             s_id = -1;
             s_ping = -1;
-            s_isConnected = false;
-            Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
+            Log.Information($"Disconnected to server: {peer.Address}:{peer.Port}, {disconnectInfo.Reason}");
         }
 
         private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
+
+            byte[] buffer = new byte[reader.AvailableBytes];
+            reader.GetBytes(buffer, buffer.Length);
             if (deliveryMethod == DeliveryMethod.ReliableOrdered)
             {
-                byte[] buffer = new byte[1024];
-                reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                 {
-                    case JoinMessage joinMessage:
-                        Log.Debug($"Received JoinMessage. {joinMessage.ID}");
+                    case JoinMessage message:
+                        Log.Debug($"Received JoinMessage. {message.ID}");
                         break;
-                    case LeaveMessage leaveMessage:
-                        Log.Debug($"Received LeaveMessage. {leaveMessage.ID}");
+                    case LeaveMessage message:
+                        Log.Debug($"Received LeaveMessage. {message.ID}");
+                        AvatarManager.DestroyAvatar(message.ID);
                         break;
-                    case UpdateVRMMessage updateVRMMessage:
-                        Log.Debug($"Received UpdateVRMMessage. {updateVRMMessage.ID}, {updateVRMMessage.Data.Length} bytes.");
+                    case UploadVRMMessage message:
+                        AvatarManager.LoadAvatar(message.ID, message.Data);
+                        break;
+                    case ServerInfoMessage message:
+                        AvatarManager.Initialize(message.MaxPlayers);
+                        byte[] data = AvatarManager.GetAvatarData();
+                        ITcpMessage vrmMessage = new UploadVRMMessage(s_id, data);
+                        SendTcp(vrmMessage);
+                        for (int i = 0; i < message.AvatarData.Length; i++)
+                        {
+                            if (message.AvatarData[i] == null || i == s_id)
+                                continue;
+                            AvatarManager.LoadAvatar(i, message.AvatarData[i]);
+                        }
                         break;
                     default:
                         Log.Debug("Unknown Message");
@@ -90,8 +106,6 @@ namespace YuchiGames.POM.Client
             }
             else if (deliveryMethod == DeliveryMethod.Unreliable)
             {
-                byte[] buffer = new byte[1024];
-                reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<IUdpMessage>(buffer))
                 {
                     default:
@@ -108,6 +122,7 @@ namespace YuchiGames.POM.Client
         private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
             Log.Debug("NetworkErrorEvent occurred.");
+
             Log.Error($"Error: {socketError}");
         }
 
@@ -117,11 +132,13 @@ namespace YuchiGames.POM.Client
                 ?? throw new Exception("Version not found.");
             s_client.Start();
             s_client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
+            s_isRunning = s_client.IsRunning;
         }
 
         public static void Disconnect()
         {
             s_client.Stop();
+            s_isRunning = s_client.IsRunning;
         }
 
         public static void OnUpdate()
@@ -129,15 +146,12 @@ namespace YuchiGames.POM.Client
             if (!s_client.IsRunning)
                 return;
             s_client.PollEvents();
-            if (s_client.FirstPeer != null)
-                s_ping = s_client.FirstPeer.Ping;
-            s_isRunning = s_client.IsRunning;
+            s_ping = s_client.FirstPeer.Ping;
         }
 
         public static void SendTcp(ITcpMessage message)
         {
-            byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(message);
+            byte[] buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
             s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
@@ -145,8 +159,7 @@ namespace YuchiGames.POM.Client
 
         public static void SendUdp(IUdpMessage message)
         {
-            byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(message);
+            byte[] buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
             s_client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);

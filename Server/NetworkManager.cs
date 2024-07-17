@@ -52,33 +52,50 @@ namespace YuchiGames.POM.Server
         {
             Log.Debug("PeerConnectedEvent occurred.");
 
+            byte[][] vrmData = AvatarManager.GetAllVRMFiles();
+            ITcpMessage infoMessage = new ServerInfoMessage(Program.Settings.MaxPlayers, vrmData);
+            byte[] infoBuffer = MessagePackSerializer.Serialize(infoMessage);
+            peer.Send(infoBuffer, DeliveryMethod.ReliableOrdered);
             Log.Information($"Client connected: {peer.Address}:{peer.Port}, {peer.Id}");
             ITcpMessage joinMessage = new JoinMessage(peer.Id);
-            byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(joinMessage);
-            s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
+            byte[] joinBuffer = MessagePackSerializer.Serialize(joinMessage);
+            s_server.SendToAll(joinBuffer, DeliveryMethod.ReliableOrdered, peer);
         }
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug("PeerDisconnectedEvent occurred.");
+
             Log.Information($"Client disconnected: {peer.Address}:{peer.Port}, {peer.Id}, {disconnectInfo.Reason}");
             ITcpMessage leaveMessage = new LeaveMessage(peer.Id);
-            byte[] buffer = new byte[1024];
-            buffer = MessagePackSerializer.Serialize(leaveMessage);
+            byte[] buffer = MessagePackSerializer.Serialize(leaveMessage);
             s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
         }
 
         private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             Log.Debug("NetworkReceiveEvent occurred.");
+
+            if (reader.AvailableBytes > Program.Settings.MaxDataSize)
+            {
+                Log.Error("Data size is too large.");
+                return;
+            }
+            byte[] buffer = new byte[reader.AvailableBytes];
+            reader.GetBytes(buffer, buffer.Length);
             if (deliveryMethod == DeliveryMethod.ReliableOrdered)
             {
-                Log.Debug($"RawDataSize: {reader.RawDataSize}");
-                byte[] buffer = new byte[reader.RawDataSize];
-                reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
                 {
+                    case UploadVRMMessage message:
+                        if (message.ID != peer.Id)
+                        {
+                            Log.Error("ID is not matched.");
+                            return;
+                        }
+                        AvatarManager.UploadVRM(message.ID, message.Data);
+                        s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
+                        break;
                     default:
                         Log.Debug("Unknown Message");
                         break;
@@ -86,8 +103,6 @@ namespace YuchiGames.POM.Server
             }
             else if (deliveryMethod == DeliveryMethod.Unreliable)
             {
-                byte[] buffer = new byte[1024];
-                reader.GetBytes(buffer, buffer.Length);
                 switch (MessagePackSerializer.Deserialize<IUdpMessage>(buffer))
                 {
                     default:
@@ -104,6 +119,7 @@ namespace YuchiGames.POM.Server
         private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
             Log.Debug("NetworkErrorEvent occurred.");
+
             Log.Error($"Error: {socketError}");
         }
 
@@ -123,6 +139,7 @@ namespace YuchiGames.POM.Server
         public static void PollEvents()
         {
             Log.Debug("PollEvent occurred.");
+
             while (s_server.IsRunning)
                 s_server.PollEvents();
         }
