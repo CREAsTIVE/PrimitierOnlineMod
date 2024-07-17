@@ -146,6 +146,8 @@ namespace YuchiGames.POM.Client
             if (!s_client.IsRunning)
                 return;
             s_client.PollEvents();
+            if (s_client.FirstPeer == null)
+                return;
             s_ping = s_client.FirstPeer.Ping;
         }
 
