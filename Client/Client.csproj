@@ -25,48 +25,48 @@
 
 	<ItemGroup>
 		<Reference Include="Il2CppUniGLTF">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppUniGLTF.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppUniGLTF.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="Il2CppVRMShaders.GLTF.IO.Runtime">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppVRMShaders.GLTF.IO.Runtime.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="MelonLoader">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\MelonLoader.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll')">/Users/maedayuuto/Documents/POMDlls/MelonLoader.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\MelonLoader.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="0Harmony">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\0Harmony.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/0Harmony.dll')">/Users/maedayuuto/Documents/POMDlls/0Harmony.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\0Harmony.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Assembly-CSharp.dll')">/Users/maedayuuto/Documents/POMDlls/Assembly-CSharp.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="Il2Cppmscorlib">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2Cppmscorlib.dll')">/Users/maedayuuto/Documents/POMDlls/Il2Cppmscorlib.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="Il2CppInterop.Runtime">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\Il2CppInterop.Runtime.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Runtime.dll')">/Users/maedayuuto/Documents/POMDlls/Il2CppInterop.Runtime.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.IMGUIModule">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.IMGUIModule.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath Condition="Exists('D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll')">D:\SteamLibrary\steamapps\common\Primitier\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
-			<HintPath Condition="Exists('/Users/maedayuuto/Documents/POMDlls/UnityEngine.InputLegacyModule.dll')">/Users/maedayuuto/Documents/POMDlls/UnityEngine.InputLegacyModule.dll</HintPath>
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
 
@@ -75,5 +75,9 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="move $(OutDir)$(AssemblyName).dll $(PRIMITIER_PATH)\Mods\" />
+	</Target>
 
 </Project>
