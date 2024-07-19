@@ -1,8 +1,10 @@
-﻿using MelonLoader;
+﻿using Il2Cpp;
+using MelonLoader;
 using Microsoft.Extensions.Configuration;
 using UnityEngine;
 using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Client.Managers;
 
 namespace YuchiGames.POM.Client
 {
@@ -31,13 +33,13 @@ namespace YuchiGames.POM.Client
             if (s_settings is null)
                 throw new Exception("Settings not found.");
 
-            MelonEvents.OnUpdate.Subscribe(NetworkManager.OnUpdate);
+            MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnGUI.Subscribe(InfoUI.Ping);
         }
 
         public override void OnApplicationQuit()
         {
-            NetworkManager.Disconnect();
+            Network.Disconnect();
         }
 
         public override void OnLateUpdate()
