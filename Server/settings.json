@@ -2,7 +2,7 @@
   "port": 54162,
   "maxPlayers": 15,
   "maxDataSize": 67108864,
-  "seed": -1,
+  "seed": 0,
   "Serilog": {
     "Using": [
       "Serilog.Settings.Configuration",

@@ -26,7 +26,7 @@ namespace YuchiGames.POM.Server
             {
                 using (FileStream stream = File.Create(path))
                 {
-                    string jsonSource = @"{ ""port"": 54162, ""maxPlayers"": 15, ""maxDataSize"": 67108864, ""seed"": -1, ""Serilog"": { ""Using"": [ ""Serilog.Settings.Configuration"", ""Serilog.Sinks.Console"", ""Serilog.Sinks.File"" ], ""MinimumLevel"": ""Debug"", ""WriteTo"": [ { ""Name"": ""Console"" }, { ""Name"": ""File"", ""Args"": { ""path"": ""Logs/.log"", ""rollingInterval"": ""Day"" } } ] } } ";
+                    string jsonSource = @"{ ""port"": 54162, ""maxPlayers"": 15, ""maxDataSize"": 67108864, ""seed"": 0, ""Serilog"": { ""Using"": [ ""Serilog.Settings.Configuration"", ""Serilog.Sinks.Console"", ""Serilog.Sinks.File"" ], ""MinimumLevel"": ""Debug"", ""WriteTo"": [ { ""Name"": ""Console"" }, { ""Name"": ""File"", ""Args"": { ""path"": ""Logs/.log"", ""rollingInterval"": ""Day"" } } ] } } ";
                     string json = JsonConvert.SerializeObject(
                         JsonConvert.DeserializeObject(jsonSource),
                         Formatting.Indented);
