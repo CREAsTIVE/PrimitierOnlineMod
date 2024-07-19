@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Serilog;
 using System.Text;
 using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Server.Managers;
 
 namespace YuchiGames.POM.Server
 {
@@ -43,9 +44,9 @@ namespace YuchiGames.POM.Server
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
-            NetworkManager.Start();
+            Network.Start();
             while (!Console.KeyAvailable) { }
-            NetworkManager.Stop();
+            Network.Stop();
         }
     }
 }

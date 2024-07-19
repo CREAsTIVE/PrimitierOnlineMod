@@ -6,15 +6,15 @@ using System.Net.Sockets;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
-namespace YuchiGames.POM.Server
+namespace YuchiGames.POM.Server.Managers
 {
-    public static class NetworkManager
+    public static class Network
     {
         private static EventBasedNetListener s_listener;
         private static NetManager s_server;
         private static Thread s_pollEventsThread;
 
-        static NetworkManager()
+        static Network()
         {
             s_listener = new EventBasedNetListener();
             s_server = new NetManager(s_listener)
@@ -52,7 +52,7 @@ namespace YuchiGames.POM.Server
         {
             Log.Debug("PeerConnectedEvent occurred.");
 
-            byte[][] vrmData = AvatarManager.GetAllVRMFiles();
+            byte[][] vrmData = Avatar.GetAllVRMFiles();
             ITcpMessage infoMessage = new ServerInfoMessage(Program.Settings.MaxPlayers, vrmData);
             byte[] infoBuffer = MessagePackSerializer.Serialize(infoMessage);
             peer.Send(infoBuffer, DeliveryMethod.ReliableOrdered);
@@ -93,7 +93,7 @@ namespace YuchiGames.POM.Server
                             Log.Error("ID is not matched.");
                             return;
                         }
-                        AvatarManager.UploadVRM(message.ID, message.Data);
+                        Avatar.UploadVRM(message.ID, message.Data);
                         s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, peer);
                         break;
                     default:

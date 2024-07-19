@@ -1,12 +1,12 @@
 ﻿using Serilog;
 
-namespace YuchiGames.POM.Server
+namespace YuchiGames.POM.Server.Managers
 {
-    public static class AvatarManager
+    public static class Avatar
     {
         private static string[] s_vrmFiles;
 
-        static AvatarManager()
+        static Avatar()
         {
             s_vrmFiles = new string[Program.Settings.MaxPlayers];
         }
