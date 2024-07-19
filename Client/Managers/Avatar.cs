@@ -2,9 +2,9 @@
 using Il2CppUniGLTF;
 using UnityEngine;
 
-namespace YuchiGames.POM.Client
+namespace YuchiGames.POM.Client.Managers
 {
-    public static class AvatarManager
+    public static class Avatar
     {
         private static bool s_isInitialized = false;
         public static bool IsInitialized

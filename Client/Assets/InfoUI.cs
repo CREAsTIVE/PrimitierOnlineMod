@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using YuchiGames.POM.Client.Managers;
 
 namespace YuchiGames.POM.Client.Assets
 {
@@ -15,9 +16,9 @@ namespace YuchiGames.POM.Client.Assets
         {
             if (!s_show)
                 return;
-            if (NetworkManager.IsConnected)
+            if (Network.IsConnected)
             {
-                GUI.Label(new Rect(1860, 0, 60, 30), $"<color=green><size=15>Ping: {NetworkManager.Ping}</size></color>");
+                GUI.Label(new Rect(1860, 0, 60, 30), $"<color=green><size=15>Ping: {Network.Ping}</size></color>");
             }
             else
             {

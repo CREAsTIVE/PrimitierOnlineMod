@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
+using YuchiGames.POM.Client.Managers;
 
 namespace YuchiGames.POM.Client.Patches
 {
@@ -8,7 +9,7 @@ namespace YuchiGames.POM.Client.Patches
     {
         private static bool Prefix()
         {
-            NetworkManager.Connect();
+            Network.Connect();
             return true;
         }
 

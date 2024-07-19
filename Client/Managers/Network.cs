@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
-namespace YuchiGames.POM.Client
+namespace YuchiGames.POM.Client.Managers
 {
-    public static class NetworkManager
+    public static class Network
     {
         private static int s_id = -1;
         public static int ID
@@ -34,7 +34,7 @@ namespace YuchiGames.POM.Client
         private static EventBasedNetListener s_listener;
         private static NetManager s_client;
 
-        static NetworkManager()
+        static Network()
         {
             s_listener = new EventBasedNetListener();
             s_client = new NetManager(s_listener)
@@ -82,21 +82,21 @@ namespace YuchiGames.POM.Client
                         break;
                     case LeaveMessage message:
                         Log.Debug($"Received LeaveMessage. {message.ID}");
-                        AvatarManager.DestroyAvatar(message.ID);
+                        Avatar.DestroyAvatar(message.ID);
                         break;
                     case UploadVRMMessage message:
-                        AvatarManager.LoadAvatar(message.ID, message.Data);
+                        Avatar.LoadAvatar(message.ID, message.Data);
                         break;
                     case ServerInfoMessage message:
-                        AvatarManager.Initialize(message.MaxPlayers);
-                        byte[] data = AvatarManager.GetAvatarData();
+                        Avatar.Initialize(message.MaxPlayers);
+                        byte[] data = Avatar.GetAvatarData();
                         ITcpMessage vrmMessage = new UploadVRMMessage(s_id, data);
                         SendTcp(vrmMessage);
                         for (int i = 0; i < message.AvatarData.Length; i++)
                         {
                             if (message.AvatarData[i] == null || i == s_id)
                                 continue;
-                            AvatarManager.LoadAvatar(i, message.AvatarData[i]);
+                            Avatar.LoadAvatar(i, message.AvatarData[i]);
                         }
                         break;
                     default:
