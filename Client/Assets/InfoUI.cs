@@ -5,25 +5,26 @@ namespace YuchiGames.POM.Client.Assets
 {
     public static class InfoUI
     {
-        private static bool s_show = false;
-        public static bool Show
+        private static bool s_isShow = false;
+        public static bool IsShow
         {
-            get => s_show;
-            set => s_show = value;
+            get => s_isShow;
+            set => s_isShow = value;
         }
 
-        public static void Ping()
+        public static void ShowUI()
         {
-            if (!s_show)
+            if (!s_isShow)
                 return;
             if (Network.IsConnected)
             {
-                GUI.Label(new Rect(1860, 0, 60, 30), $"<color=green><size=15>Ping: {Network.Ping}</size></color>");
+                GUI.Label(new Rect(1720, 0, 200, 20), $"<color=black>Ping: {Network.Ping}</color>");
             }
             else
             {
-                GUI.Label(new Rect(1860, 0, 60, 30), $"<color=red><size=15>Ping: NOT CONNECT</size></color>");
+                GUI.Label(new Rect(1720, 0, 200, 20), $"<color=black>Ping: NOT CONNECT</color>");
             }
+            GUI.Label(new Rect(1720, 20, 200, 20), $"<color=black>Seed: {World.Seed}</color>");
         }
     }
 }
