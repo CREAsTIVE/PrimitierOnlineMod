@@ -43,7 +43,16 @@ namespace YuchiGames.POM.Client
         {
             if (!s_isInitialized)
                 throw new Exception("AvatarManager not initialized.");
-            GltfData gltfData = new GlbBinaryParser(vrmData, "").Parse();
+            GltfData gltfData;
+            try
+            {
+                gltfData = new GlbBinaryParser(vrmData, "").Parse();
+            }
+            catch
+            {
+                Log.Error("Failed to parse VRM data.");
+                return;
+            }
             ImporterContext loader = new ImporterContext(gltfData);
             RuntimeGltfInstance instance = loader.Load();
             instance.name = $"Player_{id}";
