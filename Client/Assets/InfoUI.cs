@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Il2Cpp;
+using UnityEngine;
 using YuchiGames.POM.Client.Managers;
 
 namespace YuchiGames.POM.Client.Assets
@@ -24,7 +25,7 @@ namespace YuchiGames.POM.Client.Assets
             {
                 GUI.Label(new Rect(1720, 0, 200, 20), $"<color=black>Ping: NOT CONNECT</color>");
             }
-            GUI.Label(new Rect(1720, 20, 200, 20), $"<color=black>Seed: {World.Seed}</color>");
+            GUI.Label(new Rect(1720, 20, 200, 20), $"<color=black>Seed: {TerrainGenerator.worldSeed}</color>");
         }
     }
 }
