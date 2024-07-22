@@ -4,7 +4,7 @@ using YuchiGames.POM.Client.Managers;
 
 namespace YuchiGames.POM.Client.Assets
 {
-    public static class InfoUI
+    public class InfoUI : MonoBehaviour
     {
         private static bool s_isShow = false;
         public static bool IsShow
