@@ -1,5 +1,4 @@
-﻿using Il2Cpp;
-using MelonLoader;
+﻿using MelonLoader;
 using Microsoft.Extensions.Configuration;
 using UnityEngine;
 using YuchiGames.POM.Client.Assets;
@@ -35,6 +34,14 @@ namespace YuchiGames.POM.Client
 
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnGUI.Subscribe(InfoUI.ShowUI);
+        }
+
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
+        {
+            if (sceneName == "Main")
+            {
+                Assets.StartButton.Initialize();
+            }
         }
 
         public override void OnApplicationQuit()
