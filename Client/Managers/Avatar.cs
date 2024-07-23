@@ -1,6 +1,6 @@
 ﻿using Il2Cpp;
-using Il2CppUniGLTF;
 using UnityEngine;
+using Il2CppUniGLTF;
 
 namespace YuchiGames.POM.Client.Managers
 {

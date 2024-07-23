@@ -1,9 +1,8 @@
 ﻿using LiteNetLib;
-using LiteNetLib.Utils;
-using MessagePack;
 using System.Net;
+using MessagePack;
+using LiteNetLib.Utils;
 using System.Net.Sockets;
-using System.Reflection;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Managers
@@ -126,13 +125,11 @@ namespace YuchiGames.POM.Client.Managers
             Log.Error($"Error: {socketError}");
         }
 
-        public static void Connect()
+        public static void Connect(string ipAddress, int port, string version)
         {
-            Version? version = Assembly.GetExecutingAssembly().GetName().Version
-                ?? throw new Exception("Version not found.");
             s_client.Start();
-            s_client.Connect(Program.Settings.IP, Program.Settings.Port, version.ToString());
             s_isRunning = s_client.IsRunning;
+            s_client.Connect(ipAddress, port, version);
         }
 
         public static void Disconnect()

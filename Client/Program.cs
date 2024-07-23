@@ -1,9 +1,10 @@
 ﻿using MelonLoader;
-using Microsoft.Extensions.Configuration;
 using UnityEngine;
-using YuchiGames.POM.Client.Assets;
+using System.Reflection;
 using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Managers;
+using Microsoft.Extensions.Configuration;
 
 namespace YuchiGames.POM.Client
 {
@@ -19,6 +20,16 @@ namespace YuchiGames.POM.Client
                 return s_settings;
             }
         }
+        private static string? s_version;
+        public static string Version
+        {
+            get
+            {
+                if (s_version is null)
+                    throw new Exception("Version not found.");
+                return s_version;
+            }
+        }
 
         public override void OnInitializeMelon()
         {
@@ -31,6 +42,10 @@ namespace YuchiGames.POM.Client
             s_settings = config.Get<ClientSettings>();
             if (s_settings is null)
                 throw new Exception("Settings not found.");
+
+            s_version = (Assembly.GetExecutingAssembly().GetName().Version
+                ?? throw new Exception("Version not found."))
+                .ToString();
 
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnUpdate.Subscribe(PingUI.SetPing);

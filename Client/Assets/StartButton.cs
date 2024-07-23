@@ -1,9 +1,10 @@
 ﻿using Il2Cpp;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppTMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using YuchiGames.POM.Client.Managers;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace YuchiGames.POM.Client.Assets
 {
@@ -19,6 +20,8 @@ namespace YuchiGames.POM.Client.Assets
 
         public static void OnClick()
         {
+            Network.Connect(Program.Settings.IP, Program.Settings.Port, Program.Version);
+
             TextMeshPro infoText = GameObject.Find("InfoText").GetComponent<TextMeshPro>();
 
             Il2CppReferenceArray<GameObject> destroyObjects = new Il2CppReferenceArray<GameObject>(1);
