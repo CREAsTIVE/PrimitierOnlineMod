@@ -21,26 +21,13 @@ namespace YuchiGames.POM.Client.Assets
         {
             TextMeshPro infoText = GameObject.Find("InfoText").GetComponent<TextMeshPro>();
 
-            Il2CppReferenceArray<GameObject> destroyObjects = new Il2CppReferenceArray<GameObject>(4);
-            destroyObjects[0] = GameObject.Find("/TitleSpace/InfoText");
-            destroyObjects[1] = GameObject.Find("/TitleSpace/VRtone/BoardGrip");
-            GameObject[] allGameObjects = GameObject.FindObjectsOfType<GameObject>();
-            int malletCount = 2;
-            foreach (GameObject gameObject in allGameObjects)
-            {
-                if (gameObject.name == "Mallet")
-                {
-                    destroyObjects[malletCount] = gameObject;
-                    malletCount++;
-                }
-            }
+            Il2CppReferenceArray<GameObject> destroyObjects = new Il2CppReferenceArray<GameObject>(1);
+            destroyObjects[0] = GameObject.Find("/TitleSpace");
 
-            Il2CppReferenceArray<GameObject> enableObjects = new Il2CppReferenceArray<GameObject>(4);
+            Il2CppReferenceArray<GameObject> enableObjects = new Il2CppReferenceArray<GameObject>(2);
             GameObject saveLoadObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SystemTab");
-            enableObjects[0] = saveLoadObject.transform.Find("SaveLoad/SaveButton").gameObject;
-            enableObjects[1] = saveLoadObject.transform.Find("SaveLoad/LoadButton").gameObject;
-            enableObjects[2] = saveLoadObject.transform.Find("DieButton").gameObject;
-            enableObjects[3] = saveLoadObject.transform.Find("BlueprintButton").gameObject;
+            enableObjects[0] = saveLoadObject.transform.Find("DieButton").gameObject;
+            enableObjects[1] = saveLoadObject.transform.Find("BlueprintButton").gameObject;
 
             LoadingSequence loadingSequence = GameObject.FindObjectOfType<LoadingSequence>();
             loadingSequence.StartLoading(1, infoText, destroyObjects, enableObjects);
