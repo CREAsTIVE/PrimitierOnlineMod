@@ -33,7 +33,7 @@ namespace YuchiGames.POM.Client
                 throw new Exception("Settings not found.");
 
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
-            MelonEvents.OnGUI.Subscribe(InfoUI.ShowUI);
+            MelonEvents.OnGUI.Subscribe(InfoGUI.ShowGUI);
         }
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
@@ -53,7 +53,7 @@ namespace YuchiGames.POM.Client
         {
             if (Input.GetKeyDown(KeyCode.F1))
             {
-                InfoUI.IsShow = !InfoUI.IsShow;
+                InfoGUI.IsShow = !InfoGUI.IsShow;
             }
         }
     }
