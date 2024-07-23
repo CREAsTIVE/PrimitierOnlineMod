@@ -33,6 +33,7 @@ namespace YuchiGames.POM.Client
                 throw new Exception("Settings not found.");
 
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
+            MelonEvents.OnUpdate.Subscribe(PingUI.SetPing);
             MelonEvents.OnGUI.Subscribe(InfoGUI.ShowGUI);
         }
 
@@ -41,6 +42,7 @@ namespace YuchiGames.POM.Client
             if (sceneName == "Main")
             {
                 Assets.StartButton.Initialize();
+                Assets.PingUI.Initialize();
             }
         }
 
