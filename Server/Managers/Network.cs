@@ -1,9 +1,9 @@
-﻿using LiteNetLib;
-using MessagePack;
-using Serilog;
+﻿using Serilog;
+using LiteNetLib;
 using System.Net;
-using System.Net.Sockets;
+using MessagePack;
 using System.Reflection;
+using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Server.Managers
@@ -123,10 +123,10 @@ namespace YuchiGames.POM.Server.Managers
             Log.Error($"Error: {socketError}");
         }
 
-        public static void Start()
+        public static void Start(int port)
         {
             Log.Information("Server started.");
-            s_server.Start(Program.Settings.Port);
+            s_server.Start(port);
             s_pollEventsThread.Start();
         }
 

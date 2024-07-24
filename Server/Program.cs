@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Serilog;
+﻿using Serilog;
 using System.Text;
+using Newtonsoft.Json;
 using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Server.Managers;
+using Microsoft.Extensions.Configuration;
 
 namespace YuchiGames.POM.Server
 {
@@ -44,7 +44,7 @@ namespace YuchiGames.POM.Server
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
-            Network.Start();
+            Network.Start(s_settings.Port);
             while (!Console.KeyAvailable) { }
             Network.Stop();
         }
