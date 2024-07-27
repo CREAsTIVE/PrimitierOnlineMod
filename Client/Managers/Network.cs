@@ -49,8 +49,6 @@ namespace YuchiGames.POM.Client.Managers
 
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
-            Log.Debug("PeerConnectedEvent occurred.");
-
             s_isConnected = true;
             s_id = peer.RemoteId;
             Log.Information($"Connected to Server: {s_id}, {peer.Address}:{peer.Port}");
@@ -58,8 +56,6 @@ namespace YuchiGames.POM.Client.Managers
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Log.Debug("PeerDisconnectedEvent occurred.");
-
             s_isConnected = false;
             s_id = -1;
             s_ping = -1;
@@ -68,61 +64,47 @@ namespace YuchiGames.POM.Client.Managers
 
         private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
-            Log.Debug("NetworkReceiveEvent occurred.");
-
             byte[] buffer = new byte[reader.AvailableBytes];
             reader.GetBytes(buffer, buffer.Length);
-            if (deliveryMethod == DeliveryMethod.ReliableOrdered)
+
+            switch (channel)
             {
-                switch (MessagePackSerializer.Deserialize<ITcpMessage>(buffer))
-                {
-                    case JoinMessage message:
-                        Log.Debug($"Received JoinMessage. {message.ID}");
-                        break;
-                    case LeaveMessage message:
-                        Log.Debug($"Received LeaveMessage. {message.ID}");
-                        Avatar.DestroyAvatar(message.ID);
-                        break;
-                    case UploadVRMMessage message:
-                        Avatar.LoadAvatar(message.ID, message.Data);
-                        break;
-                    case ServerInfoMessage message:
-                        Avatar.Initialize(message.MaxPlayers);
-                        byte[] data = Avatar.GetAvatarData();
-                        ITcpMessage vrmMessage = new UploadVRMMessage(s_id, data);
-                        SendTcp(vrmMessage);
-                        for (int i = 0; i < message.AvatarData.Length; i++)
-                        {
-                            if (message.AvatarData[i] == null || i == s_id)
-                                continue;
-                            Avatar.LoadAvatar(i, message.AvatarData[i]);
-                        }
-                        break;
-                    default:
-                        Log.Debug("Unknown Message");
-                        break;
-                }
-            }
-            else if (deliveryMethod == DeliveryMethod.Unreliable)
-            {
-                switch (MessagePackSerializer.Deserialize<IUdpMessage>(buffer))
-                {
-                    default:
-                        Log.Debug("Unknown Message");
-                        break;
-                }
-            }
-            else
-            {
-                Log.Debug("Unknown DeliveryMethod Message");
+                case 0x00:
+                    switch (MessagePackSerializer.Deserialize<IMultiMessage>(buffer))
+                    {
+                        case JoinMessage message:
+                            Log.Information($"Player joined: {message.JoinID}");
+                            break;
+                        case LeaveMessage message:
+                            Log.Information($"Player left: {message.LeaveID}");
+                            break;
+                        case UploadVRMMessage message:
+                            Avatar.LoadAvatar(message.FromID, message.Data);
+                            break;
+                    }
+                    break;
+                case 0x01:
+                    switch (MessagePackSerializer.Deserialize<IUniMessage>(buffer))
+                    {
+                        case ServerInfoMessage message:
+                            Avatar.Initialize(message.MaxPlayers);
+                            byte[] data = Avatar.GetAvatarData();
+                            IMultiMessage vrmMessage = new UploadVRMMessage(s_id, data);
+                            Send(vrmMessage);
+                            for (int i = 0; i < message.AvatarData.Length; i++)
+                            {
+                                if (message.AvatarData[i] != null && i != s_id)
+                                    Avatar.LoadAvatar(i, message.AvatarData[i]);
+                            }
+                            break;
+                    }
+                    break;
             }
         }
 
         private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
-            Log.Debug("NetworkErrorEvent occurred.");
-
-            Log.Error($"Error: {socketError}");
+            Log.Error($"NetworkError: {socketError}");
         }
 
         public static void Connect(string ipAddress, int port, string version)
@@ -148,20 +130,36 @@ namespace YuchiGames.POM.Client.Managers
             s_ping = s_client.FirstPeer.Ping;
         }
 
-        public static void SendTcp(ITcpMessage message)
+        public static void Send(IUniMessage message)
         {
             byte[] buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
-            s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+            switch (message.Protocol)
+            {
+                case ProtocolType.Tcp:
+                    s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+                    break;
+                case ProtocolType.Udp:
+                    s_client.FirstPeer.Send(writer, DeliveryMethod.Sequenced);
+                    break;
+            }
         }
 
-        public static void SendUdp(IUdpMessage message)
+        public static void Send(IMultiMessage message)
         {
             byte[] buffer = MessagePackSerializer.Serialize(message);
             NetDataWriter writer = new NetDataWriter();
             writer.Put(buffer);
-            s_client.FirstPeer.Send(writer, DeliveryMethod.Unreliable);
+            switch (message.Protocol)
+            {
+                case ProtocolType.Tcp:
+                    s_client.FirstPeer.Send(writer, DeliveryMethod.ReliableOrdered);
+                    break;
+                case ProtocolType.Udp:
+                    s_client.FirstPeer.Send(writer, DeliveryMethod.Sequenced);
+                    break;
+            }
         }
     }
 }

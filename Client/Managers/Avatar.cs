@@ -26,9 +26,8 @@ namespace YuchiGames.POM.Client.Managers
                 throw new Exception("AvatarManager not initialized.");
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i] == null)
-                    continue;
-                LoadAvatar(i, data[i]);
+                if (data[i] != null)
+                    LoadAvatar(i, data[i]);
             }
         }
 
@@ -61,7 +60,7 @@ namespace YuchiGames.POM.Client.Managers
             if (s_gltfInstances == null)
                 throw new Exception("Avatar already loaded.");
             s_gltfInstances[id] = instance;
-            Log.Debug($"Avatar loaded: {id}: {s_gltfInstances[id].name}");
+            Log.Debug($"Avatar loaded: {id}, {s_gltfInstances[id].name}");
         }
 
         public static void DestroyAvatar(int id)
@@ -71,6 +70,7 @@ namespace YuchiGames.POM.Client.Managers
             if (s_gltfInstances == null)
                 throw new Exception("Avatar not loaded.");
             GameObject.Destroy(s_gltfInstances[id]);
+            Log.Debug($"Avatar destroyed: {id}");
         }
     }
 }

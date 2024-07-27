@@ -11,8 +11,8 @@
 	<ItemGroup>
 		<Compile Include="..\DataTypes\FileTypes.cs" Link="DataTypes\FileTypes.cs" />
 		<Compile Include="..\DataTypes\ObjectTypes.cs" Link="DataTypes\ObjectTypes.cs" />
-		<Compile Include="..\DataTypes\TcpMessages.cs" Link="DataTypes\TcpMessages.cs" />
-		<Compile Include="..\DataTypes\UdpMessages.cs" Link="DataTypes\UdpMessages.cs" />
+		<Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
+		<Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
