@@ -58,6 +58,9 @@ namespace YuchiGames.POM.Client
             {
                 Assets.StartButton.Initialize();
                 Assets.PingUI.Initialize();
+                GameObject settingsTabObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
+                settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
+                settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
             }
         }
 

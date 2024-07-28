@@ -28,9 +28,9 @@ namespace YuchiGames.POM.Client.Assets
             destroyObjects[0] = GameObject.Find("/TitleSpace");
 
             Il2CppReferenceArray<GameObject> enableObjects = new Il2CppReferenceArray<GameObject>(2);
-            GameObject saveLoadObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SystemTab");
-            enableObjects[0] = saveLoadObject.transform.Find("DieButton").gameObject;
-            enableObjects[1] = saveLoadObject.transform.Find("BlueprintButton").gameObject;
+            GameObject systemTabObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SystemTab");
+            enableObjects[0] = systemTabObject.transform.Find("DieButton").gameObject;
+            enableObjects[1] = systemTabObject.transform.Find("BlueprintButton").gameObject;
 
             LoadingSequence loadingSequence = GameObject.FindObjectOfType<LoadingSequence>();
             loadingSequence.StartLoading(1, infoText, destroyObjects, enableObjects);
