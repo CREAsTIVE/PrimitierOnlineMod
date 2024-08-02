@@ -9,8 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\DataTypes\FileTypes.cs" Link="DataTypes\FileTypes.cs" />
-		<Compile Include="..\DataTypes\ObjectTypes.cs" Link="DataTypes\ObjectTypes.cs" />
+		<Compile Include="..\DataTypes\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
+		<Compile Include="..\DataTypes\WorldData.cs" Link="DataTypes\WorldData.cs" />
+		<Compile Include="..\DataTypes\PosRotData.cs" Link="DataTypes\PosRotData.cs" />
 		<Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
 		<Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
 	</ItemGroup>

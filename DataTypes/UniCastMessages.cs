@@ -35,4 +35,23 @@ namespace YuchiGames.POM.DataTypes
             AvatarData = avatarData;
         }
     }
+
+    [MessagePackObject]
+    public struct RequestWorldData : IUniMessage
+    {
+        [Key(0)]
+        public int FromID { get; }
+        [Key(1)]
+        public int ToID { get; }
+        [IgnoreMember]
+        public ProtocolType Protocol { get; }
+
+        [SerializationConstructor]
+        public RequestWorldData(int fromID, int toID)
+        {
+            FromID = fromID;
+            ToID = toID;
+            Protocol = ProtocolType.Tcp;
+        }
+    }
 }

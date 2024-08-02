@@ -68,4 +68,23 @@ namespace YuchiGames.POM.DataTypes
             Data = data;
         }
     }
+
+    [MessagePackObject]
+    public struct AvatarPositionMessage : IMultiMessage
+    {
+        [Key(0)]
+        public int FromID { get; }
+        [IgnoreMember]
+        public ProtocolType Protocol { get; }
+        [Key(1)]
+        public VRMPosData VRMPosData { get; }
+
+        [SerializationConstructor]
+        public AvatarPositionMessage(int fromID, VRMPosData vrmPosData)
+        {
+            FromID = fromID;
+            Protocol = ProtocolType.Udp;
+            VRMPosData = vrmPosData;
+        }
+    }
 }
