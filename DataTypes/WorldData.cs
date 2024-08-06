@@ -1,40 +1,76 @@
 ﻿namespace YuchiGames.POM.DataTypes
 {
-    public struct WorldData
+    public struct GlobalWorldData
     {
         public int Seed { get; }
         public float Time { get; set; }
         public bool IsTimeFrozen { get; set; }
-        public List<string> UserGUID { get; set; }
+        public HashSet<string> UserIDs { get; set; }
         public List<Position> PlayerPositions { get; set; }
         public List<float> PlayerAngles { get; set; }
         public List<float> PlayerLives { get; set; }
         public List<Position> RespawnPositions { get; set; }
         public List<float> RespawnAngles { get; set; }
-        public List<Position> CameraPos { get; set; }
-        public List<Rotation> CameraRot { get; set; }
+        public List<Position> CameraPositions { get; set; }
+        public List<Rotation> CameraRotations { get; set; }
         public List<Position> HolsterLeftPositions { get; set; }
         public List<Position> HolsterRightPositions { get; set; }
         public List<Chunk> Chunks { get; set; }
-        public List<List<bool>> GeneratedChunks { get; set; }
+        public HashSet<Position2> GeneratedChunks { get; set; }
 
-        public WorldData(int seed, int time, bool isTimeFrozen)
+        public GlobalWorldData(int seed, float time, bool isTimeFrozen)
         {
             Seed = seed;
             Time = time;
             IsTimeFrozen = isTimeFrozen;
-            UserGUID = new List<string>();
+            UserIDs = new HashSet<string>();
             PlayerPositions = new List<Position>();
             PlayerAngles = new List<float>();
             PlayerLives = new List<float>();
             RespawnPositions = new List<Position>();
             RespawnAngles = new List<float>();
-            CameraPos = new List<Position>();
-            CameraRot = new List<Rotation>();
+            CameraPositions = new List<Position>();
+            CameraRotations = new List<Rotation>();
             HolsterLeftPositions = new List<Position>();
             HolsterRightPositions = new List<Position>();
             Chunks = new List<Chunk>();
-            GeneratedChunks = new List<List<bool>>();
+            GeneratedChunks = new HashSet<Position2>();
+        }
+    }
+
+    public struct LocalWorldData
+    {
+        public int Seed { get; }
+        public float Time { get; set; }
+        public bool IsTimeFrozen { get; set; }
+        public Position PlayerPos { get; set; }
+        public float PlayerAngle { get; set; }
+        public float PlayerLife { get; set; }
+        public Position RespawnPos { get; set; }
+        public float RespawnAngle { get; set; }
+        public Position CameraPos { get; set; }
+        public Rotation CameraRot { get; set; }
+        public Position HolsterLeftPos { get; set; }
+        public Position HolsterRightPos { get; set; }
+        public List<Chunk> Chunks { get; set; }
+        public HashSet<Position2> GeneratedChunks { get; set; }
+
+        public LocalWorldData(int seed, float time, bool isTimeFrozen)
+        {
+            Seed = seed;
+            Time = time;
+            IsTimeFrozen = isTimeFrozen;
+            PlayerPos = new Position();
+            PlayerAngle = new float();
+            PlayerLife = new float();
+            RespawnPos = new Position();
+            RespawnAngle = new float();
+            CameraPos = new Position();
+            CameraRot = new Rotation();
+            HolsterLeftPos = new Position();
+            HolsterRightPos = new Position();
+            Chunks = new List<Chunk>();
+            GeneratedChunks = new HashSet<Position2>();
         }
     }
 

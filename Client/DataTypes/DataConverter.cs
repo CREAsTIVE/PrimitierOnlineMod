@@ -9,9 +9,19 @@ namespace YuchiGames.POM.DataTypes
             return new Vector3(position.X, position.Y, position.Z);
         }
 
+        public static Vector3 ToVector3(Scale scale)
+        {
+            return new Vector3(scale.X, scale.Y, scale.Z);
+        }
+
         public static Vector3 ToVector3(PosRot posRot)
         {
             return new Vector3(posRot.Position.X, posRot.Position.Y, posRot.Position.Z);
+        }
+
+        public static Vector2 ToVector2(Position2 position2)
+        {
+            return new Vector2(position2.X, position2.Y);
         }
 
         public static Quaternion ToQuaternion(Rotation rotation)
@@ -56,6 +66,16 @@ namespace YuchiGames.POM.DataTypes
         {
             return new PosRot(new Position(transform.position.x, transform.position.y, transform.position.z),
                 new Rotation(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+        }
+
+        public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(List<T> systemList)
+        {
+            Il2CppSystem.Collections.Generic.List<T> il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
+            foreach (T item in systemList)
+            {
+                il2cppList.Add(item);
+            }
+            return il2cppList;
         }
     }
 }

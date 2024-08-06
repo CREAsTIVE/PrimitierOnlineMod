@@ -1,7 +1,9 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using Microsoft.Win32;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
+using System.Runtime.Versioning;
 using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Managers;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +32,18 @@ namespace YuchiGames.POM.Client
                 return s_version;
             }
         }
+        private static string? s_userGUID;
+        public static string UserGUID
+        {
+            get
+            {
+                if (s_userGUID is null)
+                    throw new Exception("MachineId not found.");
+                return s_userGUID;
+            }
+        }
 
+        [SupportedOSPlatform("windows")]
         public override void OnInitializeMelon()
         {
             string path = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
@@ -47,8 +60,15 @@ namespace YuchiGames.POM.Client
                 ?? throw new Exception("Version not found."))
                 .ToString();
 
+            using RegistryKey? key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\SQMClient")
+                ?? throw new Exception("MachineId not found");
+            string? machineID = (key.GetValue("MachineId")?.ToString())
+                ?? throw new Exception("MachineId not found");
+            s_userGUID = machineID.Trim('{', '}');
+
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnUpdate.Subscribe(PingUI.SetPing);
+            MelonEvents.OnUpdate.Subscribe(Avatar.SendAvatarPosition);
             MelonEvents.OnGUI.Subscribe(InfoGUI.ShowGUI);
         }
 

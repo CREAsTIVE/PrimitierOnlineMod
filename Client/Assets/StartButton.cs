@@ -20,7 +20,7 @@ namespace YuchiGames.POM.Client.Assets
 
         public static void OnClick()
         {
-            Network.Connect(Program.Settings.IP, Program.Settings.Port, Program.Version);
+            Network.Connect(Program.Settings.IP, Program.Settings.Port);
 
             TextMeshPro infoText = GameObject.Find("InfoText").GetComponent<TextMeshPro>();
 

@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using System.Text;
 using Newtonsoft.Json;
+using System.Reflection;
 using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Server.Managers;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,16 @@ namespace YuchiGames.POM.Server
                 if (s_settings is null)
                     throw new Exception("Settings not found.");
                 return s_settings;
+            }
+        }
+        private static string? s_version;
+        public static string Version
+        {
+            get
+            {
+                if (s_version is null)
+                    throw new Exception("Version not found.");
+                return s_version;
             }
         }
 
@@ -43,6 +54,10 @@ namespace YuchiGames.POM.Server
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
+
+            s_version = (Assembly.GetExecutingAssembly().GetName().Version
+                ?? throw new Exception("Version not found."))
+                .ToString();
 
             Network.Start(s_settings.Port);
             while (!Console.KeyAvailable) { }

@@ -12,8 +12,8 @@ namespace YuchiGames.POM.Server.Managers
         {
             get => s_seed;
         }
-        private static WorldData s_worldData;
-        public static WorldData WorldData
+        private static GlobalWorldData s_worldData;
+        public static GlobalWorldData WorldData
         {
             get => s_worldData;
         }
@@ -30,21 +30,21 @@ namespace YuchiGames.POM.Server.Managers
                     gz.Read(jsonBytes, 0, jsonBytes.Length);
                 }
                 string json = Encoding.UTF8.GetString(jsonBytes);
-                s_worldData = JsonSerializer.Deserialize<WorldData>(json);
+                s_worldData = JsonSerializer.Deserialize<GlobalWorldData>(json);
                 s_seed = s_worldData.Seed;
             }
             else
             {
                 if (Program.Settings.Seed == 0)
                 {
-                    s_seed = new Random().Next();
+                    s_seed = new Random().Next(-2147483648, 2147483647);
                 }
                 else
                 {
                     s_seed = Program.Settings.Seed;
                 }
 
-                s_worldData = new WorldData(s_seed, 10, false);
+                s_worldData = new GlobalWorldData(s_seed, 10, false);
             }
         }
 
@@ -57,6 +57,24 @@ namespace YuchiGames.POM.Server.Managers
             {
                 gz.Write(jsonBytes, 0, jsonBytes.Length);
             }
+        }
+
+        public static LocalWorldData GetLocalWorldData(string userGUID)
+        {
+            LocalWorldData localWorldData = new LocalWorldData(s_seed, s_worldData.Time, s_worldData.IsTimeFrozen);
+            int index = s_worldData.UserIDs.ToList().IndexOf(userGUID);
+            localWorldData.PlayerPos = s_worldData.PlayerPositions[index];
+            localWorldData.PlayerAngle = s_worldData.PlayerAngles[index];
+            localWorldData.PlayerLife = s_worldData.PlayerLives[index];
+            localWorldData.RespawnPos = s_worldData.RespawnPositions[index];
+            localWorldData.RespawnAngle = s_worldData.RespawnAngles[index];
+            localWorldData.CameraPos = s_worldData.CameraPositions[index];
+            localWorldData.CameraRot = s_worldData.CameraRotations[index];
+            localWorldData.HolsterLeftPos = s_worldData.HolsterLeftPositions[index];
+            localWorldData.HolsterRightPos = s_worldData.HolsterRightPositions[index];
+            localWorldData.Chunks = s_worldData.Chunks;
+            localWorldData.GeneratedChunks = s_worldData.GeneratedChunks;
+            return localWorldData;
         }
     }
 }

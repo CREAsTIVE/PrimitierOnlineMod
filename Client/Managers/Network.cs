@@ -49,9 +49,9 @@ namespace YuchiGames.POM.Client.Managers
 
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
-            s_isConnected = true;
             s_id = peer.RemoteId;
-            Log.Information($"Connected to Server: {s_id}, {peer.Address}:{peer.Port}");
+            IUniMessage message = new RequestServerInfoMessage();
+            Send(message);
         }
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -81,6 +81,9 @@ namespace YuchiGames.POM.Client.Managers
                         case UploadVRMMessage message:
                             Avatar.LoadAvatar(message.FromID, message.Data);
                             break;
+                        case AvatarPositionMessage message:
+                            Avatar.UpdatePosition(message.FromID, message.Position);
+                            break;
                     }
                     break;
                 case 0x01:
@@ -88,6 +91,7 @@ namespace YuchiGames.POM.Client.Managers
                     {
                         case ServerInfoMessage message:
                             Avatar.Initialize(message.MaxPlayers);
+                            World.Load(message.WorldData);
                             byte[] data = Avatar.GetAvatarData();
                             IMultiMessage vrmMessage = new UploadVRMMessage(s_id, data);
                             Send(vrmMessage);
@@ -96,6 +100,8 @@ namespace YuchiGames.POM.Client.Managers
                                 if (message.AvatarData[i] != null && i != s_id)
                                     Avatar.LoadAvatar(i, message.AvatarData[i]);
                             }
+                            s_isConnected = true;
+                            Log.Information($"Connected to Server: {s_id}, {peer.Address}:{peer.Port}");
                             break;
                     }
                     break;
@@ -107,11 +113,15 @@ namespace YuchiGames.POM.Client.Managers
             Log.Error($"NetworkError: {socketError}");
         }
 
-        public static void Connect(string ipAddress, int port, string version)
+        public static void Connect(string ipAddress, int port)
         {
             s_client.Start();
             s_isRunning = s_client.IsRunning;
-            s_client.Connect(ipAddress, port, version);
+            AuthData authData = new AuthData(Program.Version);
+            byte[] buffer = MessagePackSerializer.Serialize(authData);
+            NetDataWriter data = new NetDataWriter();
+            data.Put(buffer);
+            s_client.Connect(ipAddress, port, data);
         }
 
         public static void Disconnect()

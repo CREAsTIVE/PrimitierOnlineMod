@@ -6,6 +6,8 @@ namespace YuchiGames.POM.DataTypes
     [Union(0, typeof(JoinMessage))]
     [Union(1, typeof(LeaveMessage))]
     [Union(2, typeof(UploadVRMMessage))]
+    [Union(3, typeof(AvatarPositionMessage))]
+    [Union(4, typeof(GeneratedChunkMessage))]
     public interface IMultiMessage
     {
         public int FromID { get; }
@@ -18,7 +20,7 @@ namespace YuchiGames.POM.DataTypes
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
-        public ProtocolType Protocol { get; }
+        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [Key(1)]
         public int JoinID { get; }
 
@@ -26,7 +28,6 @@ namespace YuchiGames.POM.DataTypes
         public JoinMessage(int fromID, int joinID)
         {
             FromID = fromID;
-            Protocol = ProtocolType.Tcp;
             JoinID = joinID;
         }
     }
@@ -37,7 +38,7 @@ namespace YuchiGames.POM.DataTypes
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
-        public ProtocolType Protocol { get; }
+        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [Key(1)]
         public int LeaveID { get; }
 
@@ -45,7 +46,6 @@ namespace YuchiGames.POM.DataTypes
         public LeaveMessage(int fromID, int leaveID)
         {
             FromID = fromID;
-            Protocol = ProtocolType.Tcp;
             LeaveID = leaveID;
         }
     }
@@ -56,7 +56,7 @@ namespace YuchiGames.POM.DataTypes
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
-        public ProtocolType Protocol { get; }
+        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [Key(1)]
         public byte[] Data { get; }
 
@@ -64,7 +64,6 @@ namespace YuchiGames.POM.DataTypes
         public UploadVRMMessage(int fromID, byte[] data)
         {
             FromID = fromID;
-            Protocol = ProtocolType.Tcp;
             Data = data;
         }
     }
@@ -75,7 +74,7 @@ namespace YuchiGames.POM.DataTypes
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
-        public ProtocolType Protocol { get; }
+        public ProtocolType Protocol { get; } = ProtocolType.Udp;
         [Key(1)]
         public VRMPosData VRMPosData { get; }
 
@@ -83,8 +82,25 @@ namespace YuchiGames.POM.DataTypes
         public AvatarPositionMessage(int fromID, VRMPosData vrmPosData)
         {
             FromID = fromID;
-            Protocol = ProtocolType.Udp;
             VRMPosData = vrmPosData;
+        }
+    }
+
+    [MessagePackObject]
+    public struct GeneratedChunkMessage : IMultiMessage
+    {
+        [Key(0)]
+        public int FromID { get; }
+        [IgnoreMember]
+        public ProtocolType Protocol { get; } = ProtocolType.Udp;
+        [Key(1)]
+        public Chunk ChunkData { get; }
+
+        [SerializationConstructor]
+        public GeneratedChunkMessage(int fromID, Chunk chunkData)
+        {
+            FromID = fromID;
+            ChunkData = chunkData;
         }
     }
 }

@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="..\DataTypes\AuthData.cs" Link="DataTypes\AuthData.cs" />
 		<Compile Include="..\DataTypes\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
 		<Compile Include="..\DataTypes\WorldData.cs" Link="DataTypes\WorldData.cs" />
 		<Compile Include="..\DataTypes\PosRotData.cs" Link="DataTypes\PosRotData.cs" />

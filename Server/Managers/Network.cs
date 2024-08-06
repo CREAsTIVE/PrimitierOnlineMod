@@ -3,7 +3,6 @@ using LiteNetLib;
 using System.Net;
 using MessagePack;
 using LiteNetLib.Utils;
-using System.Reflection;
 using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 
@@ -33,12 +32,14 @@ namespace YuchiGames.POM.Server.Managers
 
         private static void ConnectionRequestEventHandler(ConnectionRequest request)
         {
-            Version? version = Assembly.GetExecutingAssembly().GetName().Version
-                ?? throw new Exception("Version not found.");
-            if (s_server.ConnectedPeersCount < Program.Settings.MaxPlayers)
+            byte[] buffer = new byte[request.Data.AvailableBytes];
+            request.Data.GetBytes(buffer, buffer.Length);
+            AuthData authData = MessagePackSerializer.Deserialize<AuthData>(buffer);
+            if (s_server.ConnectedPeersCount < Program.Settings.MaxPlayers
+                && authData.Version == Program.Version)
             {
+                request.Accept();
                 Log.Information($"Request accepted: {request.RemoteEndPoint}");
-                request.AcceptIfKey(version.ToString());
             }
             else
             {
@@ -49,9 +50,6 @@ namespace YuchiGames.POM.Server.Managers
 
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
-            byte[][] vrmData = Avatar.GetAllVRMFiles();
-            IUniMessage infoMessage = new ServerInfoMessage(0, peer.Id, Program.Settings.MaxPlayers, vrmData);
-            Send(infoMessage);
             Log.Information($"Client connected: {peer.Id}, {peer.Address}:{peer.Port}");
             IMultiMessage joinMessage = new JoinMessage(0, peer.Id);
             Send(joinMessage, peer);
@@ -82,7 +80,13 @@ namespace YuchiGames.POM.Server.Managers
                         IMultiMessage multiMessage = MessagePackSerializer.Deserialize<IMultiMessage>(buffer);
                         if (multiMessage.FromID != peer.Id)
                             return;
-                        Send(multiMessage);
+                        switch (multiMessage)
+                        {
+                            case UploadVRMMessage:
+                            case AvatarPositionMessage:
+                                Send(multiMessage);
+                                break;
+                        };
                     }
                     catch (MessagePackSerializationException)
                     {
@@ -100,7 +104,15 @@ namespace YuchiGames.POM.Server.Managers
                         IUniMessage uniMessage = MessagePackSerializer.Deserialize<IUniMessage>(buffer);
                         if (uniMessage.FromID != peer.Id)
                             return;
-                        Send(uniMessage);
+                        switch (uniMessage)
+                        {
+                            case RequestServerInfoMessage requestServerInfoMessage:
+                                byte[][] vrmData = Avatar.GetAllVRMFiles();
+                                LocalWorldData localWorldData = World.GetLocalWorldData(requestServerInfoMessage.UserGUID);
+                                IUniMessage infoMessage = new ServerInfoMessage(0, peer.Id, Program.Settings.MaxPlayers, vrmData, localWorldData);
+                                Send(infoMessage);
+                                break;
+                        }
                     }
                     catch (MessagePackSerializationException)
                     {
