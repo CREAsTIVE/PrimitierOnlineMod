@@ -26,9 +26,13 @@
 
 This project was created to create a mod to add a multiplayer mode to the VR sandbox game [Primitier](https://store.steampowered.com/app/1745170/Primitier/).
 
-## Getting Started - Docker
+## Getting Started
+
+How to build a server using Docker.
 
 ### Prerequisites
+
+Install the tools needed to build the server.
 
 - git
   ```sh
@@ -48,7 +52,6 @@ This project was created to create a mod to add a multiplayer mode to the VR san
 3. Edit the `Server/settings.json` file.
   > [!NOTE]
   > If you change the Port parameter, change the port number in the command arguments in section 4.
-
 3. Create a Docker image.
    ```sh
    docker build -t pomserver-image -f .\Dockerfile .
@@ -58,6 +61,14 @@ This project was created to create a mod to add a multiplayer mode to the VR san
    docker run --rm -d -p 54162:54162/udp pomserver-image
    ```
 
+## Getting Started - Other
+
+If you want to output an executable file or similar, import this repository into Visual Studio and build it.
+
+### Prerequisites
+
+- [Visual Studio](https://visualstudio.microsoft.com/)
+
 ## Roadmap
 
 - [x] Connection process to server
@@ -65,6 +76,25 @@ This project was created to create a mod to add a multiplayer mode to the VR san
   - [x] Data lightweighting (MessagePack)
   - [x] Transmission of lightweight data
   - [ ] Transmission of avatar and world data
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feat/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feat/AmazingFeature`)
+5. Open a Pull Request
+
+### Top contributors:
+
+<a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=YutoMaeda1209/PrimitierOnlineMod" alt="contrib.rocks image" />
+</a>
 
 ## License
 
