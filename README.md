@@ -1,6 +1,6 @@
+[![Download][download-shield]][download-url]
 [![Version][version-shield]][version-url]
 [![GameVersion][gameVersion-shield]][gameVersion-url]
-[![Download][download-shield]][download-url]
 [![Discord][discord-shield]][discord-url]
 
 <div align="center">
@@ -112,11 +112,11 @@ We would like to thank everyone involved in this project.
 - [Xgames123](https://github.com/Xgames123)
 - [Seva167](https://github.com/Seva167)
 
+[download-shield]: https://img.shields.io/badge/Download-latest-blue?style=for-the-badge
+[download-url]: https://github.com/YutoMaeda1209/PrimitierOnlineMod/releases/latest
 [version-shield]: https://img.shields.io/github/v/release/YutoMaeda1209/PrimitierOnlineMod?style=for-the-badge
 [version-url]: https://github.com/YutoMaeda1209/PrimitierOnlineMod/releases
 [gameVersion-shield]: https://img.shields.io/badge/Primitier-v1.9.0-limegreen?style=for-the-badge
 [gameVersion-url]: https://store.steampowered.com/app/1745170/Primitier/
-[download-shield]: https://img.shields.io/badge/Download-latest-blue?style=for-the-badge
-[download-url]: https://github.com/YutoMaeda1209/PrimitierOnlineMod/releases/latest
 [discord-shield]: https://img.shields.io/badge/-Discord-gray?style=for-the-badge&logo=Discord&logoColor=white
 [discord-url]: https://discord.com/channels/968161559387979876/1262816599174549524
