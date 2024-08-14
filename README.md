@@ -1,4 +1,26 @@
-# PrimitierOnlineMod
+[![Version][version-shield]][version-url]
+[![GameVersion][gameVersion-shield]][gameVersion-url]
+[![Download][download-shield]][download-url]
+[![Discord][discord-shield]][discord-url]
+
+<div align="center">
+<!--   <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  </a> -->
+
+  <h3 align="center">PrimitierOnlineMod</h3>
+
+  <p align="center">
+    Mod to add a multiplayer mode to Primitier.
+    <br />
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/wiki"><strong>View the wiki »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    ·
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
 
 ## About The Project
 
@@ -36,9 +58,21 @@ This project was created to create a mod to add a multiplayer mode to the VR san
    docker run --rm -d -p 54162:54162/udp pomserver-image
    ```
 
+## Roadmap
+
+- [x] Connection process to server
+- [ ] Transmission of data to the server
+  - [x] Data lightweighting (MessagePack)
+  - [x] Transmission of lightweight data
+  - [ ] Transmission of avatar and world data
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+YutoMaeda - [Discord Discussion](https://discord.com/channels/968161559387979876/1262816599174549524)
 
 ## Acknowledgments
 
@@ -47,3 +81,12 @@ We would like to thank everyone involved in this project.
 - [Ootamato](https://github.com/forte1st)
 - [Xgames123](https://github.com/Xgames123)
 - [Seva167](https://github.com/Seva167)
+
+[version-shield]: https://img.shields.io/github/v/release/YutoMaeda1209/PrimitierOnlineMod?style=for-the-badge
+[version-url]: https://github.com/YutoMaeda1209/PrimitierOnlineMod/releases
+[gameVersion-shield]: https://img.shields.io/badge/Primitier-v1.9.0-limegreen?style=for-the-badge
+[gameVersion-url]: https://store.steampowered.com/app/1745170/Primitier/
+[download-shield]: https://img.shields.io/badge/Download-latest-blue?style=for-the-badge
+[download-url]: https://github.com/YutoMaeda1209/PrimitierOnlineMod/releases/latest
+[discord-shield]: https://img.shields.io/badge/-Discord-gray?style=for-the-badge&logo=Discord&logoColor=white
+[discord-url]: https://discord.com/channels/968161559387979876/1262816599174549524
