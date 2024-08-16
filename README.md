@@ -54,12 +54,14 @@ Install the tools needed to build the server.
   > If you change the Port parameter, change the port number in the command arguments in section 4.
 3. Create a Docker image.
    ```sh
-   docker build -t pomserver-image -f .\Dockerfile .
+   docker build -t pom-image -f .\Dockerfile .
    ```
 4. Run a Docker container.
    ```sh
-   docker run --rm -d -p 54162:54162/udp pomserver-image
+   docker run --name pomServer --mount 'src=pomVolume,dst=/mnt/pom' -d -p 54162:54162/udp pom-image
    ```
+  > [!TIP]
+  > If you want to destroy the container after it has been terminated, replace `--name pomServer` with `--rm`.
 
 ## Getting Started - Other
 
