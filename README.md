@@ -79,7 +79,7 @@ Install the tools needed to build the server.
    ```
 4. Run a Docker container.
    ```sh
-   docker run --name pomServer --mount 'src=pomVolume,dst=/mnt/pom' -d -p 54162:54162/udp pom-image
+   docker run --name pomServer --mount 'src=pomVolume,dst=/mnt/pom' -d -p 54162:54162 -p 54162:54162/udp pom-image
    ```
   > [!TIP]
   > If you want to destroy the container after it has been terminated, replace `--name pomServer` with `--rm`.
