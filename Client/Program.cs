@@ -1,6 +1,8 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using System.Text;
 using Microsoft.Win32;
+using System.Text.Json;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 using System.Runtime.Versioning;
@@ -12,35 +14,31 @@ namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
-        private static ClientSettings? s_settings;
+        private static ClientSettings s_settings;
         public static ClientSettings Settings
         {
-            get
-            {
-                if (s_settings is null)
-                    throw new Exception("Settings not found.");
-                return s_settings;
-            }
+            get => s_settings;
         }
-        private static string? s_version;
+        private static string s_version;
         public static string Version
         {
-            get
-            {
-                if (s_version is null)
-                    throw new Exception("Version not found.");
-                return s_version;
-            }
+            get => s_version;
         }
-        private static string? s_userGUID;
+        private static string s_userGUID;
         public static string UserGUID
         {
-            get
-            {
-                if (s_userGUID is null)
-                    throw new Exception("MachineId not found.");
-                return s_userGUID;
-            }
+            get => s_userGUID;
+        }
+
+        static Program()
+        {
+            s_settings = new ClientSettings(
+                ip: "127.0.0.1",
+                port: 54162,
+                userName: "User0000",
+                minimumLogLevel: "Information");
+            s_version = "";
+            s_userGUID = "";
         }
 
         [SupportedOSPlatform("windows")]
@@ -48,53 +46,60 @@ namespace YuchiGames.POM.Client
         {
             string path = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
             if (!File.Exists(path))
-                throw new FileNotFoundException();
+            {
+                using (FileStream stream = File.Create(path))
+                {
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    };
+                    string json = JsonSerializer.Serialize(
+                        s_settings,
+                        options);
+                    stream.Write(Encoding.UTF8.GetBytes(json));
+                }
+            }
             IConfigurationRoot config = new ConfigurationBuilder()
                 .AddJsonFile(path)
                 .Build();
-            s_settings = config.Get<ClientSettings>();
-            if (s_settings is null)
-                throw new Exception("Settings not found.");
+            s_settings = config.Get<ClientSettings>()
+                ?? throw new Exception("Settings not found.");
 
             s_version = (Assembly.GetExecutingAssembly().GetName().Version
                 ?? throw new Exception("Version not found."))
                 .ToString();
 
             using RegistryKey? key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\SQMClient")
-                ?? throw new Exception("MachineId not found");
+                ?? throw new Exception("SQMClient not found");
             string? machineID = (key.GetValue("MachineId")?.ToString())
                 ?? throw new Exception("MachineId not found");
             s_userGUID = machineID.Trim('{', '}');
 
+            MelonEvents.OnSceneWasInitialized.Subscribe(PingUI.OnSceneWasInitialized);
+            MelonEvents.OnSceneWasInitialized.Subscribe(StartButton.OnSceneWasInitialized);
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
-            MelonEvents.OnUpdate.Subscribe(PingUI.SetPing);
-            MelonEvents.OnUpdate.Subscribe(Avatar.SendAvatarPosition);
-            MelonEvents.OnGUI.Subscribe(InfoGUI.ShowGUI);
+            MelonEvents.OnUpdate.Subscribe(PingUI.OnUpdate);
+            MelonEvents.OnGUI.Subscribe(InfoGUI.OnGUI);
         }
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            if (sceneName == "Main")
+            GameObject settingsTabObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
+            settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
+            settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
+        }
+
+        public override void OnUpdate()
+        {
+            if (Input.GetKeyDown(KeyCode.F1))
             {
-                StartButton.Initialize();
-                PingUI.Initialize();
-                GameObject settingsTabObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
-                settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
-                settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
+                InfoGUI.IsShow = !InfoGUI.IsShow;
             }
         }
 
         public override void OnApplicationQuit()
         {
             Network.Disconnect();
-        }
-
-        public override void OnLateUpdate()
-        {
-            if (Input.GetKeyDown(KeyCode.F1))
-            {
-                InfoGUI.IsShow = !InfoGUI.IsShow;
-            }
         }
     }
 }

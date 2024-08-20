@@ -1,44 +1,63 @@
-﻿namespace YuchiGames.POM.DataTypes
+﻿using MessagePack;
+
+namespace YuchiGames.POM.DataTypes
 {
-    public struct VRMPosData
+    [MessagePackObject]
+    public class VRMPosData
     {
+        [Key(0)]
         public PosRot Head { get; }
+        [Key(1)]
         public PosRot Hips { get; }
+        [Key(2)]
         public PosRot Spine { get; }
+        [Key(3)]
         public PosRot LUpperArm { get; }
+        [Key(4)]
         public PosRot RUpperArm { get; }
+        [Key(5)]
         public PosRot LLowerArm { get; }
+        [Key(6)]
         public PosRot RLowerArm { get; }
+        [Key(7)]
         public PosRot LHand { get; }
+        [Key(8)]
         public PosRot RHand { get; }
+        [Key(9)]
         public PosRot LUpperLeg { get; }
+        [Key(10)]
         public PosRot RUpperLeg { get; }
+        [Key(11)]
         public PosRot LLowerLeg { get; }
+        [Key(12)]
         public PosRot RLowerLeg { get; }
+        [Key(13)]
         public PosRot LFoot { get; }
+        [Key(14)]
         public PosRot RFoot { get; }
 
-        public VRMPosData(PosRot[] posRots)
+        [SerializationConstructor]
+        public VRMPosData(PosRot head, PosRot hips, PosRot spine, PosRot lUpperArm, PosRot rUpperArm, PosRot lLowerArm, PosRot rLowerArm, PosRot lHand, PosRot rHand, PosRot lUpperLeg, PosRot rUpperLeg, PosRot lLowerLeg, PosRot rLowerLeg, PosRot lFoot, PosRot rFoot)
         {
-            Head = posRots[0];
-            Hips = posRots[1];
-            Spine = posRots[2];
-            LUpperArm = posRots[3];
-            RUpperArm = posRots[4];
-            LLowerArm = posRots[5];
-            RLowerArm = posRots[6];
-            LHand = posRots[7];
-            RHand = posRots[8];
-            LUpperLeg = posRots[9];
-            RUpperLeg = posRots[10];
-            LLowerLeg = posRots[11];
-            RLowerLeg = posRots[12];
-            LFoot = posRots[13];
-            RFoot = posRots[14];
+            Head = head;
+            Hips = hips;
+            Spine = spine;
+            LUpperArm = lUpperArm;
+            RUpperArm = rUpperArm;
+            LLowerArm = lLowerArm;
+            RLowerArm = rLowerArm;
+            LHand = lHand;
+            RHand = rHand;
+            LUpperLeg = lUpperLeg;
+            RUpperLeg = rUpperLeg;
+            LLowerLeg = lLowerLeg;
+            RLowerLeg = rLowerLeg;
+            LFoot = lFoot;
+            RFoot = rFoot;
         }
     }
 
-    public struct BaseBodyData
+    public class BaseBodyData
     {
         public PosRot Head { get; }
         public PosRot LeftHand { get; }

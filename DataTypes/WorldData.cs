@@ -1,22 +1,24 @@
-﻿namespace YuchiGames.POM.DataTypes
+﻿using MessagePack;
+
+namespace YuchiGames.POM.DataTypes
 {
-    public struct GlobalWorldData
+    public class GlobalWorldData
     {
-        public int Seed { get; }
+        public int Seed { get; init; }
         public float Time { get; set; }
         public bool IsTimeFrozen { get; set; }
-        public HashSet<string> UserIDs { get; set; }
-        public List<Position> PlayerPositions { get; set; }
-        public List<float> PlayerAngles { get; set; }
-        public List<float> PlayerLives { get; set; }
-        public List<Position> RespawnPositions { get; set; }
-        public List<float> RespawnAngles { get; set; }
-        public List<Position> CameraPositions { get; set; }
-        public List<Rotation> CameraRotations { get; set; }
-        public List<Position> HolsterLeftPositions { get; set; }
-        public List<Position> HolsterRightPositions { get; set; }
-        public List<Chunk> Chunks { get; set; }
-        public HashSet<Position2> GeneratedChunks { get; set; }
+        public HashSet<string> UserIDs { get; init; }
+        public List<Position> PlayerPositions { get; init; }
+        public List<float> PlayerAngles { get; init; }
+        public List<float> PlayerLives { get; init; }
+        public List<Position> RespawnPositions { get; init; }
+        public List<float> RespawnAngles { get; init; }
+        public List<Position> CameraPositions { get; init; }
+        public List<Rotation> CameraRotations { get; init; }
+        public List<Position> HolsterLeftPositions { get; init; }
+        public List<Position> HolsterRightPositions { get; init; }
+        public List<Chunk> Chunks { get; init; }
+        public HashSet<Position2> GeneratedChunks { get; init; }
 
         public GlobalWorldData(int seed, float time, bool isTimeFrozen)
         {
@@ -38,89 +40,184 @@
         }
     }
 
-    public struct LocalWorldData
+    [MessagePackObject]
+    public class LocalWorldData
     {
-        public int Seed { get; }
+        [Key(0)]
+        public bool IsFirstTime { get; set; }
+        [Key(1)]
+        public int Seed { get; init; }
+        [Key(2)]
         public float Time { get; set; }
+        [Key(3)]
         public bool IsTimeFrozen { get; set; }
+        [Key(4)]
         public Position PlayerPos { get; set; }
+        [Key(5)]
         public float PlayerAngle { get; set; }
+        [Key(6)]
         public float PlayerLife { get; set; }
+        [Key(7)]
         public Position RespawnPos { get; set; }
+        [Key(8)]
         public float RespawnAngle { get; set; }
+        [Key(9)]
         public Position CameraPos { get; set; }
+        [Key(10)]
         public Rotation CameraRot { get; set; }
+        [Key(11)]
         public Position HolsterLeftPos { get; set; }
+        [Key(12)]
         public Position HolsterRightPos { get; set; }
-        public List<Chunk> Chunks { get; set; }
-        public HashSet<Position2> GeneratedChunks { get; set; }
+        [Key(13)]
+        public List<Chunk> Chunks { get; init; }
+        [Key(14)]
+        public HashSet<Position2> GeneratedChunks { get; init; }
 
-        public LocalWorldData(int seed, float time, bool isTimeFrozen)
+        [SerializationConstructor]
+        public LocalWorldData(
+            bool isFirstTime,
+            int seed,
+            float time,
+            bool isTimeFrozen,
+            Position playerPos,
+            float playerAngle,
+            float playerLife,
+            Position respawnPos,
+            float respawnAngle,
+            Position cameraPos,
+            Rotation cameraRot,
+            Position holsterLeftPos,
+            Position holsterRightPos,
+            List<Chunk> chunks,
+            HashSet<Position2> generatedChunks)
         {
+            IsFirstTime = isFirstTime;
             Seed = seed;
             Time = time;
             IsTimeFrozen = isTimeFrozen;
-            PlayerPos = new Position();
-            PlayerAngle = new float();
-            PlayerLife = new float();
-            RespawnPos = new Position();
-            RespawnAngle = new float();
-            CameraPos = new Position();
-            CameraRot = new Rotation();
-            HolsterLeftPos = new Position();
-            HolsterRightPos = new Position();
+            PlayerPos = playerPos;
+            PlayerAngle = playerAngle;
+            PlayerLife = playerLife;
+            RespawnPos = respawnPos;
+            RespawnAngle = respawnAngle;
+            CameraPos = cameraPos;
+            CameraRot = cameraRot;
+            HolsterLeftPos = holsterLeftPos;
+            HolsterRightPos = holsterRightPos;
+            Chunks = chunks;
+            GeneratedChunks = generatedChunks;
+        }
+
+        public LocalWorldData()
+        {
+            IsFirstTime = false;
+            Seed = 0;
+            Time = 0;
+            IsTimeFrozen = false;
+            PlayerPos = new Position(0, 0, 0);
+            PlayerAngle = 0;
+            PlayerLife = 1000;
+            RespawnPos = new Position(0, 0, 0);
+            RespawnAngle = 0;
+            CameraPos = new Position(0, 0, 0);
+            CameraRot = new Rotation(0, 0, 0, 0);
+            HolsterLeftPos = new Position(0, 0, 0);
+            HolsterRightPos = new Position(0, 0, 0);
             Chunks = new List<Chunk>();
             GeneratedChunks = new HashSet<Position2>();
         }
     }
 
-    public struct Chunk
+    [MessagePackObject]
+    public class Chunk
     {
-        public int X { get; }
-        public int Z { get; }
-        public List<Group> Groups { get; set; }
+        [Key(0)]
+        public int X { get; init; }
+        [Key(1)]
+        public int Z { get; init; }
+        [Key(2)]
+        public List<Group> Groups { get; init; }
 
-        public Chunk(int x, int z)
+        [SerializationConstructor]
+        public Chunk(int x, int z, List<Group> groups)
         {
             X = x;
             Z = z;
-            Groups = new List<Group>();
+            Groups = groups;
         }
     }
 
-    public struct Group
+    [MessagePackObject]
+    public class Group
     {
+        [Key(0)]
         public Position Position { get; set; }
+        [Key(1)]
         public Rotation Rotation { get; set; }
-        public List<Cube> Cubes { get; set; }
+        [Key(2)]
+        public List<Cube> Cubes { get; init; }
 
-        public Group(Position position, Rotation rotation)
+        [SerializationConstructor]
+        public Group(Position position, Rotation rotation, List<Cube> cubes)
         {
             Position = position;
             Rotation = rotation;
-            Cubes = new List<Cube>();
+            Cubes = cubes;
         }
     }
 
-    public struct Cube
+    [MessagePackObject]
+    public class Cube
     {
+        [Key(0)]
         public Position Position { get; set; }
+        [Key(1)]
         public Rotation Rotation { get; set; }
+        [Key(2)]
         public Scale Scale { get; set; }
+        [Key(3)]
         public float LifeRatio { get; set; }
+        [Key(4)]
         public Anchor Anchor { get; set; }
+        [Key(5)]
         public Substance Substance { get; set; }
+        [Key(6)]
         public CubeName Name { get; set; }
-        public List<int> Connections { get; set; }
+        [Key(7)]
+        public List<int> Connections { get; init; }
+        [Key(8)]
         public float Temperature { get; set; }
+        [Key(9)]
         public bool IsBurning { get; set; }
+        [Key(10)]
         public float BurnedRatio { get; set; }
+        [Key(11)]
         public SectionState SectionState { get; set; }
-        public UVOffset UVOffset { get; set; }
-        public List<string> Behaviors { get; set; }
-        public List<string> States { get; set; }
+        [Key(12)]
+        public UVOffset UVOffset { get; init; }
+        [Key(13)]
+        public List<string> Behaviors { get; init; }
+        [Key(14)]
+        public List<string> States { get; init; }
 
-        public Cube(Position position, Rotation rotation, Scale scale, float lifeRatio, Anchor anchor, Substance substance, CubeName name, float temperature, bool isBurning, float burnedRatio, SectionState sectionState, UVOffset uvOffset)
+        [SerializationConstructor]
+        public Cube(
+            Position position,
+            Rotation rotation,
+            Scale scale,
+            float lifeRatio,
+            Anchor anchor,
+            Substance substance,
+            CubeName name,
+            List<int> connections,
+            float temperature,
+            bool isBurning,
+            float burnedRatio,
+            SectionState sectionState,
+            UVOffset uvOffset,
+            List<string> behaviors,
+            List<string> states)
         {
             Position = position;
             Rotation = rotation;
@@ -129,14 +226,14 @@
             Anchor = anchor;
             Substance = substance;
             Name = name;
-            Connections = new List<int>();
+            Connections = connections;
             Temperature = temperature;
             IsBurning = isBurning;
             BurnedRatio = burnedRatio;
             SectionState = sectionState;
             UVOffset = uvOffset;
-            Behaviors = new List<string>();
-            States = new List<string>();
+            Behaviors = behaviors;
+            States = states;
         }
     }
 
@@ -238,23 +335,20 @@
         Back = 0x2
     }
 
-    public struct UVOffset
+    [MessagePackObject]
+    public class UVOffset
     {
+        [Key(0)]
         public Position2 Right { get; set; }
+        [Key(1)]
         public Position2 Left { get; set; }
+        [Key(2)]
         public Position2 Top { get; set; }
+        [Key(3)]
         public Position2 Bottom { get; set; }
+        [Key(4)]
         public Position2 Front { get; set; }
+        [Key(5)]
         public Position2 Back { get; set; }
-
-        public UVOffset(Position2 right, Position2 left, Position2 top, Position2 bottom, Position2 front, Position2 back)
-        {
-            Right = right;
-            Left = left;
-            Top = top;
-            Bottom = bottom;
-            Front = front;
-            Back = back;
-        }
     }
 }

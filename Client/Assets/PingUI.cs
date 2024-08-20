@@ -9,7 +9,7 @@ namespace YuchiGames.POM.Client.Assets
     {
         private static TextMeshPro? s_pingTMP;
 
-        public static void Initialize()
+        public static void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
             Transform parentTransform = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas").transform;
             GameObject fpsObject = parentTransform.Find("FpsText").gameObject;
@@ -25,7 +25,7 @@ namespace YuchiGames.POM.Client.Assets
             Destroy(pingObject.GetComponent<FpsText>());
         }
 
-        public static void SetPing()
+        public static void OnUpdate()
         {
             if (s_pingTMP is null)
                 return;

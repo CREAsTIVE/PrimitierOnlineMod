@@ -1,6 +1,6 @@
 ﻿using Serilog;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Reflection;
 using YuchiGames.POM.DataTypes;
 using YuchiGames.POM.Server.Managers;
@@ -10,47 +10,64 @@ namespace YuchiGames.POM.Server
 {
     static class Program
     {
-        private static ServerSettings? s_settings;
+        private static ServerSettings s_settings;
         public static ServerSettings Settings
         {
-            get
-            {
-                if (s_settings is null)
-                    throw new Exception("Settings not found.");
-                return s_settings;
-            }
+            get => s_settings;
         }
-        private static string? s_version;
+        private static string s_version;
         public static string Version
         {
-            get
-            {
-                if (s_version is null)
-                    throw new Exception("Version not found.");
-                return s_version;
-            }
+            get => s_version;
+        }
+
+        private static bool s_isCancelled;
+
+        static Program()
+        {
+            s_settings = new ServerSettings();
+            s_version = "";
         }
 
         private static void Main()
         {
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                if (!s_isCancelled)
+                {
+                    s_isCancelled = true;
+                    Network.Stop();
+                }
+                e.Cancel = true;
+            };
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+            {
+                if (!s_isCancelled)
+                {
+                    Network.Stop();
+                }
+            };
+
             string path = "./settings.json";
             if (!File.Exists(path))
             {
                 using (FileStream stream = File.Create(path))
                 {
-                    string jsonSource = @"{ ""port"": 54162, ""maxPlayers"": 15, ""maxDataSize"": 67108864, ""seed"": 0, ""Serilog"": { ""Using"": [ ""Serilog.Settings.Configuration"", ""Serilog.Sinks.Console"", ""Serilog.Sinks.File"" ], ""MinimumLevel"": ""Debug"", ""WriteTo"": [ { ""Name"": ""Console"" }, { ""Name"": ""File"", ""Args"": { ""path"": ""Logs/.log"", ""rollingInterval"": ""Day"" } } ] } } ";
-                    string json = JsonConvert.SerializeObject(
-                        JsonConvert.DeserializeObject(jsonSource),
-                        Formatting.Indented);
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    };
+                    string json = JsonSerializer.Serialize(
+                        s_settings,
+                        options);
                     stream.Write(Encoding.UTF8.GetBytes(json));
                 }
             }
             IConfigurationRoot config = new ConfigurationBuilder()
                 .AddJsonFile(path)
                 .Build();
-            s_settings = config.Get<ServerSettings>();
-            if (s_settings is null)
-                throw new Exception("Settings not found.");
+            s_settings = config.Get<ServerSettings>()
+                ?? throw new Exception("Settings not found.");
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
@@ -59,9 +76,9 @@ namespace YuchiGames.POM.Server
                 ?? throw new Exception("Version not found."))
                 .ToString();
 
+            s_isCancelled = false;
+
             Network.Start(s_settings.Port);
-            while (!Console.KeyAvailable) { }
-            Network.Stop();
         }
     }
 }

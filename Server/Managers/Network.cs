@@ -1,9 +1,9 @@
-﻿using Serilog;
-using LiteNetLib;
-using System.Net;
+﻿using LiteNetLib;
 using MessagePack;
-using LiteNetLib.Utils;
+using Serilog;
+using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Server.Managers
@@ -12,16 +12,21 @@ namespace YuchiGames.POM.Server.Managers
     {
         private static EventBasedNetListener s_listener;
         private static NetManager s_server;
-        private static Thread s_pollEventsThread;
+        private static CancellationTokenSource s_cancelTokenSource;
+        private static string[] s_userGUIDs;
+
+        private const int s_serverId = -1;
 
         static Network()
         {
             s_listener = new EventBasedNetListener();
             s_server = new NetManager(s_listener)
             {
-                AutoRecycle = true
+                AutoRecycle = true,
+                ChannelsCount = 2
             };
-            s_pollEventsThread = new Thread(PollEvents);
+            s_cancelTokenSource = new CancellationTokenSource();
+            s_userGUIDs = new string[Program.Settings.MaxPlayers];
 
             s_listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
             s_listener.PeerConnectedEvent += PeerConnectedEventHandler;
@@ -38,163 +43,265 @@ namespace YuchiGames.POM.Server.Managers
             if (s_server.ConnectedPeersCount < Program.Settings.MaxPlayers
                 && authData.Version == Program.Version)
             {
+                Log.Debug($"Accepted connection from {request.RemoteEndPoint}");
                 request.Accept();
-                Log.Information($"Request accepted: {request.RemoteEndPoint}");
             }
             else
             {
-                Log.Information($"Request rejected: {request.RemoteEndPoint}");
+                Log.Debug($"Rejected connection from {request.RemoteEndPoint}");
                 request.Reject();
             }
         }
 
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
-            Log.Information($"Client connected: {peer.Id}, {peer.Address}:{peer.Port}");
-            IMultiMessage joinMessage = new JoinMessage(0, peer.Id);
-            Send(joinMessage, peer);
+            Log.Debug($"Connected peer with ID{peer.Id}");
         }
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Log.Information($"Client disconnected: {peer.Id}, {peer.Address}:{peer.Port}, {disconnectInfo.Reason}");
-            IMultiMessage leaveMessage = new LeaveMessage(0, peer.Id);
-            Send(leaveMessage, peer);
+            Log.Debug($"Disconnected peer with ID{peer.Id}");
+            s_userGUIDs[peer.Id] = "";
+            IMultiMessage leaveMessage = new LeaveMessage(s_serverId, peer.Id);
+            Send(leaveMessage);
+            Log.Information($"Disconnected from Server: {peer.Id}");
         }
 
         private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
-            if (reader.AvailableBytes > Program.Settings.MaxDataSize)
-            {
-                Log.Error("Data size is too large.");
-                return;
-            }
             byte[] buffer = new byte[reader.AvailableBytes];
             reader.GetBytes(buffer, buffer.Length);
-
-            switch (channel)
-            {
-                case 0x00:
-                    try
-                    {
-                        IMultiMessage multiMessage = MessagePackSerializer.Deserialize<IMultiMessage>(buffer);
-                        if (multiMessage.FromID != peer.Id)
-                            return;
-                        switch (multiMessage)
-                        {
-                            case UploadVRMMessage:
-                            case AvatarPositionMessage:
-                                Send(multiMessage);
-                                break;
-                        };
-                    }
-                    catch (MessagePackSerializationException)
-                    {
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Error: {e.Message}");
-                        return;
-                    }
-                    break;
-                case 0x01:
-                    try
-                    {
-                        IUniMessage uniMessage = MessagePackSerializer.Deserialize<IUniMessage>(buffer);
-                        if (uniMessage.FromID != peer.Id)
-                            return;
-                        switch (uniMessage)
-                        {
-                            case RequestServerInfoMessage requestServerInfoMessage:
-                                byte[][] vrmData = Avatar.GetAllVRMFiles();
-                                LocalWorldData localWorldData = World.GetLocalWorldData(requestServerInfoMessage.UserGUID);
-                                IUniMessage infoMessage = new ServerInfoMessage(0, peer.Id, Program.Settings.MaxPlayers, vrmData, localWorldData);
-                                Send(infoMessage);
-                                break;
-                        }
-                    }
-                    catch (MessagePackSerializationException)
-                    {
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Error: {e.Message}");
-                        return;
-                    }
-                    break;
-            }
+            NetworkReceiveEventProcess(peer, buffer, channel, deliveryMethod);
         }
 
         private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
-            Log.Error($"NetworkError: {socketError}");
+            Log.Error($"A network error has occurred {socketError}");
         }
 
         public static void Start(int port)
         {
-            Log.Information("Server started.");
+            Thread pollEventsThread = new Thread(() => PollEventsThread(s_cancelTokenSource.Token));
+            pollEventsThread.Start();
             s_server.Start(port);
-            s_pollEventsThread.Start();
+            Log.Information("Server started.");
         }
 
         public static void Stop()
         {
-            Log.Information("Server stopped.");
+            s_cancelTokenSource.Cancel();
             s_server.Stop();
+            Log.Information("Server stopped.");
         }
 
-        public static void PollEvents()
+        private static void PollEventsThread(CancellationToken token)
         {
-            while (s_server.IsRunning)
-                s_server.PollEvents();
-        }
-
-        public static void Send(IUniMessage message)
-        {
-            byte[] buffer = MessagePackSerializer.Serialize(message);
-            NetDataWriter writer = new NetDataWriter();
-            writer.Put(buffer);
-            switch (message.Protocol)
+            TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
+            listener.Start();
+            while (!token.IsCancellationRequested)
             {
-                case ProtocolType.Tcp:
-                    s_server.GetPeerById(message.ToID).Send(buffer, DeliveryMethod.ReliableOrdered);
+                s_server.PollEvents();
+                if (!listener.Pending())
+                    continue;
+                TcpClient tcpClient = listener.AcceptTcpClient();
+                Task.Run(() => DataRequestHandler(tcpClient));
+            }
+            listener.Stop();
+        }
+
+        private static void DataRequestHandler(TcpClient client)
+        {
+            using (client)
+            using (NetworkStream stream = client.GetStream())
+            {
+                byte[] length = new byte[4];
+                stream.Read(length, 0, length.Length);
+                byte[] channel = new byte[1];
+                stream.Read(channel, 0, channel.Length);
+                byte[] guid = new byte[36];
+                stream.Read(guid, 0, guid.Length);
+                byte[] data = new byte[BitConverter.ToInt32(length)];
+                byte[] buffer = new byte[1024];
+                int readDataLength = 0;
+                int i;
+                while ((i = stream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    Array.Copy(buffer, 0, data, readDataLength, i);
+                    readDataLength += i;
+                }
+
+                if (readDataLength != data.Length)
+                    throw new Exception("Data length mismatch.");
+
+                int id = Array.IndexOf(s_userGUIDs, Encoding.UTF8.GetString(guid));
+                if (id == -1)
+                    throw new Exception("User not found.");
+                NetPeer peer = s_server.GetPeerById(id);
+                NetworkReceiveEventProcess(peer, data, channel[0], DeliveryMethod.ReliableOrdered);
+            }
+        }
+
+        private static void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
+        {
+            switch (channel)
+            {
+                case 0x00:
+                    IMultiMessage multiMessage = MessagePackSerializer.Deserialize<IMultiMessage>(buffer);
+                    if (multiMessage.FromID != peer.Id)
+                        return;
+                    switch (multiMessage)
+                    {
+                        case UploadVRMMessage message:
+                            Avatar.UploadVRM(message.FromID, message.VRMData);
+                            //Send(multiMessage, peer);
+                            Send(multiMessage);
+                            break;
+                        case AvatarPositionMessage:
+                            Send(multiMessage);
+                            break;
+                    };
                     break;
-                case ProtocolType.Udp:
-                    s_server.GetPeerById(message.ToID).Send(buffer, DeliveryMethod.Sequenced);
+                case 0x01:
+                    IUniMessage uniMessage = MessagePackSerializer.Deserialize<IUniMessage>(buffer);
+                    if (uniMessage.FromID != peer.Id)
+                        return;
+                    switch (uniMessage)
+                    {
+                        case RequestServerInfoMessage message:
+                            if (message.ToID != s_serverId)
+                                return;
+                            s_userGUIDs[peer.Id] = message.UserGUID;
+                            byte[][] vrmData = Avatar.GetAllVRMFiles();
+                            LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
+                            IUniMessage infoMessage = new ServerInfoMessage(
+                                s_serverId,
+                                peer.Id,
+                                Program.Settings.MaxPlayers,
+                                vrmData,
+                                localWorldData);
+                            Send(infoMessage);
+                            IMultiMessage joinMessage = new JoinMessage(
+                                s_serverId,
+                                peer.Id);
+                            Send(joinMessage);
+                            Log.Information($"Connected to Client with ID{peer.Id}");
+                            break;
+                    }
                     break;
             }
         }
 
         public static void Send(IMultiMessage message)
         {
-            byte[] buffer = MessagePackSerializer.Serialize(message);
-            NetDataWriter writer = new NetDataWriter();
-            writer.Put(buffer);
+            byte[] data = MessagePackSerializer.Serialize(message);
+            if (message.IsLarge)
+            {
+                byte[] length = BitConverter.GetBytes(data.Length);
+                byte[] channel = new byte[1] { 0x00 };
+                byte[] buffer = new byte[length.Length + channel.Length + data.Length];
+
+                int offset = 0;
+                Array.Copy(length, 0, buffer, offset, length.Length);
+                offset += length.Length;
+                Array.Copy(channel, 0, buffer, offset, channel.Length);
+                offset += channel.Length;
+                Array.Copy(data, 0, buffer, offset, data.Length);
+
+                s_server.ConnectedPeerList.ForEach(p =>
+                {
+                    using TcpClient client = new TcpClient();
+                    client.Connect(p.Address, p.Port);
+                    using (NetworkStream stream = client.GetStream())
+                    {
+                        stream.Write(buffer, 0, buffer.Length);
+                    }
+                });
+                return;
+            }
             switch (message.Protocol)
             {
                 case ProtocolType.Tcp:
-                    s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered);
                     break;
                 case ProtocolType.Udp:
-                    s_server.SendToAll(buffer, DeliveryMethod.Sequenced);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.Sequenced);
                     break;
             }
         }
 
         public static void Send(IMultiMessage message, NetPeer excludePeer)
         {
-            byte[] buffer = MessagePackSerializer.Serialize(message);
-            NetDataWriter writer = new NetDataWriter();
-            writer.Put(buffer);
+            byte[] data = MessagePackSerializer.Serialize(message);
+            if (message.IsLarge)
+            {
+                byte[] length = BitConverter.GetBytes(data.Length);
+                byte[] channel = new byte[1] { 0x00 };
+                byte[] buffer = new byte[length.Length + channel.Length + data.Length];
+
+                int offset = 0;
+                Array.Copy(length, 0, buffer, offset, length.Length);
+                offset += length.Length;
+                Array.Copy(channel, 0, buffer, offset, channel.Length);
+                offset += channel.Length;
+                Array.Copy(data, 0, buffer, offset, data.Length);
+
+                s_server.ConnectedPeerList.ForEach(p =>
+                {
+                    if (p != excludePeer)
+                    {
+                        using TcpClient client = new TcpClient();
+                        client.Connect(p.Address, p.Port);
+                        using (NetworkStream stream = client.GetStream())
+                        {
+                            stream.Write(buffer, 0, buffer.Length);
+                        }
+                    }
+                });
+                return;
+            }
             switch (message.Protocol)
             {
                 case ProtocolType.Tcp:
-                    s_server.SendToAll(buffer, DeliveryMethod.ReliableOrdered, excludePeer);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered, excludePeer);
                     break;
                 case ProtocolType.Udp:
-                    s_server.SendToAll(buffer, DeliveryMethod.Sequenced, excludePeer);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.Sequenced, excludePeer);
+                    break;
+            }
+        }
+
+        public static void Send(IUniMessage message)
+        {
+            byte[] data = MessagePackSerializer.Serialize(message);
+            if (message.IsLarge)
+            {
+                byte[] length = BitConverter.GetBytes(data.Length);
+                byte[] channel = new byte[1] { 0x01 };
+                byte[] buffer = new byte[length.Length + channel.Length + data.Length];
+
+                int offset = 0;
+                Array.Copy(length, 0, buffer, offset, length.Length);
+                offset += length.Length;
+                Array.Copy(channel, 0, buffer, offset, channel.Length);
+                offset += channel.Length;
+                Array.Copy(data, 0, buffer, offset, data.Length);
+
+                NetPeer peer = s_server.GetPeerById(message.ToID);
+                using TcpClient client = new TcpClient();
+                client.Connect(new IPEndPoint(peer.Address, peer.Port));
+                using (NetworkStream stream = client.GetStream())
+                {
+                    stream.Write(buffer, 0, buffer.Length);
+                }
+                return;
+            }
+            switch (message.Protocol)
+            {
+                case ProtocolType.Tcp:
+                    s_server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.ReliableOrdered);
+                    break;
+                case ProtocolType.Udp:
+                    s_server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.Sequenced);
                     break;
             }
         }

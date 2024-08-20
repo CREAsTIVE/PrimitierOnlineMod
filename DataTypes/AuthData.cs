@@ -3,7 +3,7 @@
 namespace YuchiGames.POM.DataTypes
 {
     [MessagePackObject]
-    public struct AuthData
+    public class AuthData
     {
         [Key(0)]
         public string Version { get; }

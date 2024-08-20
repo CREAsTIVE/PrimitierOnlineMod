@@ -10,10 +10,15 @@ namespace YuchiGames.POM.DataTypes
         public int FromID { get; }
         public int ToID { get; }
         public ProtocolType Protocol { get; }
+        public bool IsLarge { get; }
     }
 
+    /// <summary>
+    /// -> Client send
+    /// -> Server receive
+    /// </summary>
     [MessagePackObject]
-    public struct RequestServerInfoMessage : IUniMessage
+    public class RequestServerInfoMessage : IUniMessage
     {
         [Key(0)]
         public int FromID { get; }
@@ -21,6 +26,8 @@ namespace YuchiGames.POM.DataTypes
         public int ToID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = false;
         [Key(2)]
         public string UserGUID { get; }
 
@@ -33,8 +40,12 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
+    /// <summary>
+    /// -> Server send
+    /// -> Client receive
+    /// </summary>
     [MessagePackObject]
-    public struct ServerInfoMessage : IUniMessage
+    public class ServerInfoMessage : IUniMessage
     {
         [Key(0)]
         public int FromID { get; }
@@ -42,6 +53,8 @@ namespace YuchiGames.POM.DataTypes
         public int ToID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = true;
         [Key(2)]
         public int MaxPlayers { get; }
         [Key(3)]

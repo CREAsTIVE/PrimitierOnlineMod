@@ -10,7 +10,7 @@ namespace YuchiGames.POM.Client.Assets
 {
     public class StartButton : MonoBehaviour
     {
-        public static void Initialize()
+        public static void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
             GameObject startButton = GameObject.Find("StartButton");
             Destroy(startButton.GetComponent<ObjectActivateButton>());

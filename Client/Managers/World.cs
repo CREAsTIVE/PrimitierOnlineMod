@@ -25,6 +25,7 @@ namespace YuchiGames.POM.Client.Managers
         static World()
         {
             s_seed = 0;
+            s_worldData = new LocalWorldData();
             s_saveData = new SaveAndLoad.SaveData();
         }
 
@@ -48,31 +49,37 @@ namespace YuchiGames.POM.Client.Managers
             Il2CppSystem.Collections.Generic.List<SaveAndLoad.ChunkData> chunkDataList = new Il2CppSystem.Collections.Generic.List<SaveAndLoad.ChunkData>();
             foreach (Chunk chunk in s_worldData.Chunks)
             {
-                SaveAndLoad.ChunkData chunkData = new SaveAndLoad.ChunkData();
-                chunkData.x = chunk.X;
-                chunkData.z = chunk.Z;
+                SaveAndLoad.ChunkData chunkData = new SaveAndLoad.ChunkData
+                {
+                    x = chunk.X,
+                    z = chunk.Z
+                };
                 Il2CppSystem.Collections.Generic.List<SaveAndLoad.GroupData> groupDataList = new Il2CppSystem.Collections.Generic.List<SaveAndLoad.GroupData>();
                 foreach (Group group in chunk.Groups)
                 {
-                    SaveAndLoad.GroupData groupData = new SaveAndLoad.GroupData();
-                    groupData.pos = DataConverter.ToVector3(group.Position);
-                    groupData.rot = DataConverter.ToQuaternion(group.Rotation);
+                    SaveAndLoad.GroupData groupData = new SaveAndLoad.GroupData
+                    {
+                        pos = DataConverter.ToVector3(group.Position),
+                        rot = DataConverter.ToQuaternion(group.Rotation)
+                    };
                     Il2CppSystem.Collections.Generic.List<SaveAndLoad.CubeData> cubeDataList = new Il2CppSystem.Collections.Generic.List<SaveAndLoad.CubeData>();
                     foreach (Cube cube in group.Cubes)
                     {
-                        SaveAndLoad.CubeData cubeData = new SaveAndLoad.CubeData();
-                        cubeData.pos = DataConverter.ToVector3(cube.Position);
-                        cubeData.rot = DataConverter.ToQuaternion(cube.Rotation);
-                        cubeData.scale = DataConverter.ToVector3(cube.Scale);
-                        cubeData.lifeRatio = cube.LifeRatio;
-                        cubeData.anchor = (CubeConnector.Anchor)(int)cube.Anchor;
-                        cubeData.substance = (Il2Cpp.Substance)(int)cube.Substance;
-                        cubeData.name = (Il2Cpp.CubeName)(int)cube.Name;
-                        cubeData.connections = DataConverter.ToIl2CppList(cube.Connections);
-                        cubeData.temperature = cube.Temperature;
-                        cubeData.isBurning = cube.IsBurning;
-                        cubeData.burnedRatio = cube.BurnedRatio;
-                        cubeData.sectionState = (CubeAppearance.SectionState)(int)cube.SectionState;
+                        SaveAndLoad.CubeData cubeData = new SaveAndLoad.CubeData
+                        {
+                            pos = DataConverter.ToVector3(cube.Position),
+                            rot = DataConverter.ToQuaternion(cube.Rotation),
+                            scale = DataConverter.ToVector3(cube.Scale),
+                            lifeRatio = cube.LifeRatio,
+                            anchor = (CubeConnector.Anchor)(int)cube.Anchor,
+                            substance = (Il2Cpp.Substance)(int)cube.Substance,
+                            name = (Il2Cpp.CubeName)(int)cube.Name,
+                            connections = DataConverter.ToIl2CppList(cube.Connections),
+                            temperature = cube.Temperature,
+                            isBurning = cube.IsBurning,
+                            burnedRatio = cube.BurnedRatio,
+                            sectionState = (CubeAppearance.SectionState)(int)cube.SectionState
+                        };
                         cubeData.uvOffset.right = DataConverter.ToVector2(cube.UVOffset.Right);
                         cubeData.uvOffset.left = DataConverter.ToVector2(cube.UVOffset.Left);
                         cubeData.uvOffset.top = DataConverter.ToVector2(cube.UVOffset.Top);

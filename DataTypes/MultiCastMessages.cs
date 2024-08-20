@@ -7,20 +7,26 @@ namespace YuchiGames.POM.DataTypes
     [Union(1, typeof(LeaveMessage))]
     [Union(2, typeof(UploadVRMMessage))]
     [Union(3, typeof(AvatarPositionMessage))]
-    [Union(4, typeof(GeneratedChunkMessage))]
     public interface IMultiMessage
     {
         public int FromID { get; }
         public ProtocolType Protocol { get; }
+        public bool IsLarge { get; }
     }
 
+    /// <summary>
+    /// -> Server multi send
+    /// -> Client receive
+    /// </summary>
     [MessagePackObject]
-    public struct JoinMessage : IMultiMessage
+    public class JoinMessage : IMultiMessage
     {
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = false;
         [Key(1)]
         public int JoinID { get; }
 
@@ -32,13 +38,19 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
+    /// <summary>
+    /// -> Server multi send
+    /// -> Client receive
+    /// </summary>
     [MessagePackObject]
-    public struct LeaveMessage : IMultiMessage
+    public class LeaveMessage : IMultiMessage
     {
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = false;
         [Key(1)]
         public int LeaveID { get; }
 
@@ -50,31 +62,46 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
+    /// <summary>
+    /// -> Client send
+    /// -> Server receive
+    /// -> Server multi send
+    /// -> Client receive
     [MessagePackObject]
-    public struct UploadVRMMessage : IMultiMessage
+    public class UploadVRMMessage : IMultiMessage
     {
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = true;
         [Key(1)]
-        public byte[] Data { get; }
+        public byte[] VRMData { get; }
 
         [SerializationConstructor]
         public UploadVRMMessage(int fromID, byte[] data)
         {
             FromID = fromID;
-            Data = data;
+            VRMData = data;
         }
     }
 
+    /// <summary>
+    /// -> Client send
+    /// -> Server receive
+    /// -> Server multi send
+    /// -> Client receive
+    /// </summary>
     [MessagePackObject]
-    public struct AvatarPositionMessage : IMultiMessage
+    public class AvatarPositionMessage : IMultiMessage
     {
         [Key(0)]
         public int FromID { get; }
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Udp;
+        [IgnoreMember]
+        public bool IsLarge { get; } = false;
         [Key(1)]
         public VRMPosData VRMPosData { get; }
 
@@ -83,24 +110,6 @@ namespace YuchiGames.POM.DataTypes
         {
             FromID = fromID;
             VRMPosData = vrmPosData;
-        }
-    }
-
-    [MessagePackObject]
-    public struct GeneratedChunkMessage : IMultiMessage
-    {
-        [Key(0)]
-        public int FromID { get; }
-        [IgnoreMember]
-        public ProtocolType Protocol { get; } = ProtocolType.Udp;
-        [Key(1)]
-        public Chunk ChunkData { get; }
-
-        [SerializationConstructor]
-        public GeneratedChunkMessage(int fromID, Chunk chunkData)
-        {
-            FromID = fromID;
-            ChunkData = chunkData;
         }
     }
 }

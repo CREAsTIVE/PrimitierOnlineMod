@@ -1,8 +1,7 @@
 {
-  "port": 54162,
-  "maxPlayers": 15,
-  "maxDataSize": 67108864,
-  "seed": 0,
+  "Port": 54162,
+  "MaxPlayers": 16,
+  "Seed": 0,
   "Serilog": {
     "Using": [
       "Serilog.Settings.Configuration",
@@ -15,8 +14,8 @@
       {
         "Name": "File",
         "Args": {
-          "path": "Logs/.log",
-          "rollingInterval": "Day"
+          "Path": "Logs/.log",
+          "RollingInterval": "Day"
         }
       }
     ]
