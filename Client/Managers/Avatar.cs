@@ -39,37 +39,17 @@ namespace YuchiGames.POM.Client.Managers
             string path = VrmLoader.GetAvatarDirectory();
             string[] files = Directory.GetFiles(path, "*.vrm");
             byte[] bytes = File.ReadAllBytes(files[0]);
-
-            byte[] front = new byte[5];
-            byte[] back = new byte[5];
-            Array.Copy(bytes, 0, front, 0, front.Length);
-            Array.Copy(bytes, bytes.Length - 5, back, 0, back.Length);
-            Log.Debug($"Front: {BitConverter.ToString(front)}, Back: {BitConverter.ToString(back)}");
-
             return bytes;
         }
 
         public static void LoadAvatar(int id, byte[] vrmData)
         {
-            byte[] front = new byte[5];
-            byte[] back = new byte[5];
-            Array.Copy(vrmData, 0, front, 0, front.Length);
-            Array.Copy(vrmData, vrmData.Length - 5, back, 0, back.Length);
-            Log.Debug($"Front: {BitConverter.ToString(front)}, Back: {BitConverter.ToString(back)}");
-
-            Log.Debug("aaaa");
             GltfData gltfData = new GlbBinaryParser(vrmData, "").Parse();
-            Log.Debug("bbbb");
             Il2CppUniGLTF.ImporterContext loader = new Il2CppUniGLTF.ImporterContext(gltfData);
-            Log.Debug("cccc");
             RuntimeGltfInstance instance = loader.Load();
-            Log.Debug("dddd");
             instance.name = $"Player_{id}";
-            Log.Debug("eeee");
             instance.EnableUpdateWhenOffscreen();
-            Log.Debug("ffff");
             instance.ShowMeshes();
-            Log.Debug("gggg");
             s_gltfInstances[id] = instance;
             Log.Debug($"Avatar loaded: {id}, {s_gltfInstances[id].name}");
         }
