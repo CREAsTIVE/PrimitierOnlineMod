@@ -2,10 +2,10 @@
 {
     public class ServerSettings
     {
-        public int Port { get; }
-        public int MaxPlayers { get; }
-        public int Seed { get; }
-        public Serilog Serilog { get; }
+        public int Port { get; init; }
+        public int MaxPlayers { get; init; }
+        public int Seed { get; init; }
+        public Serilog Serilog { get; init; }
 
         public ServerSettings()
         {
@@ -19,7 +19,7 @@
                     "Serilog.Sinks.Console",
                     "Serilog.Sinks.File"
                 },
-                "Debug",
+                "Information",
                 new List<WriteTo>
                 {
                     new WriteTo("Console"),
@@ -31,9 +31,9 @@
 
     public class Serilog
     {
-        public List<string> Using { get; }
-        public string MinimumLevel { get; }
-        public List<WriteTo> WriteTo { get; }
+        public List<string> Using { get; init; }
+        public string MinimumLevel { get; init; }
+        public List<WriteTo> WriteTo { get; init; }
 
         public Serilog(List<string> using_, string minimumLevel, List<WriteTo> writeTo)
         {
@@ -44,8 +44,8 @@
     }
     public class WriteTo
     {
-        public string Name { get; }
-        public Args Args { get; }
+        public string Name { get; init; }
+        public Args Args { get; init; }
 
         public WriteTo(string name, Args args = null)
         {
@@ -55,8 +55,8 @@
     }
     public class Args
     {
-        public string Path { get; }
-        public string RollingInterval { get; }
+        public string Path { get; init; }
+        public string RollingInterval { get; init; }
 
         public Args(string path, string rollingInterval)
         {

@@ -32,11 +32,7 @@ namespace YuchiGames.POM.Client
 
         static Program()
         {
-            s_settings = new ClientSettings(
-                ip: "127.0.0.1",
-                port: 54162,
-                userName: "User0000",
-                minimumLogLevel: "Information");
+            s_settings = new ClientSettings();
             s_version = "";
             s_userGUID = "";
         }
@@ -49,13 +45,13 @@ namespace YuchiGames.POM.Client
             {
                 using (FileStream stream = File.Create(path))
                 {
-                    JsonSerializerOptions options = new JsonSerializerOptions
+                    JsonSerializerOptions jsonOptions = new JsonSerializerOptions
                     {
                         WriteIndented = true
                     };
                     string json = JsonSerializer.Serialize(
                         s_settings,
-                        options);
+                        jsonOptions);
                     stream.Write(Encoding.UTF8.GetBytes(json));
                 }
             }
@@ -84,7 +80,8 @@ namespace YuchiGames.POM.Client
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            GameObject settingsTabObject = GameObject.Find("/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
+            GameObject settingsTabObject = GameObject.Find(
+                "/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
             settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
             settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
         }

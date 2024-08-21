@@ -2,7 +2,6 @@
 using UnityEngine;
 using Il2CppUniGLTF;
 using Il2CppUniHumanoid;
-using YuchiGames.POM.DataTypes;
 
 namespace YuchiGames.POM.Client.Managers
 {

@@ -2,17 +2,17 @@
 {
     public class ClientSettings
     {
-        public string IP { get; }
-        public int Port { get; }
-        public string UserName { get; }
-        public string MinimumLogLevel { get; }
+        public string IP { get; init; }
+        public int Port { get; init; }
+        public string UserName { get; init; }
+        public string MinimumLogLevel { get; init; }
 
-        public ClientSettings(string ip, int port, string userName, string minimumLogLevel)
+        public ClientSettings()
         {
-            IP = ip;
-            Port = port;
-            UserName = userName;
-            MinimumLogLevel = minimumLogLevel;
+            IP = "127.0.0.1";
+            Port = 54162;
+            UserName = "AnonymousUser";
+            MinimumLogLevel = "Information";
         }
     }
 }
