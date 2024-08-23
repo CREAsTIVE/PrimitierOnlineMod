@@ -84,6 +84,11 @@ namespace YuchiGames.POM.Client
                 "/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
             settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
             settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
+
+            GameObject titleMainCanvas = GameObject.Find(
+                "/TitleSpace/TitleMenu/MainCanvas");
+            titleMainCanvas.transform.Find("AvatarVisibilityButton").gameObject.SetActive(false);
+            titleMainCanvas.transform.Find("AvatarScale").gameObject.SetActive(false);
         }
 
         public override void OnUpdate()

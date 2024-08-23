@@ -10,18 +10,41 @@ namespace YuchiGames.POM.Client.Assets
 {
     public class StartButton : MonoBehaviour
     {
-        public static void OnSceneWasInitialized(int buildIndex, string sceneName)
+        public static bool IsInitialized
         {
-            GameObject startButton = GameObject.Find("StartButton");
-            Destroy(startButton.GetComponent<ObjectActivateButton>());
-            Button button = startButton.GetComponent<Button>();
-            button.onClick.AddListener((UnityAction)OnClick);
+            get
+            {
+                if (s_button is null)
+                    return false;
+                return s_button.interactable;
+            }
+            set
+            {
+                if (s_button is null)
+                    return;
+                s_button.interactable = value;
+            }
         }
 
-        public static void OnClick()
-        {
-            Network.Connect(Program.Settings.IP, Program.Settings.Port);
+        private static Button? s_button;
 
+        public static void OnSceneWasInitialized(int buildIndex, string sceneName)
+        {
+            GameObject startButton = GameObject.Find("/TitleSpace/TitleMenu/MainCanvas/StartButton");
+            Destroy(startButton.GetComponent<ObjectActivateButton>());
+            s_button = startButton.GetComponent<Button>();
+            s_button.onClick.AddListener((UnityAction)OnClick);
+        }
+
+        private static void OnClick()
+        {
+            if (s_button is not null)
+                s_button.interactable = false;
+            Network.Connect(Program.Settings.IP, Program.Settings.Port);
+        }
+
+        public static void JoinGame()
+        {
             TextMeshPro infoText = GameObject.Find("InfoText").GetComponent<TextMeshPro>();
 
             Il2CppReferenceArray<GameObject> destroyObjects = new Il2CppReferenceArray<GameObject>(1);
@@ -34,6 +57,7 @@ namespace YuchiGames.POM.Client.Assets
 
             LoadingSequence loadingSequence = GameObject.FindObjectOfType<LoadingSequence>();
             loadingSequence.StartLoading(1, infoText, destroyObjects, enableObjects);
+            Log.Information("Joined game successfully!");
         }
     }
 }

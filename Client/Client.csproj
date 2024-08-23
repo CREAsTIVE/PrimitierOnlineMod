@@ -27,9 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Il2CppUniHumanoid">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2CppUniHumanoid.dll</HintPath>
-		</Reference>
 		<Reference Include="MelonLoader">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\MelonLoader.dll</HintPath>
 			<Private>false</Private>
@@ -50,30 +47,24 @@
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Il2CppUniGLTF">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2CppUniGLTF.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Il2CppVRMShaders.GLTF.IO.Runtime">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2CppVRMShaders.GLTF.IO.Runtime.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
 		<Reference Include="Unity.TextMeshPro">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Unity.TextMeshPro.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="UnityEngine.AnimationModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll</HintPath>
-		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
+		<Reference Include="UnityEngine.PhysicsModule">
+			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine.UI">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.IMGUIModule">
 			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>

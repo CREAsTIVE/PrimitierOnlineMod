@@ -13,10 +13,6 @@ namespace YuchiGames.POM.DataTypes
         public bool IsLarge { get; }
     }
 
-    /// <summary>
-    /// -> Client send
-    /// -> Server receive
-    /// </summary>
     [MessagePackObject]
     public class RequestServerInfoMessage : IUniMessage
     {
@@ -40,10 +36,6 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
-    /// <summary>
-    /// -> Server send
-    /// -> Client receive
-    /// </summary>
     [MessagePackObject]
     public class ServerInfoMessage : IUniMessage
     {
@@ -54,21 +46,18 @@ namespace YuchiGames.POM.DataTypes
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [IgnoreMember]
-        public bool IsLarge { get; } = true;
+        public bool IsLarge { get; } = false;
         [Key(2)]
         public int MaxPlayers { get; }
         [Key(3)]
-        public byte[][] AvatarData { get; }
-        [Key(4)]
         public LocalWorldData WorldData { get; }
 
         [SerializationConstructor]
-        public ServerInfoMessage(int fromID, int toID, int maxPlayers, byte[][] avatarData, LocalWorldData worldData)
+        public ServerInfoMessage(int fromID, int toID, int maxPlayers, LocalWorldData worldData)
         {
             FromID = fromID;
             ToID = toID;
             MaxPlayers = maxPlayers;
-            AvatarData = avatarData;
             WorldData = worldData;
         }
     }

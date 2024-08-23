@@ -57,13 +57,18 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
-    public class BaseBodyData
+    [MessagePackObject]
+    public class PlayerPositionData
     {
+        [Key(0)]
         public PosRot Head { get; }
+        [Key(1)]
         public PosRot LeftHand { get; }
+        [Key(2)]
         public PosRot RightHand { get; }
 
-        public BaseBodyData(PosRot head, PosRot leftHand, PosRot rightHand)
+        [SerializationConstructor]
+        public PlayerPositionData(PosRot head, PosRot leftHand, PosRot rightHand)
         {
             Head = head;
             LeftHand = leftHand;

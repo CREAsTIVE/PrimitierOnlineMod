@@ -96,7 +96,7 @@ namespace YuchiGames.POM.Server.Managers
 
         private static void PollEventsThread(CancellationToken token)
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, Program.Settings.Port);
+            TcpListener listener = new TcpListener(IPAddress.Any, s_server.LocalPort);
             listener.Start();
             while (!token.IsCancellationRequested)
             {
@@ -104,7 +104,7 @@ namespace YuchiGames.POM.Server.Managers
                 if (!listener.Pending())
                     continue;
                 TcpClient tcpClient = listener.AcceptTcpClient();
-                Task.Run(() => DataRequestHandler(tcpClient));
+                Task.Run(() => DataRequestHandler(tcpClient), token);
             }
             listener.Stop();
         }
@@ -151,13 +151,8 @@ namespace YuchiGames.POM.Server.Managers
                         return;
                     switch (multiMessage)
                     {
-                        case UploadVRMMessage message:
-                            Avatar.UploadVRM(message.FromID, message.VRMData);
-                            //Send(multiMessage, peer);
-                            Send(multiMessage);
-                            break;
-                        case AvatarPositionMessage:
-                            Send(multiMessage);
+                        case PlayerPositionMessage:
+                            Send(multiMessage, peer);
                             break;
                     };
                     break;
@@ -171,19 +166,17 @@ namespace YuchiGames.POM.Server.Managers
                             if (message.ToID != s_serverId)
                                 return;
                             s_userGUIDs[peer.Id] = message.UserGUID;
-                            byte[][] vrmData = Avatar.GetAllVRMFiles();
                             LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
                             IUniMessage infoMessage = new ServerInfoMessage(
                                 s_serverId,
                                 peer.Id,
                                 Program.Settings.MaxPlayers,
-                                vrmData,
                                 localWorldData);
                             Send(infoMessage);
                             IMultiMessage joinMessage = new JoinMessage(
                                 s_serverId,
                                 peer.Id);
-                            Send(joinMessage);
+                            Send(joinMessage, peer);
                             Log.Information($"Connected to Client with ID{peer.Id}");
                             break;
                     }

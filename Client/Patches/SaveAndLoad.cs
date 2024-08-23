@@ -7,7 +7,7 @@ namespace YuchiGames.POM.Client.Patches
     [HarmonyPatch(typeof(SaveAndLoad), nameof(SaveAndLoad.Load))]
     class SaveAndLoad_Load
     {
-        static void Prefix(ref SaveAndLoad.SaveData saveData)
+        private static void Prefix(ref SaveAndLoad.SaveData saveData)
         {
             saveData = World.SaveData;
         }

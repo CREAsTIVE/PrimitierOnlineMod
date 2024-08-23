@@ -1,11 +1,11 @@
 ﻿using LiteNetLib;
 using System.Net;
 using MessagePack;
-using UnityEngine;
 using LiteNetLib.Utils;
 using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 using System.Text;
+using YuchiGames.POM.Client.Assets;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -51,7 +51,6 @@ namespace YuchiGames.POM.Client.Managers
                 s_id,
                 s_serverId,
                 0,
-                new byte[0][],
                 new LocalWorldData());
 
             s_listener = new EventBasedNetListener();
@@ -85,6 +84,8 @@ namespace YuchiGames.POM.Client.Managers
             s_isConnected = false;
             s_id = -1;
             s_ping = -1;
+            s_cancelTokenSource.Cancel();
+            StartButton.IsInitialized = true;
             Log.Information($"Disconnected from Server");
         }
 
@@ -103,6 +104,7 @@ namespace YuchiGames.POM.Client.Managers
         public static void Connect(string ipAddress, int port)
         {
             Log.Information($"Connecting to Server...");
+            s_cancelTokenSource = new CancellationTokenSource();
             s_client.Start();
             AuthData authData = new AuthData(Program.Version);
             byte[] buffer = MessagePackSerializer.Serialize(authData);
@@ -126,19 +128,25 @@ namespace YuchiGames.POM.Client.Managers
             s_client.PollEvents();
             if (s_client.FirstPeer != null)
                 s_ping = s_client.FirstPeer.Ping;
+            if (s_isConnected)
+            {
+                IMultiMessage message = new PlayerPositionMessage(
+                    s_id,
+                    Player.GetPlayerPosition());
+                Send(message);
+            }
         }
 
         private static void ReceiveDataRequestsThread(CancellationToken token)
         {
-            TcpListener listener = new TcpListener(IPAddress.Parse(Program.Settings.IP), s_client.LocalPort);
+            TcpListener listener = new TcpListener(IPAddress.Any, s_client.LocalPort);
             listener.Start();
             while (!token.IsCancellationRequested)
             {
                 if (!listener.Pending())
                     continue;
                 TcpClient tcpClient = listener.AcceptTcpClient();
-                // Task.Run(() => DataRequestHandler(tcpClient));
-                DataRequestHandler(tcpClient);
+                Task.Run(() => DataRequestHandler(tcpClient), token);
             }
             listener.Stop();
         }
@@ -178,13 +186,15 @@ namespace YuchiGames.POM.Client.Managers
                     {
                         case JoinMessage message:
                             Log.Information($"Joined player with ID{message.JoinID}");
+                            Player.SpawnPlayer(message.JoinID);
                             break;
                         case LeaveMessage message:
                             Log.Information($"Player left with ID{message.LeaveID}");
-                            Avatar.DestroyAvatar(message.LeaveID);
+                            Player.DespawnPlayer(message.LeaveID);
                             break;
-                        case UploadVRMMessage message:
-                            Avatar.LoadAvatar(message.FromID, message.VRMData);
+                        case PlayerPositionMessage message:
+                            if (s_isConnected)
+                                Player.SetPlayerPosition(message.FromID, message.PlayerPos);
                             break;
                     }
                     break;
@@ -194,13 +204,15 @@ namespace YuchiGames.POM.Client.Managers
                         case ServerInfoMessage message:
                             s_serverInfo = message;
                             World.Load(message.WorldData);
-                            Avatar.LoadAvatars(message.AvatarData);
                             s_isConnected = true;
                             Log.Information($"Connected to Server with ID{s_id}");
-                            IMultiMessage multiMessage = new UploadVRMMessage(
-                                s_id,
-                                Avatar.GetAvatar());
-                            Send(multiMessage);
+                            StartButton.JoinGame();
+                            foreach (NetPeer i in s_client.ConnectedPeerList)
+                            {
+                                if (i.Id == s_id)
+                                    continue;
+                                Player.SpawnPlayer(i.Id);
+                            }
                             break;
                     }
                     break;

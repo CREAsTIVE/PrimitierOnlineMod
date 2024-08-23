@@ -5,8 +5,7 @@ namespace YuchiGames.POM.DataTypes
 {
     [Union(0, typeof(JoinMessage))]
     [Union(1, typeof(LeaveMessage))]
-    [Union(2, typeof(UploadVRMMessage))]
-    [Union(3, typeof(AvatarPositionMessage))]
+    [Union(2, typeof(PlayerPositionMessage))]
     public interface IMultiMessage
     {
         public int FromID { get; }
@@ -14,10 +13,6 @@ namespace YuchiGames.POM.DataTypes
         public bool IsLarge { get; }
     }
 
-    /// <summary>
-    /// -> Server multi send
-    /// -> Client receive
-    /// </summary>
     [MessagePackObject]
     public class JoinMessage : IMultiMessage
     {
@@ -38,10 +33,6 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
-    /// <summary>
-    /// -> Server multi send
-    /// -> Client receive
-    /// </summary>
     [MessagePackObject]
     public class LeaveMessage : IMultiMessage
     {
@@ -62,39 +53,8 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
-    /// <summary>
-    /// -> Client send
-    /// -> Server receive
-    /// -> Server multi send
-    /// -> Client receive
     [MessagePackObject]
-    public class UploadVRMMessage : IMultiMessage
-    {
-        [Key(0)]
-        public int FromID { get; }
-        [IgnoreMember]
-        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
-        [IgnoreMember]
-        public bool IsLarge { get; } = true;
-        [Key(1)]
-        public byte[] VRMData { get; }
-
-        [SerializationConstructor]
-        public UploadVRMMessage(int fromID, byte[] data)
-        {
-            FromID = fromID;
-            VRMData = data;
-        }
-    }
-
-    /// <summary>
-    /// -> Client send
-    /// -> Server receive
-    /// -> Server multi send
-    /// -> Client receive
-    /// </summary>
-    [MessagePackObject]
-    public class AvatarPositionMessage : IMultiMessage
+    public class PlayerPositionMessage : IMultiMessage
     {
         [Key(0)]
         public int FromID { get; }
@@ -103,13 +63,13 @@ namespace YuchiGames.POM.DataTypes
         [IgnoreMember]
         public bool IsLarge { get; } = false;
         [Key(1)]
-        public VRMPosData VRMPosData { get; }
+        public PlayerPositionData PlayerPos { get; }
 
         [SerializationConstructor]
-        public AvatarPositionMessage(int fromID, VRMPosData vrmPosData)
+        public PlayerPositionMessage(int fromID, PlayerPositionData playerPos)
         {
             FromID = fromID;
-            VRMPosData = vrmPosData;
+            PlayerPos = playerPos;
         }
     }
 }
