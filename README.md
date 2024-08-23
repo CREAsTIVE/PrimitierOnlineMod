@@ -47,7 +47,7 @@
 
 This project was created to create a mod to add a multiplayer mode to the VR sandbox game [Primitier](https://store.steampowered.com/app/1745170/Primitier/).
 
-## Getting Started
+## Getting Started with Server
 
 How to build a server using Docker.
 
