@@ -10,7 +10,7 @@ namespace YuchiGames.POM.Client.Assets
 {
     public class StartButton : MonoBehaviour
     {
-        public static bool IsInitialized
+        public static bool IsInteractable
         {
             get
             {
@@ -28,7 +28,7 @@ namespace YuchiGames.POM.Client.Assets
 
         private static Button? s_button;
 
-        public static void OnSceneWasInitialized(int buildIndex, string sceneName)
+        public static void Initialize()
         {
             GameObject startButton = GameObject.Find("/TitleSpace/TitleMenu/MainCanvas/StartButton");
             Destroy(startButton.GetComponent<ObjectActivateButton>());

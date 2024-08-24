@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using YuchiGames.POM.DataTypes;
 using System.Text;
 using YuchiGames.POM.Client.Assets;
+using UnityEngine;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -80,12 +81,13 @@ namespace YuchiGames.POM.Client.Managers
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Log.Debug("Disconnected peer");
+            Log.Debug($"Disconnected peer {disconnectInfo.Reason}");
             s_isConnected = false;
             s_id = -1;
             s_ping = -1;
             s_cancelTokenSource.Cancel();
-            StartButton.IsInitialized = true;
+            if (GameObject.Find("/TitleSpace/TitleMenu/MainCanvas/StartButton") is not null)
+                StartButton.IsInteractable = true;
             Log.Information($"Disconnected from Server");
         }
 

@@ -10,6 +10,7 @@ namespace YuchiGames.POM.DataTypes
         public HashSet<string> UserIDs { get; init; }
         public List<Position> PlayerPositions { get; init; }
         public List<float> PlayerAngles { get; init; }
+        public float PlayerMaxLife { get; init; }
         public List<float> PlayerLives { get; init; }
         public List<Position> RespawnPositions { get; init; }
         public List<float> RespawnAngles { get; init; }
@@ -20,7 +21,11 @@ namespace YuchiGames.POM.DataTypes
         public List<Chunk> Chunks { get; init; }
         public HashSet<Position2> GeneratedChunks { get; init; }
 
-        public GlobalWorldData(int seed, float time, bool isTimeFrozen)
+        public GlobalWorldData(
+            int seed,
+            float time,
+            bool isTimeFrozen,
+            float playerMaxLife)
         {
             Seed = seed;
             Time = time;
@@ -28,6 +33,7 @@ namespace YuchiGames.POM.DataTypes
             UserIDs = new HashSet<string>();
             PlayerPositions = new List<Position>();
             PlayerAngles = new List<float>();
+            PlayerMaxLife = playerMaxLife;
             PlayerLives = new List<float>();
             RespawnPositions = new List<Position>();
             RespawnAngles = new List<float>();
@@ -44,17 +50,17 @@ namespace YuchiGames.POM.DataTypes
     public class LocalWorldData
     {
         [Key(0)]
-        public bool IsFirstTime { get; set; }
-        [Key(1)]
         public int Seed { get; init; }
-        [Key(2)]
+        [Key(1)]
         public float Time { get; set; }
-        [Key(3)]
+        [Key(2)]
         public bool IsTimeFrozen { get; set; }
-        [Key(4)]
+        [Key(3)]
         public Position PlayerPos { get; set; }
-        [Key(5)]
+        [Key(4)]
         public float PlayerAngle { get; set; }
+        [Key(5)]
+        public float PlayerMaxLife { get; set; }
         [Key(6)]
         public float PlayerLife { get; set; }
         [Key(7)]
@@ -69,35 +75,29 @@ namespace YuchiGames.POM.DataTypes
         public Position HolsterLeftPos { get; set; }
         [Key(12)]
         public Position HolsterRightPos { get; set; }
-        [Key(13)]
-        public List<Chunk> Chunks { get; init; }
-        [Key(14)]
-        public HashSet<Position2> GeneratedChunks { get; init; }
 
         [SerializationConstructor]
         public LocalWorldData(
-            bool isFirstTime,
             int seed,
             float time,
             bool isTimeFrozen,
             Position playerPos,
             float playerAngle,
+            float playerMaxLife,
             float playerLife,
             Position respawnPos,
             float respawnAngle,
             Position cameraPos,
             Rotation cameraRot,
             Position holsterLeftPos,
-            Position holsterRightPos,
-            List<Chunk> chunks,
-            HashSet<Position2> generatedChunks)
+            Position holsterRightPos)
         {
-            IsFirstTime = isFirstTime;
             Seed = seed;
             Time = time;
             IsTimeFrozen = isTimeFrozen;
             PlayerPos = playerPos;
             PlayerAngle = playerAngle;
+            PlayerMaxLife = playerMaxLife;
             PlayerLife = playerLife;
             RespawnPos = respawnPos;
             RespawnAngle = respawnAngle;
@@ -105,27 +105,23 @@ namespace YuchiGames.POM.DataTypes
             CameraRot = cameraRot;
             HolsterLeftPos = holsterLeftPos;
             HolsterRightPos = holsterRightPos;
-            Chunks = chunks;
-            GeneratedChunks = generatedChunks;
         }
 
         public LocalWorldData()
         {
-            IsFirstTime = false;
             Seed = 0;
             Time = 0;
             IsTimeFrozen = false;
-            PlayerPos = new Position(0, 0, 0);
+            PlayerPos = new Position(130, 5, 130);
             PlayerAngle = 0;
+            PlayerMaxLife = 1000;
             PlayerLife = 1000;
-            RespawnPos = new Position(0, 0, 0);
+            RespawnPos = new Position(130, 5, 130);
             RespawnAngle = 0;
             CameraPos = new Position(0, 0, 0);
             CameraRot = new Rotation(0, 0, 0, 0);
-            HolsterLeftPos = new Position(0, 0, 0);
-            HolsterRightPos = new Position(0, 0, 0);
-            Chunks = new List<Chunk>();
-            GeneratedChunks = new HashSet<Position2>();
+            HolsterLeftPos = new Position(-0.2f, 0, 0.12f);
+            HolsterRightPos = new Position(0.2f, 0, 0.12f);
         }
     }
 

@@ -72,23 +72,9 @@ namespace YuchiGames.POM.Client
             s_userGUID = machineID.Trim('{', '}');
 
             MelonEvents.OnSceneWasInitialized.Subscribe(PingUI.OnSceneWasInitialized);
-            MelonEvents.OnSceneWasInitialized.Subscribe(StartButton.OnSceneWasInitialized);
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnUpdate.Subscribe(PingUI.OnUpdate);
             MelonEvents.OnGUI.Subscribe(InfoGUI.OnGUI);
-        }
-
-        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
-        {
-            GameObject settingsTabObject = GameObject.Find(
-                "/Player/XR Origin/Camera Offset/LeftHand Controller/RealLeftHand/MenuWindowL/Windows/MainCanvas/SettingsTab");
-            settingsTabObject.transform.Find("DayNightCycleButton").gameObject.SetActive(false);
-            settingsTabObject.transform.Find("DistanceSettings").gameObject.SetActive(false);
-
-            GameObject titleMainCanvas = GameObject.Find(
-                "/TitleSpace/TitleMenu/MainCanvas");
-            titleMainCanvas.transform.Find("AvatarVisibilityButton").gameObject.SetActive(false);
-            titleMainCanvas.transform.Find("AvatarScale").gameObject.SetActive(false);
         }
 
         public override void OnUpdate()

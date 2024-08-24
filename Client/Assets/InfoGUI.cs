@@ -17,17 +17,17 @@ namespace YuchiGames.POM.Client.Assets
         {
             if (!s_isShow)
                 return;
-            GUI.Label(new Rect(1720, 0, 200, 20), $"<color=black>Seed: {TerrainGenerator.worldSeed}</color>");
-            GUI.Label(new Rect(1720, 20, 200, 20), $"<color=black>Chunk: {CubeGenerator.PlayerChunkPos.x}, {CubeGenerator.PlayerChunkPos.y}</color>");
+            GUI.Label(new Rect(0, 0, 1920, 20), $"<color=black>Seed: {TerrainGenerator.worldSeed}</color>");
+            GUI.Label(new Rect(0, 20, 1920, 20), $"<color=black>Chunk: {CubeGenerator.PlayerChunkPos.x}, {CubeGenerator.PlayerChunkPos.y}</color>");
             if (Network.IsConnected)
             {
-                GUI.Label(new Rect(1720, 40, 200, 20), $"<color=black>ServerStatus: CONNECTED</color>");
-                GUI.Label(new Rect(1720, 60, 200, 20), $"<color=black>Client ID: {Network.ID}</color>");
-                GUI.Label(new Rect(1720, 80, 200, 20), $"<color=black>Ping: {Network.Ping}</color>");
+                GUI.Label(new Rect(0, 40, 1920, 20), $"<color=black>ServerStatus: CONNECTED</color>");
+                GUI.Label(new Rect(0, 60, 1920, 20), $"<color=black>Client ID: {Network.ID}</color>");
+                GUI.Label(new Rect(0, 80, 1920, 20), $"<color=black>Ping: {Network.Ping}</color>");
             }
             else
             {
-                GUI.Label(new Rect(1720, 40, 200, 20), $"<color=black>ServerStatus: NOT CONNECT</color>");
+                GUI.Label(new Rect(0, 40, 1920, 20), $"<color=black>ServerStatus: NOT CONNECT</color>");
             }
         }
     }

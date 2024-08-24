@@ -6,11 +6,6 @@ namespace YuchiGames.POM.Client.Managers
 {
     public static class Player
     {
-        public static Transform PlayerPosition
-        {
-            get => s_playerObjectTransforms[Network.ID, 0];
-        }
-
         private static GameObject s_basePlayerObjects;
         private static GameObject[] s_playerObjects;
         private static Transform[,] s_playerObjectTransforms;
@@ -20,16 +15,14 @@ namespace YuchiGames.POM.Client.Managers
             s_playerObjects = new GameObject[Network.ServerInfo.MaxPlayers];
             s_playerObjectTransforms = new Transform[Network.ServerInfo.MaxPlayers, 3];
 
-            AvatarVisibility avatarVisibility = GameObject.Find("/System").GetComponent<AvatarVisibility>();
-
             s_basePlayerObjects = new GameObject("BaseBody");
             s_basePlayerObjects.active = false;
             s_basePlayerObjects.transform.position = Vector3.zero;
 
-            GameObject s_headObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            GameObject.Destroy(s_headObject.GetComponent<SphereCollider>());
+            AvatarVisibility avatarVisibility = GameObject.Find("/System").GetComponent<AvatarVisibility>();
+
+            GameObject s_headObject = GameObject.Instantiate(avatarVisibility.proxyHead);
             s_headObject.name = "Head";
-            s_headObject.transform.position = Vector3.zero;
             s_headObject.transform.parent = s_basePlayerObjects.transform;
 
             GameObject s_leftHandObject = GameObject.Instantiate(avatarVisibility.proxyLeftHand);

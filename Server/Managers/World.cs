@@ -45,8 +45,9 @@ namespace YuchiGames.POM.Server.Managers
                     s_seed = Program.Settings.Seed;
                 }
 
-                s_worldData = new GlobalWorldData(s_seed, 10, false);
+                s_worldData = new GlobalWorldData(s_seed, 10, false, 1000);
             }
+            // Save();
         }
 
         public static void Save()
@@ -64,37 +65,34 @@ namespace YuchiGames.POM.Server.Managers
         {
             if (s_worldData is null)
                 throw new Exception("WorldData not found.");
-            bool isContains = s_worldData.UserIDs.Contains(userGUID);
-            if (!isContains)
+            if (!s_worldData.UserIDs.Contains(userGUID))
             {
                 s_worldData.UserIDs.Add(userGUID);
-                s_worldData.PlayerPositions.Add(new Position(0, 0, 0));
+                s_worldData.PlayerPositions.Add(new Position(130, 5, 130));
                 s_worldData.PlayerAngles.Add(0);
-                s_worldData.PlayerLives.Add(1000);
-                s_worldData.RespawnPositions.Add(new Position(0, 0, 0));
+                s_worldData.PlayerLives.Add(s_worldData.PlayerMaxLife);
+                s_worldData.RespawnPositions.Add(new Position(130, 5, 130));
                 s_worldData.RespawnAngles.Add(0);
                 s_worldData.CameraPositions.Add(new Position(0, 0, 0));
                 s_worldData.CameraRotations.Add(new Rotation(0, 0, 0, 0));
-                s_worldData.HolsterLeftPositions.Add(new Position(0, 0, 0));
-                s_worldData.HolsterRightPositions.Add(new Position(0, 0, 0));
+                s_worldData.HolsterLeftPositions.Add(new Position(-0.2f, 0, 0.12f));
+                s_worldData.HolsterRightPositions.Add(new Position(0.2f, 0, 0.12f));
             }
             int index = s_worldData.UserIDs.ToList().IndexOf(userGUID);
             LocalWorldData localWorldData = new LocalWorldData(
-                isFirstTime: !isContains,
-                seed: s_worldData.Seed,
-                time: s_worldData.Time,
-                isTimeFrozen: s_worldData.IsTimeFrozen,
-                playerPos: s_worldData.PlayerPositions[index],
-                playerAngle: s_worldData.PlayerAngles[index],
-                playerLife: s_worldData.PlayerLives[index],
-                respawnPos: s_worldData.RespawnPositions[index],
-                respawnAngle: s_worldData.RespawnAngles[index],
-                cameraPos: s_worldData.CameraPositions[index],
-                cameraRot: s_worldData.CameraRotations[index],
-                holsterLeftPos: s_worldData.HolsterLeftPositions[index],
-                holsterRightPos: s_worldData.HolsterRightPositions[index],
-                chunks: s_worldData.Chunks,
-                generatedChunks: s_worldData.GeneratedChunks);
+                s_worldData.Seed,
+                s_worldData.Time,
+                s_worldData.IsTimeFrozen,
+                s_worldData.PlayerPositions[index],
+                s_worldData.PlayerAngles[index],
+                s_worldData.PlayerMaxLife,
+                s_worldData.PlayerLives[index],
+                s_worldData.RespawnPositions[index],
+                s_worldData.RespawnAngles[index],
+                s_worldData.CameraPositions[index],
+                s_worldData.CameraRotations[index],
+                s_worldData.HolsterLeftPositions[index],
+                s_worldData.HolsterRightPositions[index]);
             return localWorldData;
         }
     }

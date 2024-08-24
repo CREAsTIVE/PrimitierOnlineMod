@@ -60,7 +60,7 @@ namespace YuchiGames.POM.Server.Managers
 
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Log.Debug($"Disconnected peer with ID{peer.Id}");
+            Log.Debug($"Disconnected peer with ID{peer.Id} {disconnectInfo.Reason}");
             s_userGUIDs[peer.Id] = "";
             IMultiMessage leaveMessage = new LeaveMessage(s_serverId, peer.Id);
             Send(leaveMessage);
