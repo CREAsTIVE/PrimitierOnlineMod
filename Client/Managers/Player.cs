@@ -19,7 +19,7 @@ namespace YuchiGames.POM.Client.Managers
             s_basePlayerObjects.active = false;
             s_basePlayerObjects.transform.position = Vector3.zero;
 
-            AvatarVisibility avatarVisibility = GameObject.Find("/System").GetComponent<AvatarVisibility>();
+            AvatarVisibility avatarVisibility = GameObject.FindObjectOfType<AvatarVisibility>();
 
             GameObject s_headObject = GameObject.Instantiate(avatarVisibility.proxyHead);
             s_headObject.name = "Head";
