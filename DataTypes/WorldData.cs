@@ -328,7 +328,7 @@ namespace YuchiGames.POM.DataTypes
         Top = 4,
         Bottom = 8,
         Front = 0x10,
-        Back = 0x2
+        Back = 0x20
     }
 
     [MessagePackObject]
