@@ -38,6 +38,22 @@ namespace YuchiGames.POM.DataTypes
     }
 
     [MessagePackObject]
+    public struct Position2Int
+    {
+        [Key(0)]
+        public int X { get; set; }
+        [Key(1)]
+        public int Y { get; set; }
+
+        [SerializationConstructor]
+        public Position2Int(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
+    [MessagePackObject]
     public struct Rotation
     {
         [Key(0)]

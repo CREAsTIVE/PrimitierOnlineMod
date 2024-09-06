@@ -29,7 +29,7 @@ namespace YuchiGames.POM.Client.Managers
             s_saveData = new SaveAndLoad.SaveData();
         }
 
-        public static void Load(LocalWorldData localWorldData)
+        public static void LoadWorldData(LocalWorldData localWorldData)
         {
             s_worldData = localWorldData;
             s_seed = s_worldData.Seed;

@@ -205,7 +205,7 @@ namespace YuchiGames.POM.Client.Managers
                     {
                         case ServerInfoMessage message:
                             s_serverInfo = message;
-                            World.Load(message.WorldData);
+                            World.LoadWorldData(message.WorldData);
                             s_isConnected = true;
                             Log.Information($"Connected to Server with ID{s_id}");
                             StartButton.JoinGame();
