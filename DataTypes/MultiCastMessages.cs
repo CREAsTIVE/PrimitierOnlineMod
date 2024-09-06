@@ -16,19 +16,18 @@ namespace YuchiGames.POM.DataTypes
     [MessagePackObject]
     public class JoinMessage : IMultiMessage
     {
-        [Key(0)]
-        public int FromID { get; }
+        [IgnoreMember]
+        public int FromID { get; } = -1;
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [IgnoreMember]
         public bool IsLarge { get; } = false;
-        [Key(1)]
+        [Key(0)]
         public int JoinID { get; }
 
         [SerializationConstructor]
-        public JoinMessage(int fromID, int joinID)
+        public JoinMessage(int joinID)
         {
-            FromID = fromID;
             JoinID = joinID;
         }
     }
@@ -36,19 +35,18 @@ namespace YuchiGames.POM.DataTypes
     [MessagePackObject]
     public class LeaveMessage : IMultiMessage
     {
-        [Key(0)]
-        public int FromID { get; }
+        [IgnoreMember]
+        public int FromID { get; } = -1;
         [IgnoreMember]
         public ProtocolType Protocol { get; } = ProtocolType.Tcp;
         [IgnoreMember]
         public bool IsLarge { get; } = false;
-        [Key(1)]
+        [Key(0)]
         public int LeaveID { get; }
 
         [SerializationConstructor]
-        public LeaveMessage(int fromID, int leaveID)
+        public LeaveMessage(int leaveID)
         {
-            FromID = fromID;
             LeaveID = leaveID;
         }
     }

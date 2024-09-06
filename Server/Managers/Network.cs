@@ -62,7 +62,7 @@ namespace YuchiGames.POM.Server.Managers
         {
             Log.Debug($"Disconnected peer with ID{peer.Id} {disconnectInfo.Reason}");
             s_userGUIDs[peer.Id] = "";
-            IMultiMessage leaveMessage = new LeaveMessage(s_serverId, peer.Id);
+            IMultiMessage leaveMessage = new LeaveMessage(peer.Id);
             Send(leaveMessage);
             Log.Information($"Disconnected from Server: {peer.Id}");
         }
@@ -168,13 +168,11 @@ namespace YuchiGames.POM.Server.Managers
                             s_userGUIDs[peer.Id] = message.UserGUID;
                             LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
                             IUniMessage infoMessage = new ServerInfoMessage(
-                                s_serverId,
                                 peer.Id,
                                 Program.Settings.MaxPlayers,
                                 localWorldData);
                             Send(infoMessage);
                             IMultiMessage joinMessage = new JoinMessage(
-                                s_serverId,
                                 peer.Id);
                             Send(joinMessage, peer);
                             Log.Information($"Connected to Client with ID{peer.Id}");

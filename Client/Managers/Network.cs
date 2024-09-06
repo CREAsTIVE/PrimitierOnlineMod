@@ -50,7 +50,6 @@ namespace YuchiGames.POM.Client.Managers
             s_isConnected = false;
             s_serverInfo = new ServerInfoMessage(
                 s_id,
-                s_serverId,
                 0,
                 new LocalWorldData());
 
@@ -74,7 +73,6 @@ namespace YuchiGames.POM.Client.Managers
             s_id = peer.RemoteId;
             IUniMessage message = new RequestServerInfoMessage(
                 s_id,
-                s_serverId,
                 Program.UserGUID);
             Send(message);
         }
