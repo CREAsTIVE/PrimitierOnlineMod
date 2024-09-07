@@ -64,6 +64,11 @@ namespace YuchiGames.POM.DataTypes
             return new Position2(vector2.x, vector2.y);
         }
 
+        public static Position2Int ToPosition2Int(Vector2Int vector2)
+        {
+            return new Position2Int(vector2.x, vector2.y);
+        }
+
         public static Rotation ToRotation(Quaternion quaternion)
         {
             return new Rotation(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
