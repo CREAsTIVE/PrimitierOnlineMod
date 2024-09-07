@@ -5,6 +5,7 @@
         public int Port { get; init; }
         public int MaxPlayers { get; init; }
         public int Seed { get; init; }
+        public bool DayNightCycle { get; init; }
         public Serilog Serilog { get; init; }
 
         public ServerSettings()
@@ -12,6 +13,7 @@
             Port = 54162;
             MaxPlayers = 16;
             Seed = 0;
+            DayNightCycle = true;
             Serilog = new Serilog(
                 new List<string>
                 {

@@ -44,8 +44,7 @@ namespace YuchiGames.POM.Server.Managers
                 {
                     s_seed = Program.Settings.Seed;
                 }
-
-                s_worldData = new GlobalWorldData(s_seed, 10, false, 1000);
+                s_worldData = new GlobalWorldData(s_seed, 10, 1000);
             }
             // Save();
         }
@@ -82,7 +81,6 @@ namespace YuchiGames.POM.Server.Managers
             LocalWorldData localWorldData = new LocalWorldData(
                 s_worldData.Seed,
                 s_worldData.Time,
-                s_worldData.IsTimeFrozen,
                 s_worldData.PlayerPositions[index],
                 s_worldData.PlayerAngles[index],
                 s_worldData.PlayerMaxLife,

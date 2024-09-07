@@ -7,6 +7,8 @@ using YuchiGames.POM.DataTypes;
 using System.Text;
 using YuchiGames.POM.Client.Assets;
 using UnityEngine;
+using Il2CppPinwheel.Jupiter;
+using Il2Cpp;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -51,7 +53,8 @@ namespace YuchiGames.POM.Client.Managers
             s_serverInfo = new ServerInfoMessage(
                 s_id,
                 0,
-                new LocalWorldData());
+                new LocalWorldData(),
+                true);
 
             s_listener = new EventBasedNetListener();
             s_client = new NetManager(s_listener)
@@ -85,7 +88,7 @@ namespace YuchiGames.POM.Client.Managers
             s_ping = -1;
             s_cancelTokenSource.Cancel();
             if (GameObject.Find("/TitleSpace/TitleMenu/MainCanvas/StartButton") is not null)
-                StartButton.IsInteractable = true;
+                Assets.StartButton.IsInteractable = true;
             Log.Information($"Disconnected from Server");
         }
 
@@ -202,11 +205,13 @@ namespace YuchiGames.POM.Client.Managers
                     switch (MessagePackSerializer.Deserialize<IUniMessage>(buffer))
                     {
                         case ServerInfoMessage message:
+                            DayNightCycleButton dayNightCycleButton = GameObject.FindObjectOfType<DayNightCycleButton>();
+                            dayNightCycleButton.SwitchState(message.IsDayNightCycle);
                             s_serverInfo = message;
                             World.LoadWorldData(message.WorldData);
                             s_isConnected = true;
                             Log.Information($"Connected to Server with ID{s_id}");
-                            StartButton.JoinGame();
+                            Assets.StartButton.JoinGame();
                             foreach (NetPeer i in s_client.ConnectedPeerList)
                             {
                                 if (i.Id == s_id)

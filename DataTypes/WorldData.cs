@@ -6,7 +6,6 @@ namespace YuchiGames.POM.DataTypes
     {
         public int Seed { get; init; }
         public float Time { get; set; }
-        public bool IsTimeFrozen { get; set; }
         public HashSet<string> UserIDs { get; init; }
         public List<Position> PlayerPositions { get; init; }
         public List<float> PlayerAngles { get; init; }
@@ -24,12 +23,10 @@ namespace YuchiGames.POM.DataTypes
         public GlobalWorldData(
             int seed,
             float time,
-            bool isTimeFrozen,
             float playerMaxLife)
         {
             Seed = seed;
             Time = time;
-            IsTimeFrozen = isTimeFrozen;
             UserIDs = new HashSet<string>();
             PlayerPositions = new List<Position>();
             PlayerAngles = new List<float>();
@@ -54,33 +51,30 @@ namespace YuchiGames.POM.DataTypes
         [Key(1)]
         public float Time { get; set; }
         [Key(2)]
-        public bool IsTimeFrozen { get; set; }
-        [Key(3)]
         public Position PlayerPos { get; set; }
-        [Key(4)]
+        [Key(3)]
         public float PlayerAngle { get; set; }
-        [Key(5)]
+        [Key(4)]
         public float PlayerMaxLife { get; set; }
-        [Key(6)]
+        [Key(5)]
         public float PlayerLife { get; set; }
-        [Key(7)]
+        [Key(6)]
         public Position RespawnPos { get; set; }
-        [Key(8)]
+        [Key(7)]
         public float RespawnAngle { get; set; }
-        [Key(9)]
+        [Key(8)]
         public Position CameraPos { get; set; }
-        [Key(10)]
+        [Key(9)]
         public Rotation CameraRot { get; set; }
-        [Key(11)]
+        [Key(10)]
         public Position HolsterLeftPos { get; set; }
-        [Key(12)]
+        [Key(11)]
         public Position HolsterRightPos { get; set; }
 
         [SerializationConstructor]
         public LocalWorldData(
             int seed,
             float time,
-            bool isTimeFrozen,
             Position playerPos,
             float playerAngle,
             float playerMaxLife,
@@ -94,7 +88,6 @@ namespace YuchiGames.POM.DataTypes
         {
             Seed = seed;
             Time = time;
-            IsTimeFrozen = isTimeFrozen;
             PlayerPos = playerPos;
             PlayerAngle = playerAngle;
             PlayerMaxLife = playerMaxLife;
@@ -111,7 +104,6 @@ namespace YuchiGames.POM.DataTypes
         {
             Seed = 0;
             Time = 0;
-            IsTimeFrozen = false;
             PlayerPos = new Position(130, 5, 130);
             PlayerAngle = 0;
             PlayerMaxLife = 1000;

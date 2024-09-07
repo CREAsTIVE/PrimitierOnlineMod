@@ -50,13 +50,16 @@ namespace YuchiGames.POM.DataTypes
         public int MaxPlayers { get; }
         [Key(2)]
         public LocalWorldData WorldData { get; }
+        [Key(3)]
+        public bool IsDayNightCycle { get; }
 
         [SerializationConstructor]
-        public ServerInfoMessage(int toID, int maxPlayers, LocalWorldData worldData)
+        public ServerInfoMessage(int toID, int maxPlayers, LocalWorldData worldData, bool isDayNightCycle)
         {
             ToID = toID;
             MaxPlayers = maxPlayers;
             WorldData = worldData;
+            IsDayNightCycle = isDayNightCycle;
         }
     }
 }
