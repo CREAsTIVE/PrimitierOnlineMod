@@ -7,21 +7,16 @@
 </p>
 
 <div align="center">
-<!--   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a> -->
-
   <h3 align="center">PrimitierOnlineMod</h3>
-
   <p align="center">
     Mod to add a multiplayer mode to Primitier.
-<!--     <br />
+    <br />
     <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/wiki"><strong>View the wiki »</strong></a>
     <br />
     <br />
     <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a> -->
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
