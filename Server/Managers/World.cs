@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.IO.Compression;
-using YuchiGames.POM.DataTypes;
+using Shared.DataObjects;
 
 namespace YuchiGames.POM.Server.Managers
 {
@@ -67,15 +67,15 @@ namespace YuchiGames.POM.Server.Managers
             if (!s_worldData.UserIDs.Contains(userGUID))
             {
                 s_worldData.UserIDs.Add(userGUID);
-                s_worldData.PlayerPositions.Add(new Position(130, 5, 130));
+                s_worldData.PlayerPositions.Add(new SVector3(130, 5, 130));
                 s_worldData.PlayerAngles.Add(0);
                 s_worldData.PlayerLives.Add(s_worldData.PlayerMaxLife);
-                s_worldData.RespawnPositions.Add(new Position(130, 5, 130));
+                s_worldData.RespawnPositions.Add(new SVector3(130, 5, 130));
                 s_worldData.RespawnAngles.Add(0);
-                s_worldData.CameraPositions.Add(new Position(0, 0, 0));
-                s_worldData.CameraRotations.Add(new Rotation(0, 0, 0, 0));
-                s_worldData.HolsterLeftPositions.Add(new Position(-0.2f, 0, 0.12f));
-                s_worldData.HolsterRightPositions.Add(new Position(0.2f, 0, 0.12f));
+                s_worldData.CameraPositions.Add(new SVector3(0, 0, 0));
+                s_worldData.CameraRotations.Add(new SQuaternion(0, 0, 0, 0));
+                s_worldData.HolsterLeftPositions.Add(new SVector3(-0.2f, 0, 0.12f));
+                s_worldData.HolsterRightPositions.Add(new SVector3(0.2f, 0, 0.12f));
             }
             int index = s_worldData.UserIDs.ToList().IndexOf(userGUID);
             LocalWorldData localWorldData = new LocalWorldData(

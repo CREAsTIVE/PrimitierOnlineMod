@@ -3,12 +3,13 @@ using System.Net;
 using MessagePack;
 using LiteNetLib.Utils;
 using System.Net.Sockets;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 using System.Text;
 using YuchiGames.POM.Client.Assets;
 using UnityEngine;
 using Il2CppPinwheel.Jupiter;
 using Il2Cpp;
+using YuchiGames.POM.Shared.DataObjects;
 
 namespace YuchiGames.POM.Client.Managers
 {

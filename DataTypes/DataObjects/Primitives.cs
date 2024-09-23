@@ -1,9 +1,9 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.DataTypes
+namespace YuchiGames.POM.Shared.DataObjects
 {
     [MessagePackObject]
-    public struct Position
+    public struct SVector3
     {
         [Key(0)]
         public float X { get; set; }
@@ -13,7 +13,7 @@ namespace YuchiGames.POM.DataTypes
         public float Z { get; set; }
 
         [SerializationConstructor]
-        public Position(float x, float y, float z)
+        public SVector3(float x, float y, float z)
         {
             X = x;
             Y = y;
@@ -22,7 +22,7 @@ namespace YuchiGames.POM.DataTypes
     }
 
     [MessagePackObject]
-    public struct Position2
+    public struct SVector2
     {
         [Key(0)]
         public float X { get; set; }
@@ -30,7 +30,7 @@ namespace YuchiGames.POM.DataTypes
         public float Y { get; set; }
 
         [SerializationConstructor]
-        public Position2(float x, float y)
+        public SVector2(float x, float y)
         {
             X = x;
             Y = y;
@@ -38,7 +38,7 @@ namespace YuchiGames.POM.DataTypes
     }
 
     [MessagePackObject]
-    public struct Position2Int
+    public struct SVector2Int
     {
         [Key(0)]
         public int X { get; set; }
@@ -46,7 +46,7 @@ namespace YuchiGames.POM.DataTypes
         public int Y { get; set; }
 
         [SerializationConstructor]
-        public Position2Int(int x, int y)
+        public SVector2Int(int x, int y)
         {
             X = x;
             Y = y;
@@ -54,7 +54,7 @@ namespace YuchiGames.POM.DataTypes
     }
 
     [MessagePackObject]
-    public struct Rotation
+    public struct SQuaternion
     {
         [Key(0)]
         public float X { get; set; }
@@ -66,7 +66,7 @@ namespace YuchiGames.POM.DataTypes
         public float W { get; set; }
 
         [SerializationConstructor]
-        public Rotation(float x, float y, float z, float w)
+        public SQuaternion(float x, float y, float z, float w)
         {
             X = x;
             Y = y;
@@ -75,35 +75,18 @@ namespace YuchiGames.POM.DataTypes
         }
     }
 
-    [MessagePackObject]
-    public struct Scale
-    {
-        [Key(0)]
-        public float X { get; set; }
-        [Key(1)]
-        public float Y { get; set; }
-        [Key(2)]
-        public float Z { get; set; }
 
-        [SerializationConstructor]
-        public Scale(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-    }
 
     [MessagePackObject]
-    public struct PosRot
+    public struct STransform
     {
         [Key(0)]
-        public Position Position { get; set; }
+        public SVector3 Position { get; set; }
         [Key(1)]
-        public Rotation Rotation { get; set; }
+        public SQuaternion Rotation { get; set; }
 
         [SerializationConstructor]
-        public PosRot(Position position, Rotation rotation)
+        public STransform(SVector3 position, SQuaternion rotation)
         {
             Position = position;
             Rotation = rotation;

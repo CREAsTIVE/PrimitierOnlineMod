@@ -1,4 +1,4 @@
-﻿namespace YuchiGames.POM.DataTypes
+﻿namespace YuchiGames.POM.Shared
 {
     public class ClientSettings
     {

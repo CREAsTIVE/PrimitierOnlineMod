@@ -1,4 +1,4 @@
-﻿namespace YuchiGames.POM.DataTypes
+﻿namespace YuchiGames.POM.Shared
 {
     public class ServerSettings
     {
@@ -49,7 +49,7 @@
         public string Name { get; init; }
         public Args Args { get; init; }
 
-        public WriteTo(string name, Args args = null)
+        public WriteTo(string name, Args args = null!) // FIXME: make field nullable
         {
             Name = name;
             Args = args;
