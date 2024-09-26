@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.IO.Compression;
-using Shared.DataObjects;
+using YuchiGames.POM.Shared.DataObjects;
 
 namespace YuchiGames.POM.Server.Managers
 {
