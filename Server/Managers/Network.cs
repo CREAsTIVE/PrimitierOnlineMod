@@ -9,39 +9,39 @@ using YuchiGames.POM.Shared;
 
 namespace YuchiGames.POM.Server.Managers
 {
-    public class Network
+    public static class Network
     {
-        private EventBasedNetListener _listener;
-        private NetManager _server;
-        private CancellationTokenSource _cancellationTokenSource;
-        private string[] _userGUIDs;
+        static EventBasedNetListener s_listener;
+        static NetManager s_server;
+        static CancellationTokenSource s_cancellationTokenSource;
+        static string[] s_userGUIDs;
 
         private const int s_serverId = -1;
 
-        public Network()
+        static Network()
         {
-            _listener = new EventBasedNetListener();
-            _server = new NetManager(_listener)
+            s_listener = new EventBasedNetListener();
+            s_server = new NetManager(s_listener)
             {
                 AutoRecycle = true,
                 ChannelsCount = 2
             };
-            _cancellationTokenSource = new CancellationTokenSource();
-            _userGUIDs = new string[Program.Settings.MaxPlayers];
+            s_cancellationTokenSource = new CancellationTokenSource();
+            s_userGUIDs = new string[Program.Settings.MaxPlayers];
 
-            _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
-            _listener.PeerConnectedEvent += PeerConnectedEventHandler;
-            _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
-            _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
-            _listener.NetworkErrorEvent += NetworkErrorEventHandler;
+            s_listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
+            s_listener.PeerConnectedEvent += PeerConnectedEventHandler;
+            s_listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
+            s_listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
+            s_listener.NetworkErrorEvent += NetworkErrorEventHandler;
         }
 
-        private void ConnectionRequestEventHandler(ConnectionRequest request)
+        private static void ConnectionRequestEventHandler(ConnectionRequest request)
         {
             byte[] buffer = new byte[request.Data.AvailableBytes];
             request.Data.GetBytes(buffer, buffer.Length);
             AuthData authData = MessagePackSerializer.Deserialize<AuthData>(buffer);
-            if (_server.ConnectedPeersCount < Program.Settings.MaxPlayers
+            if (s_server.ConnectedPeersCount < Program.Settings.MaxPlayers
                 && authData.Version == Program.Version)
             {
                 Log.Debug($"Accepted connection from {request.RemoteEndPoint}");
@@ -54,54 +54,54 @@ namespace YuchiGames.POM.Server.Managers
             }
         }
 
-        private void PeerConnectedEventHandler(NetPeer peer)
+        private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug($"Connected peer with ID{peer.Id}");
         }
 
-        private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
+        private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug($"Disconnected peer with ID{peer.Id} {disconnectInfo.Reason}");
-            _userGUIDs[peer.Id] = "";
+            s_userGUIDs[peer.Id] = "";
             IMultiMessage leaveMessage = new LeaveMessage(peer.Id);
             Send(leaveMessage);
             Log.Information($"Disconnected from Server: {peer.Id}");
         }
 
-        private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
+        private static void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             byte[] buffer = new byte[reader.AvailableBytes];
             reader.GetBytes(buffer, buffer.Length);
             NetworkReceiveEventProcess(peer, buffer, channel, deliveryMethod);
         }
 
-        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
+        private static void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
             Log.Error($"A network error has occurred {socketError}");
         }
 
-        public void Start(int port)
+        public static void Start(int port)
         {
-            Thread pollEventsThread = new Thread(() => PollEventsThread(_cancellationTokenSource.Token));
+            Thread pollEventsThread = new Thread(() => PollEventsThread(s_cancellationTokenSource.Token));
             pollEventsThread.Start();
-            _server.Start(port);
+            s_server.Start(port);
             Log.Information("Server started.");
         }
 
-        public void Stop()
+        public static void Stop()
         {
-            _cancellationTokenSource.Cancel();
-            _server.Stop();
+            s_cancellationTokenSource.Cancel();
+            s_server.Stop();
             Log.Information("Server stopped.");
         }
 
-        private void PollEventsThread(CancellationToken token)
+        private static void PollEventsThread(CancellationToken token)
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, _server.LocalPort);
+            TcpListener listener = new TcpListener(IPAddress.Any, s_server.LocalPort);
             listener.Start();
             while (!token.IsCancellationRequested)
             {
-                _server.PollEvents();
+                s_server.PollEvents();
                 if (!listener.Pending())
                     continue;
                 TcpClient tcpClient = listener.AcceptTcpClient();
@@ -110,7 +110,7 @@ namespace YuchiGames.POM.Server.Managers
             listener.Stop();
         }
 
-        private void DataRequestHandler(TcpClient client)
+        private static void DataRequestHandler(TcpClient client)
         {
             using (client)
             using (NetworkStream stream = client.GetStream())
@@ -134,15 +134,15 @@ namespace YuchiGames.POM.Server.Managers
                 if (readDataLength != data.Length)
                     throw new Exception("Data length mismatch.");
 
-                int id = Array.IndexOf(_userGUIDs, Encoding.UTF8.GetString(guid));
+                int id = Array.IndexOf(s_userGUIDs, Encoding.UTF8.GetString(guid));
                 if (id == -1)
                     throw new Exception("User not found.");
-                NetPeer peer = _server.GetPeerById(id);
+                NetPeer peer = s_server.GetPeerById(id);
                 NetworkReceiveEventProcess(peer, data, channel[0], DeliveryMethod.ReliableOrdered);
             }
         }
 
-        private void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
+        private static void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
         {
             switch (channel)
             {
@@ -166,7 +166,7 @@ namespace YuchiGames.POM.Server.Managers
                         case RequestServerInfoMessage message:
                             if (message.ToID != s_serverId)
                                 return;
-                            _userGUIDs[peer.Id] = message.UserGUID;
+                            s_userGUIDs[peer.Id] = message.UserGUID;
                             LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
 
                             Send(new ServerInfoMessage(
@@ -185,7 +185,7 @@ namespace YuchiGames.POM.Server.Managers
             }
         }
 
-        public void Send(IMultiMessage message)
+        public static void Send(IMultiMessage message)
         {
             byte[] data = MessagePackSerializer.Serialize(message);
             if (message.IsLarge)
@@ -201,7 +201,7 @@ namespace YuchiGames.POM.Server.Managers
                 offset += channel.Length;
                 Array.Copy(data, 0, buffer, offset, data.Length);
 
-                _server.ConnectedPeerList.ForEach(p =>
+                s_server.ConnectedPeerList.ForEach(p =>
                 {
                     using TcpClient client = new TcpClient();
                     client.Connect(p.Address, p.Port);
@@ -215,15 +215,15 @@ namespace YuchiGames.POM.Server.Managers
             switch (message.Protocol)
             {
                 case ProtocolType.Tcp:
-                    _server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered);
                     break;
                 case ProtocolType.Udp:
-                    _server.SendToAll(data, 0x00, DeliveryMethod.Sequenced);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.Sequenced);
                     break;
             }
         }
 
-        public void Send(IMultiMessage message, NetPeer excludePeer)
+        public static void Send(IMultiMessage message, NetPeer excludePeer)
         {
             byte[] data = MessagePackSerializer.Serialize(message);
             if (message.IsLarge)
@@ -239,7 +239,7 @@ namespace YuchiGames.POM.Server.Managers
                 offset += channel.Length;
                 Array.Copy(data, 0, buffer, offset, data.Length);
 
-                _server.ConnectedPeerList.ForEach(p =>
+                s_server.ConnectedPeerList.ForEach(p =>
                 {
                     if (p != excludePeer)
                     {
@@ -256,15 +256,15 @@ namespace YuchiGames.POM.Server.Managers
             switch (message.Protocol)
             {
                 case ProtocolType.Tcp:
-                    _server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered, excludePeer);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.ReliableOrdered, excludePeer);
                     break;
                 case ProtocolType.Udp:
-                    _server.SendToAll(data, 0x00, DeliveryMethod.Sequenced, excludePeer);
+                    s_server.SendToAll(data, 0x00, DeliveryMethod.Sequenced, excludePeer);
                     break;
             }
         }
 
-        public void Send(IUniMessage message)
+        public static void Send(IUniMessage message)
         {
             byte[] data = MessagePackSerializer.Serialize(message);
             if (message.IsLarge)
@@ -280,7 +280,7 @@ namespace YuchiGames.POM.Server.Managers
                 offset += channel.Length;
                 Array.Copy(data, 0, buffer, offset, data.Length);
 
-                NetPeer peer = _server.GetPeerById(message.ToID);
+                NetPeer peer = s_server.GetPeerById(message.ToID);
                 using TcpClient client = new TcpClient();
                 client.Connect(new IPEndPoint(peer.Address, peer.Port));
                 using (NetworkStream stream = client.GetStream())
@@ -292,10 +292,10 @@ namespace YuchiGames.POM.Server.Managers
             switch (message.Protocol)
             {
                 case ProtocolType.Tcp:
-                    _server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.ReliableOrdered);
+                    s_server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.ReliableOrdered);
                     break;
                 case ProtocolType.Udp:
-                    _server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.Sequenced);
+                    s_server.GetPeerById(message.ToID).Send(data, 0x01, DeliveryMethod.Sequenced);
                     break;
             }
         }
