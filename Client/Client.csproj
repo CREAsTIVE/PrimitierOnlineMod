@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyVersion>0.1.0.0</AssemblyVersion>
+		<AssemblyName>PrimitierOnlineMod</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+  
+	<ItemGroup>
+		<PackageReference Include="LiteNetLib" Version="1.2.0" />
+		<PackageReference Include="MessagePack" Version="2.5.172" />
+		<PackageReference Include="System.Security.Permissions" Version="8.0.0" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\DataTypes\DataObjects\AuthData.cs" Link="DataTypes\AuthData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\WorldData.cs" Link="DataTypes\WorldData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\Primitives.cs" Link="DataTypes\PosRotData.cs" />
+    <Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
+    <Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
+  </ItemGroup>
+
+	<ItemGroup>
+    <Reference Include="$(PRIMITIER_PATH)\MelonLoader\net6\*.dll;$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\*.dll" Exclude="$(PRIMITIER_PATH)\MelonLoader\net6\System.*.dll;$(PRIMITIER_PATH)\MelonLoader\net6\Microsoft.*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(PRIMITIER_PATH)\MelonLoader\Managed\Newtonsoft.json.dll">
+      <Private>false</Private>
+    </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="settings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(PRIMITIER_PATH)\Mods\$(AssemblyName).dll" />
+    <Copy SourceFiles="$(OutDir)$(AssemblyName).pdb" DestinationFiles="$(PRIMITIER_PATH)\Mods\$(AssemblyName).pdb" />
+	</Target>
+
+</Project>
