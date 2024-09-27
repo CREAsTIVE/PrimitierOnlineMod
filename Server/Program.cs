@@ -15,7 +15,7 @@ namespace YuchiGames.POM.Server
 
         private static bool s_isCancelled = false;
 
-        // public static Network Network { get; private set; } = new();
+        public static Network Network { get; private set; } = new();
 
         private static void Main()
         {

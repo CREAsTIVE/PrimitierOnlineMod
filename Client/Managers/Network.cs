@@ -58,7 +58,7 @@ namespace YuchiGames.POM.Client.Managers
         {
             Log.Debug($"Connected peer with ID{peer.RemoteId}");
             ID = peer.RemoteId;
-            IUniMessage message = new RequestServerInfoMessage(
+            IServerDataMessage message = new RequestServerInfoMessage(
                 ID,
                 Program.UserGUID);
             Send(message);
@@ -117,7 +117,7 @@ namespace YuchiGames.POM.Client.Managers
                 Ping = s_client.FirstPeer.Ping;
             if (IsConnected)
             {
-                IMultiMessage message = new PlayerPositionMessage(
+                IGameDataMessage message = new PlayerPositionMessage(
                     ID,
                     Player.GetPlayerPosition());
                 Send(message);
@@ -169,7 +169,7 @@ namespace YuchiGames.POM.Client.Managers
             switch (channel)
             {
                 case 0x00:
-                    switch (MessagePackSerializer.Deserialize<IMultiMessage>(buffer))
+                    switch (MessagePackSerializer.Deserialize<IGameDataMessage>(buffer))
                     {
                         case JoinMessage message:
                             Log.Information($"Joined player with ID{message.JoinID}");
@@ -186,7 +186,7 @@ namespace YuchiGames.POM.Client.Managers
                     }
                     break;
                 case 0x01:
-                    switch (MessagePackSerializer.Deserialize<IUniMessage>(buffer))
+                    switch (MessagePackSerializer.Deserialize<IServerDataMessage>(buffer))
                     {
                         case ServerInfoMessage message:
                             var dayNightCycleButton = UnityUtils.FindGameObjectOfType<DayNightCycleButton>();
@@ -208,82 +208,28 @@ namespace YuchiGames.POM.Client.Managers
             }
         }
 
-        public static void Send(IMultiMessage message)
+        public static void Send(IGameDataMessage message)
         {
             byte[] data = MessagePackSerializer.Serialize(message);
-            if (message.IsLarge)
-            {
-                byte[] length = BitConverter.GetBytes(data.Length);
-                byte[] channel = new byte[1] { 0x00 };
-                byte[] guid = Encoding.UTF8.GetBytes(Program.UserGUID);
-                byte[] buffer = new byte[length.Length + channel.Length + guid.Length + data.Length];
 
-                int offset = 0;
-                Array.Copy(length, 0, buffer, offset, length.Length);
-                offset += length.Length;
-                Array.Copy(channel, 0, buffer, offset, channel.Length);
-                offset += channel.Length;
-                Array.Copy(guid, 0, buffer, offset, guid.Length);
-                offset += guid.Length;
-                Array.Copy(data, 0, buffer, offset, data.Length);
-
-                NetPeer peer = s_client.FirstPeer;
-                using TcpClient client = new TcpClient();
-                client.Connect(new IPEndPoint(peer.Address, peer.Port));
-                using (NetworkStream stream = client.GetStream())
-                {
-                    stream.Write(buffer, 0, buffer.Length);
-                }
-                return;
-            }
-            switch (message.Protocol)
+            s_client.FirstPeer.Send(data, 0x00, message.Protocol switch
             {
-                case ProtocolType.Tcp:
-                    s_client.FirstPeer.Send(data, 0x00, DeliveryMethod.ReliableOrdered);
-                    break;
-                case ProtocolType.Udp:
-                    s_client.FirstPeer.Send(data, 0x00, DeliveryMethod.Sequenced);
-                    break;
-            }
+                ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
+                ProtocolType.Udp => DeliveryMethod.Sequenced,
+                _ => throw new NotSupportedException()
+            });
         }
 
-        public static void Send(IUniMessage message)
+        public static void Send(IServerDataMessage message)
         {
             byte[] data = MessagePackSerializer.Serialize(message);
-            if (message.IsLarge)
-            {
-                byte[] length = BitConverter.GetBytes(data.Length);
-                byte[] channel = new byte[1] { 0x01 };
-                byte[] guid = Encoding.UTF8.GetBytes(Program.UserGUID);
-                byte[] buffer = new byte[length.Length + channel.Length + guid.Length + data.Length];
 
-                int offset = 0;
-                Array.Copy(length, 0, buffer, offset, length.Length);
-                offset += length.Length;
-                Array.Copy(channel, 0, buffer, offset, channel.Length);
-                offset += channel.Length;
-                Array.Copy(guid, 0, buffer, offset, guid.Length);
-                offset += guid.Length;
-                Array.Copy(data, 0, buffer, offset, data.Length);
-
-                NetPeer peer = s_client.FirstPeer;
-                using TcpClient client = new TcpClient();
-                client.Connect(new IPEndPoint(peer.Address, peer.Port));
-                using (NetworkStream stream = client.GetStream())
-                {
-                    stream.Write(buffer, 0, buffer.Length);
-                }
-                return;
-            }
-            switch (message.Protocol)
+            s_client.FirstPeer.Send(data, 0x01, message.Protocol switch
             {
-                case ProtocolType.Tcp:
-                    s_client.FirstPeer.Send(data, 0x01, DeliveryMethod.ReliableOrdered);
-                    break;
-                case ProtocolType.Udp:
-                    s_client.FirstPeer.Send(data, 0x01, DeliveryMethod.Sequenced);
-                    break;
-            }
+                ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
+                ProtocolType.Udp => DeliveryMethod.Sequenced,
+                _ => throw new NotSupportedException()
+            });
         }
     }
 }

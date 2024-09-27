@@ -14,13 +14,8 @@
 		<PackageReference Include="System.Security.Permissions" Version="8.0.0" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\DataTypes\DataObjects\AuthData.cs" Link="DataTypes\AuthData.cs" />
-    <Compile Include="..\DataTypes\DataObjects\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
-    <Compile Include="..\DataTypes\DataObjects\WorldData.cs" Link="DataTypes\WorldData.cs" />
-    <Compile Include="..\DataTypes\DataObjects\Primitives.cs" Link="DataTypes\PosRotData.cs" />
-    <Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
-    <Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
+  <ItemGroup>    
+    <Compile Include="..\DataTypes\**\*.cs" Link="DataTypes" Exclude="..\DataTypes\bin\**\*.cs;..\DataTypes\obj\**\*.cs" />
   </ItemGroup>
 
 	<ItemGroup>
