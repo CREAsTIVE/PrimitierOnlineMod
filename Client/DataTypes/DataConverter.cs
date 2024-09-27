@@ -7,24 +7,24 @@ namespace YuchiGames.POM.Shared
 {
     public static class DataConverter
     {
-        public static Vector3 ToUnity(this SVector3 sPosition)
+        public static Vector3 ToUnity(this SVector3 sVector3)
         {
-            return new Vector3(sPosition.X, sPosition.Y, sPosition.Z);
+            return new Vector3(sVector3.X, sVector3.Y, sVector3.Z);
         }
 
-        public static Vector2 ToUnity(this SVector2 sPosition2)
+        public static Vector2 ToUnity(this SVector2 sVector2)
         {
-            return new Vector2(sPosition2.X, sPosition2.Y);
+            return new Vector2(sVector2.X, sVector2.Y);
         }
 
-        public static Vector2Int ToUnity(this SVector2Int sPosition2)
+        public static Vector2Int ToUnity(this SVector2Int sVector2Int)
         {
-            return new Vector2Int(sPosition2.X, sPosition2.Y);
+            return new Vector2Int(sVector2Int.X, sVector2Int.Y);
         }
 
-        public static Quaternion ToUnity(this SQuaternion sRotation)
+        public static Quaternion ToUnity(this SQuaternion sQuaternion)
         {
-            return new Quaternion(sRotation.X, sRotation.Y, sRotation.Z, sRotation.W);
+            return new Quaternion(sQuaternion.X, sQuaternion.Y, sQuaternion.Z, sQuaternion.W);
         }
 
         public static Transform ToUnity(this STransform sTransform)
@@ -45,9 +45,9 @@ namespace YuchiGames.POM.Shared
             return new SVector2(vector2.x, vector2.y);
         }
 
-        public static SVector2Int ToShared(this Vector2Int vector2)
+        public static SVector2Int ToShared(this Vector2Int vector2Int)
         {
-            return new SVector2Int(vector2.x, vector2.y);
+            return new SVector2Int(vector2Int.x, vector2Int.y);
         }
 
         public static SQuaternion ToShared(this Quaternion quaternion)
