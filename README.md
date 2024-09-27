@@ -14,9 +14,9 @@
     <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/wiki"><strong>View the wiki »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?assignees=YutoMaeda1209&labels=bug&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
     ·
-    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?labels=enhancement&template=feature_request.md">Request Feature</a>
+    <a href="https://github.com/YutoMaeda1209/PrimitierOnlineMod/issues/new?assignees=YutoMaeda1209&labels=enhancement&template=feature_request.md&title=%5BFEAT%5D">Request Feature</a>
   </p>
 </div>
 
