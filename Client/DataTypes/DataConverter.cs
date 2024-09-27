@@ -1,96 +1,67 @@
 ﻿using Il2Cpp;
+using YuchiGames.POM.Shared.DataObjects;
 using UnityEngine;
 using YuchiGames.POM.Client.Assets;
 
-namespace YuchiGames.POM.DataTypes
+namespace YuchiGames.POM.Shared
 {
     public static class DataConverter
     {
-        public static Vector3 ToVector3(Position position)
+        public static Vector3 ToUnity(this SVector3 sPosition)
         {
-            return new Vector3(position.X, position.Y, position.Z);
+            return new Vector3(sPosition.X, sPosition.Y, sPosition.Z);
         }
 
-        public static Vector3 ToVector3(Scale scale)
+        public static Vector2 ToUnity(this SVector2 sPosition2)
         {
-            return new Vector3(scale.X, scale.Y, scale.Z);
+            return new Vector2(sPosition2.X, sPosition2.Y);
         }
 
-        public static Vector3 ToVector3(PosRot posRot)
+        public static Vector2Int ToUnity(this SVector2Int sPosition2)
         {
-            return new Vector3(posRot.Position.X, posRot.Position.Y, posRot.Position.Z);
+            return new Vector2Int(sPosition2.X, sPosition2.Y);
         }
 
-        public static Vector2 ToVector2(Position2 position2)
+        public static Quaternion ToUnity(this SQuaternion sRotation)
         {
-            return new Vector2(position2.X, position2.Y);
+            return new Quaternion(sRotation.X, sRotation.Y, sRotation.Z, sRotation.W);
         }
 
-        public static Vector2Int ToVector2Int(Position2Int position2)
-        {
-            return new Vector2Int(position2.X, position2.Y);
-        }
-
-        public static Quaternion ToQuaternion(Rotation rotation)
-        {
-            return new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
-        }
-
-        public static Quaternion ToQuaternion(PosRot posRot)
-        {
-            return new Quaternion(posRot.Rotation.X, posRot.Rotation.Y, posRot.Rotation.Z, posRot.Rotation.W);
-        }
-
-        public static Transform ToTransform(PosRot posRot)
+        public static Transform ToUnity(this STransform sTransform)
         {
             Transform transform = new Transform();
-            transform.position = ToVector3(posRot);
-            transform.rotation = ToQuaternion(posRot);
+            transform.position = sTransform.Position.ToUnity();
+            transform.rotation = sTransform.Rotation.ToUnity();
             return transform;
         }
 
-        public static Position ToPosition(Vector3 vector3)
+        public static SVector3 ToShared(this Vector3 vector3)
         {
-            return new Position(vector3.x, vector3.y, vector3.z);
+            return new SVector3(vector3.x, vector3.y, vector3.z);
         }
 
-        public static Position ToPosition(Transform transform)
+        public static SVector2 ToShared(this Vector2 vector2)
         {
-            return new Position(transform.position.x, transform.position.y, transform.position.z);
+            return new SVector2(vector2.x, vector2.y);
         }
 
-        public static Position2 ToPosition2(Vector2 vector2)
+        public static SVector2Int ToShared(this Vector2Int vector2)
         {
-            return new Position2(vector2.x, vector2.y);
+            return new SVector2Int(vector2.x, vector2.y);
         }
 
-        public static Position2Int ToPosition2Int(Vector2Int vector2)
+        public static SQuaternion ToShared(this Quaternion quaternion)
         {
-            return new Position2Int(vector2.x, vector2.y);
+            return new SQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         }
 
-        public static Rotation ToRotation(Quaternion quaternion)
+        public static STransform ToShared(this Transform transform)
         {
-            return new Rotation(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+            return new STransform(new SVector3(transform.position.x, transform.position.y, transform.position.z),
+                new SQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
         }
 
-        public static Rotation ToRotation(Transform transform)
-        {
-            return new Rotation(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        }
-
-        public static Scale ToScale(Vector3 vector3)
-        {
-            return new Scale(vector3.x, vector3.y, vector3.z);
-        }
-
-        public static PosRot ToPosRot(Transform transform)
-        {
-            return new PosRot(new Position(transform.position.x, transform.position.y, transform.position.z),
-                new Rotation(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
-        }
-
-        public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(List<T> systemList)
+        public static Il2CppSystem.Collections.Generic.List<T> ToIl2cpp<T>(this List<T> systemList)
         {
             Il2CppSystem.Collections.Generic.List<T> il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
             foreach (T item in systemList)
@@ -100,7 +71,7 @@ namespace YuchiGames.POM.DataTypes
             return il2cppList;
         }
 
-        public static List<T> ToSystemList<T>(Il2CppSystem.Collections.Generic.List<T> il2cppList)
+        public static List<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.List<T> il2cppList)
         {
             List<T> systemList = new List<T>();
             foreach (T item in il2cppList)
@@ -120,35 +91,35 @@ namespace YuchiGames.POM.DataTypes
                 {
                     UVOffset uvOffset = new UVOffset()
                     {
-                        Right = ToPosition2(cubeData.uvOffset.right),
-                        Left = ToPosition2(cubeData.uvOffset.left),
-                        Top = ToPosition2(cubeData.uvOffset.top),
-                        Bottom = ToPosition2(cubeData.uvOffset.bottom),
-                        Front = ToPosition2(cubeData.uvOffset.front),
-                        Back = ToPosition2(cubeData.uvOffset.back)
+                        Right = cubeData.uvOffset.right.ToShared(),
+                        Left = cubeData.uvOffset.left.ToShared(),
+                        Top = cubeData.uvOffset.top.ToShared(),
+                        Bottom = cubeData.uvOffset.bottom.ToShared(),
+                        Front = cubeData.uvOffset.front.ToShared(),
+                        Back = cubeData.uvOffset.back.ToShared()
                     };
                     Cube cube = new Cube(
-                        ToPosition(cubeData.pos),
-                        ToRotation(cubeData.rot),
-                        ToScale(cubeData.scale),
+                        cubeData.pos.ToShared(),
+                        cubeData.rot.ToShared(),
+                        cubeData.scale.ToShared(),
                         cubeData.lifeRatio,
                         (Anchor)cubeData.anchor,
-                        (Substance)cubeData.substance,
-                        (CubeName)cubeData.name,
-                        ToSystemList<int>(cubeData.connections),
+                        (DataObjects.Substance)cubeData.substance,
+                        (DataObjects.CubeName)cubeData.name,
+                        ToSystem<int>(cubeData.connections),
                         cubeData.temperature,
                         cubeData.isBurning,
                         cubeData.burnedRatio,
                         (SectionState)cubeData.sectionState,
                         uvOffset,
-                        ToSystemList<string>(cubeData.behaviors),
-                        ToSystemList<string>(cubeData.states)
+                        cubeData.behaviors.ToSystem(),
+                        cubeData.states.ToSystem()
                         );
                     cubes.Add(cube);
                 }
                 Group group = new Group(
-                    ToPosition(groupData.pos),
-                    ToRotation(groupData.rot),
+                    groupData.pos.ToShared(),
+                    groupData.rot.ToShared(),
                     cubes
                     );
                 groups.Add(group);
@@ -167,38 +138,38 @@ namespace YuchiGames.POM.DataTypes
                 {
                     CubeAppearance.UVOffset uvOffset = new CubeAppearance.UVOffset()
                     {
-                        right = ToVector2(cube.UVOffset.Right),
-                        left = ToVector2(cube.UVOffset.Left),
-                        top = ToVector2(cube.UVOffset.Top),
-                        bottom = ToVector2(cube.UVOffset.Bottom),
-                        front = ToVector2(cube.UVOffset.Front),
-                        back = ToVector2(cube.UVOffset.Back)
+                        right = cube.UVOffset.Right.ToUnity(),
+                        left = cube.UVOffset.Left.ToUnity(),
+                        top = cube.UVOffset.Top.ToUnity(),
+                        bottom = cube.UVOffset.Bottom.ToUnity(),
+                        front = cube.UVOffset.Front.ToUnity(),
+                        back = cube.UVOffset.Back.ToUnity()
                     };
                     SaveAndLoad.CubeData cubeData = new SaveAndLoad.CubeData()
                     {
-                        pos = ToVector3(cube.Position),
-                        rot = ToQuaternion(cube.Rotation),
-                        scale = ToVector3(cube.Scale),
+                        pos = cube.Position.ToUnity(),
+                        rot = cube.Rotation.ToUnity(),
+                        scale = cube.Scale.ToUnity(),
                         lifeRatio = cube.LifeRatio,
                         anchor = (CubeConnector.Anchor)cube.Anchor,
                         substance = (Il2Cpp.Substance)cube.Substance,
                         name = (Il2Cpp.CubeName)cube.Name,
-                        connections = ToIl2CppList<int>(cube.Connections),
+                        connections = cube.Connections.ToIl2cpp(),
                         temperature = cube.Temperature,
                         isBurning = cube.IsBurning,
                         burnedRatio = cube.BurnedRatio,
                         sectionState = (CubeAppearance.SectionState)cube.SectionState,
                         uvOffset = uvOffset,
-                        behaviors = ToIl2CppList<string>(cube.Behaviors),
-                        states = ToIl2CppList<string>(cube.States)
+                        behaviors = cube.Behaviors.ToIl2cpp(),
+                        states = cube.States.ToIl2cpp()
                     };
                     cubeDataList.Add(cubeData);
                 }
                 SaveAndLoad.GroupData groupData = new SaveAndLoad.GroupData()
                 {
-                    pos = ToVector3(group.Position),
-                    rot = ToQuaternion(group.Rotation),
-                    cubes = ToIl2CppList(cubeDataList)
+                    pos = group.Position.ToUnity(),
+                    rot = group.Rotation.ToUnity(),
+                    cubes = cubeDataList.ToIl2cpp()
                 };
                 groupDataList.Add(groupData);
             }
@@ -206,7 +177,7 @@ namespace YuchiGames.POM.DataTypes
             {
                 x = chunk.X,
                 z = chunk.Z,
-                groups = ToIl2CppList(groupDataList)
+                groups = groupDataList.ToIl2cpp()
             };
             return chunkData;
         }
@@ -218,35 +189,35 @@ namespace YuchiGames.POM.DataTypes
             {
                 UVOffset uvOffset = new UVOffset()
                 {
-                    Right = ToPosition2(cubeData.uvOffset.right),
-                    Left = ToPosition2(cubeData.uvOffset.left),
-                    Top = ToPosition2(cubeData.uvOffset.top),
-                    Bottom = ToPosition2(cubeData.uvOffset.bottom),
-                    Front = ToPosition2(cubeData.uvOffset.front),
-                    Back = ToPosition2(cubeData.uvOffset.back)
+                    Right = cubeData.uvOffset.right.ToShared(),
+                    Left = cubeData.uvOffset.left.ToShared(),
+                    Top = cubeData.uvOffset.top.ToShared(),
+                    Bottom = cubeData.uvOffset.bottom.ToShared(),
+                    Front = cubeData.uvOffset.front.ToShared(),
+                    Back = cubeData.uvOffset.back.ToShared()
                 };
                 Cube cube = new Cube(
-                    ToPosition(cubeData.pos),
-                    ToRotation(cubeData.rot),
-                    ToScale(cubeData.scale),
+                    cubeData.pos.ToShared(),
+                    cubeData.rot.ToShared(),
+                    cubeData.scale.ToShared(),
                     cubeData.lifeRatio,
                     (Anchor)cubeData.anchor,
-                    (Substance)cubeData.substance,
-                    (CubeName)cubeData.name,
-                    ToSystemList<int>(cubeData.connections),
+                    (DataObjects.Substance)cubeData.substance,
+                    (DataObjects.CubeName)cubeData.name,
+                    cubeData.connections.ToSystem(),
                     cubeData.temperature,
                     cubeData.isBurning,
                     cubeData.burnedRatio,
                     (SectionState)cubeData.sectionState,
                     uvOffset,
-                    ToSystemList<string>(cubeData.behaviors),
-                    ToSystemList<string>(cubeData.states)
+                    cubeData.behaviors.ToSystem(),
+                    cubeData.states.ToSystem()
                     );
                 cubes.Add(cube);
             }
             Group group = new Group(
-                ToPosition(groupData.pos),
-                ToRotation(groupData.rot),
+                groupData.pos.ToShared(),
+                groupData.rot.ToShared(),
                 cubes
                 );
             return group;

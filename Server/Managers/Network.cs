@@ -1,19 +1,20 @@
 ﻿using LiteNetLib;
 using MessagePack;
 using Serilog;
+using YuchiGames.POM.Shared.DataObjects;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 
 namespace YuchiGames.POM.Server.Managers
 {
     public static class Network
     {
-        private static EventBasedNetListener s_listener;
-        private static NetManager s_server;
-        private static CancellationTokenSource s_cancelTokenSource;
-        private static string[] s_userGUIDs;
+        static EventBasedNetListener s_listener;
+        static NetManager s_server;
+        static CancellationTokenSource s_cancellationTokenSource;
+        static string[] s_userGUIDs;
 
         private const int s_serverId = -1;
 
@@ -25,7 +26,7 @@ namespace YuchiGames.POM.Server.Managers
                 AutoRecycle = true,
                 ChannelsCount = 2
             };
-            s_cancelTokenSource = new CancellationTokenSource();
+            s_cancellationTokenSource = new CancellationTokenSource();
             s_userGUIDs = new string[Program.Settings.MaxPlayers];
 
             s_listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
@@ -81,7 +82,7 @@ namespace YuchiGames.POM.Server.Managers
 
         public static void Start(int port)
         {
-            Thread pollEventsThread = new Thread(() => PollEventsThread(s_cancelTokenSource.Token));
+            Thread pollEventsThread = new Thread(() => PollEventsThread(s_cancellationTokenSource.Token));
             pollEventsThread.Start();
             s_server.Start(port);
             Log.Information("Server started.");
@@ -89,7 +90,7 @@ namespace YuchiGames.POM.Server.Managers
 
         public static void Stop()
         {
-            s_cancelTokenSource.Cancel();
+            s_cancellationTokenSource.Cancel();
             s_server.Stop();
             Log.Information("Server stopped.");
         }
@@ -167,14 +168,16 @@ namespace YuchiGames.POM.Server.Managers
                                 return;
                             s_userGUIDs[peer.Id] = message.UserGUID;
                             LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
-                            IUniMessage infoMessage = new ServerInfoMessage(
+
+                            Send(new ServerInfoMessage(
                                 peer.Id,
                                 Program.Settings.MaxPlayers,
-                                localWorldData);
-                            Send(infoMessage);
-                            IMultiMessage joinMessage = new JoinMessage(
-                                peer.Id);
-                            Send(joinMessage, peer);
+                                localWorldData,
+                                Program.Settings.DayNightCycle
+                            ));
+
+                            Send(new JoinMessage(peer.Id), peer);
+
                             Log.Information($"Connected to Client with ID{peer.Id}");
                             break;
                     }

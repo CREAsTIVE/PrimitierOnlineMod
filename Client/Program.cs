@@ -4,72 +4,38 @@ using System.Text;
 using Microsoft.Win32;
 using System.Text.Json;
 using System.Reflection;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 using System.Runtime.Versioning;
 using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Managers;
-using Microsoft.Extensions.Configuration;
 
 namespace YuchiGames.POM.Client
 {
     public class Program : MelonMod
     {
-        private static ClientSettings s_settings;
-        public static ClientSettings Settings
-        {
-            get => s_settings;
-        }
-        private static string s_version;
-        public static string Version
-        {
-            get => s_version;
-        }
-        private static string s_userGUID;
-        public static string UserGUID
-        {
-            get => s_userGUID;
-        }
+        public static ClientSettings Settings { get; private set; } = new();
+        public static string Version { get; private set; } = "";
+        public static string UserGUID { get; private set; } = "";
 
-        static Program()
-        {
-            s_settings = new ClientSettings();
-            s_version = "";
-            s_userGUID = "";
-        }
 
         [SupportedOSPlatform("windows")]
         public override void OnInitializeMelon()
         {
-            string path = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
-            if (!File.Exists(path))
-            {
-                using (FileStream stream = File.Create(path))
-                {
-                    JsonSerializerOptions jsonOptions = new JsonSerializerOptions
-                    {
-                        WriteIndented = true
-                    };
-                    string json = JsonSerializer.Serialize(
-                        s_settings,
-                        jsonOptions);
-                    stream.Write(Encoding.UTF8.GetBytes(json));
-                }
-            }
-            IConfigurationRoot config = new ConfigurationBuilder()
-                .AddJsonFile(path)
-                .Build();
-            s_settings = config.Get<ClientSettings>()
-                ?? throw new Exception("Settings not found.");
+            string settingsPath = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
 
-            s_version = (Assembly.GetExecutingAssembly().GetName().Version
-                ?? throw new Exception("Version not found."))
-                .ToString();
+            Settings = ClientSettings.LoadFromFileOrCreateDefault(settingsPath);
 
-            using RegistryKey? key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\SQMClient")
+            Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+                ?? throw new Exception("Version not found.");
+
+            using RegistryKey? key = 
+                Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\SQMClient")
                 ?? throw new Exception("SQMClient not found");
-            string? machineID = (key.GetValue("MachineId")?.ToString())
+
+            string machineID = key.GetValue("MachineId")?.ToString()
                 ?? throw new Exception("MachineId not found");
-            s_userGUID = machineID.Trim('{', '}');
+
+            UserGUID = machineID.Trim('{', '}');
 
             MelonEvents.OnSceneWasInitialized.Subscribe(PingUI.OnSceneWasInitialized);
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
@@ -80,14 +46,10 @@ namespace YuchiGames.POM.Client
         public override void OnUpdate()
         {
             if (Input.GetKeyDown(KeyCode.F1))
-            {
                 InfoGUI.IsShow = !InfoGUI.IsShow;
-            }
         }
 
-        public override void OnApplicationQuit()
-        {
+        public override void OnApplicationQuit() =>
             Network.Disconnect();
-        }
     }
 }

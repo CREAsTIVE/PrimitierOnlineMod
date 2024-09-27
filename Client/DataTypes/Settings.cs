@@ -1,18 +1,26 @@
-﻿namespace YuchiGames.POM.DataTypes
+﻿using Newtonsoft.Json;
+
+namespace YuchiGames.POM.Shared
 {
     public class ClientSettings
     {
-        public string IP { get; init; }
-        public int Port { get; init; }
-        public string UserName { get; init; }
-        public string MinimumLogLevel { get; init; }
+        //FIXME: private set maybe?
+        public string IP { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 54162;
+        public string UserName { get; set; } = "AnonymousUser";
+        public string MinimumLogLevel { get; set; } = "Information";
 
-        public ClientSettings()
+        public static ClientSettings LoadFromFileOrCreateDefault(string filePath)
         {
-            IP = "127.0.0.1";
-            Port = 54162;
-            UserName = "AnonymousUser";
-            MinimumLogLevel = "Information";
+            if (!File.Exists(filePath))
+            {
+                var defaultSettings = new ClientSettings();
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(defaultSettings, Formatting.Indented));
+                return defaultSettings;
+            }
+
+            return JsonConvert.DeserializeObject<ClientSettings>(File.ReadAllText(filePath)) 
+                ?? throw new ArgumentException("Wrong configuration file format");
         }
     }
 }

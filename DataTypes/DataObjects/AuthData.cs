@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.DataTypes
+namespace YuchiGames.POM.Shared.DataObjects
 {
     [MessagePackObject]
     public class AuthData

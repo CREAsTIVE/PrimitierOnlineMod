@@ -1,6 +1,7 @@
 ﻿using Il2Cpp;
+using YuchiGames.POM.Shared.DataObjects;
 using UnityEngine;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -61,9 +62,9 @@ namespace YuchiGames.POM.Client.Managers
         public static PlayerPositionData GetPlayerPosition()
         {
             PlayerPositionData posData = new PlayerPositionData(
-                DataConverter.ToPosRot(s_playerObjectTransforms[Network.ID, 0]),
-                DataConverter.ToPosRot(s_playerObjectTransforms[Network.ID, 1]),
-                DataConverter.ToPosRot(s_playerObjectTransforms[Network.ID, 2]));
+                DataConverter.ToShared(s_playerObjectTransforms[Network.ID, 0]),
+                DataConverter.ToShared(s_playerObjectTransforms[Network.ID, 1]),
+                DataConverter.ToShared(s_playerObjectTransforms[Network.ID, 2]));
             return posData;
         }
 
@@ -71,12 +72,12 @@ namespace YuchiGames.POM.Client.Managers
         {
             if (s_playerObjects[id] == null)
                 return;
-            s_playerObjectTransforms[id, 0].position = DataConverter.ToVector3(posData.Head.Position);
-            s_playerObjectTransforms[id, 0].rotation = DataConverter.ToQuaternion(posData.Head.Rotation);
-            s_playerObjectTransforms[id, 1].position = DataConverter.ToVector3(posData.LeftHand.Position);
-            s_playerObjectTransforms[id, 1].rotation = DataConverter.ToQuaternion(posData.LeftHand.Rotation);
-            s_playerObjectTransforms[id, 2].position = DataConverter.ToVector3(posData.RightHand.Position);
-            s_playerObjectTransforms[id, 2].rotation = DataConverter.ToQuaternion(posData.RightHand.Rotation);
+            s_playerObjectTransforms[id, 0].position = DataConverter.ToUnity(posData.Head.Position);
+            s_playerObjectTransforms[id, 0].rotation = DataConverter.ToUnity(posData.Head.Rotation);
+            s_playerObjectTransforms[id, 1].position = DataConverter.ToUnity(posData.LeftHand.Position);
+            s_playerObjectTransforms[id, 1].rotation = DataConverter.ToUnity(posData.LeftHand.Rotation);
+            s_playerObjectTransforms[id, 2].position = DataConverter.ToUnity(posData.RightHand.Position);
+            s_playerObjectTransforms[id, 2].rotation = DataConverter.ToUnity(posData.RightHand.Rotation);
         }
     }
 }

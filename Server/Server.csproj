@@ -11,15 +11,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\DataTypes\AuthData.cs" Link="DataTypes\AuthData.cs" />
-		<Compile Include="..\DataTypes\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
-		<Compile Include="..\DataTypes\WorldData.cs" Link="DataTypes\WorldData.cs" />
-		<Compile Include="..\DataTypes\PosRotData.cs" Link="DataTypes\PosRotData.cs" />
-		<Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
-		<Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="LiteNetLib" Version="1.2.0" />
 		<PackageReference Include="MessagePack" Version="2.5.172" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
@@ -29,6 +20,10 @@
 		<PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DataTypes\Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

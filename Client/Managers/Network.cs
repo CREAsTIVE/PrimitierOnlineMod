@@ -3,41 +3,25 @@ using System.Net;
 using MessagePack;
 using LiteNetLib.Utils;
 using System.Net.Sockets;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 using System.Text;
 using YuchiGames.POM.Client.Assets;
 using UnityEngine;
 using Il2CppPinwheel.Jupiter;
 using Il2Cpp;
+using YuchiGames.POM.Shared.DataObjects;
+using Il2CppMToon;
+using Client;
 
 namespace YuchiGames.POM.Client.Managers
 {
     public static class Network
     {
-        private static int s_id;
-        public static int ID
-        {
-            get => s_id;
-        }
-        private static int s_ping;
-        public static int Ping
-        {
-            get => s_ping;
-        }
-        public static bool IsRunning
-        {
-            get => s_client.IsRunning;
-        }
-        private static bool s_isConnected;
-        public static bool IsConnected
-        {
-            get => s_isConnected;
-        }
-        private static ServerInfoMessage s_serverInfo;
-        public static ServerInfoMessage ServerInfo
-        {
-            get => s_serverInfo;
-        }
+        public static int ID { get; private set; }
+        public static int Ping { get; private set; }
+        public static bool IsRunning { get; private set; }
+        public static bool IsConnected { get; private set; }
+        public static ServerInfoMessage ServerInfo { get; private set; }
 
         private static EventBasedNetListener s_listener;
         private static NetManager s_client;
@@ -47,11 +31,11 @@ namespace YuchiGames.POM.Client.Managers
 
         static Network()
         {
-            s_id = -1;
-            s_ping = -1;
-            s_isConnected = false;
-            s_serverInfo = new ServerInfoMessage(
-                s_id,
+            ID = -1;
+            Ping = -1;
+            IsConnected = false;
+            ServerInfo = new ServerInfoMessage(
+                ID,
                 0,
                 new LocalWorldData(),
                 true);
@@ -73,9 +57,9 @@ namespace YuchiGames.POM.Client.Managers
         private static void PeerConnectedEventHandler(NetPeer peer)
         {
             Log.Debug($"Connected peer with ID{peer.RemoteId}");
-            s_id = peer.RemoteId;
+            ID = peer.RemoteId;
             IUniMessage message = new RequestServerInfoMessage(
-                s_id,
+                ID,
                 Program.UserGUID);
             Send(message);
         }
@@ -83,9 +67,9 @@ namespace YuchiGames.POM.Client.Managers
         private static void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Log.Debug($"Disconnected peer {disconnectInfo.Reason}");
-            s_isConnected = false;
-            s_id = -1;
-            s_ping = -1;
+            IsConnected = false;
+            ID = -1;
+            Ping = -1;
             s_cancelTokenSource.Cancel();
             if (GameObject.Find("/TitleSpace/TitleMenu/MainCanvas/StartButton") is not null)
                 Assets.StartButton.IsInteractable = true;
@@ -130,11 +114,11 @@ namespace YuchiGames.POM.Client.Managers
         {
             s_client.PollEvents();
             if (s_client.FirstPeer != null)
-                s_ping = s_client.FirstPeer.Ping;
-            if (s_isConnected)
+                Ping = s_client.FirstPeer.Ping;
+            if (IsConnected)
             {
                 IMultiMessage message = new PlayerPositionMessage(
-                    s_id,
+                    ID,
                     Player.GetPlayerPosition());
                 Send(message);
             }
@@ -196,7 +180,7 @@ namespace YuchiGames.POM.Client.Managers
                             Player.DespawnPlayer(message.LeaveID);
                             break;
                         case PlayerPositionMessage message:
-                            if (s_isConnected)
+                            if (IsConnected)
                                 Player.SetPlayerPosition(message.FromID, message.PlayerPos);
                             break;
                     }
@@ -205,16 +189,16 @@ namespace YuchiGames.POM.Client.Managers
                     switch (MessagePackSerializer.Deserialize<IUniMessage>(buffer))
                     {
                         case ServerInfoMessage message:
-                            DayNightCycleButton dayNightCycleButton = GameObject.FindObjectOfType<DayNightCycleButton>();
+                            var dayNightCycleButton = UnityUtils.FindGameObjectOfType<DayNightCycleButton>();
                             dayNightCycleButton.SwitchState(message.IsDayNightCycle);
-                            s_serverInfo = message;
+                            ServerInfo = message;
                             World.LoadWorldData(message.WorldData);
-                            s_isConnected = true;
-                            Log.Information($"Connected to Server with ID{s_id}");
+                            IsConnected = true;
+                            Log.Information($"Connected to Server with ID: {ID}");
                             Assets.StartButton.JoinGame();
                             foreach (NetPeer i in s_client.ConnectedPeerList)
                             {
-                                if (i.Id == s_id)
+                                if (i.Id == ID)
                                     continue;
                                 Player.SpawnPlayer(i.Id);
                             }

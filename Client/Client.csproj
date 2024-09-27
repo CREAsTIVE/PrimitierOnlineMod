@@ -1,79 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>0.1.0.0</AssemblyVersion>
 		<AssemblyName>PrimitierOnlineMod</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Compile Include="..\DataTypes\AuthData.cs" Link="DataTypes\AuthData.cs" />
-		<Compile Include="..\DataTypes\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
-		<Compile Include="..\DataTypes\WorldData.cs" Link="DataTypes\WorldData.cs" />
-		<Compile Include="..\DataTypes\PosRotData.cs" Link="DataTypes\PosRotData.cs" />
-		<Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
-		<Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
-	</ItemGroup>
-
+  
 	<ItemGroup>
 		<PackageReference Include="LiteNetLib" Version="1.2.0" />
 		<PackageReference Include="MessagePack" Version="2.5.172" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+		<PackageReference Include="System.Security.Permissions" Version="8.0.0" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\DataTypes\DataObjects\AuthData.cs" Link="DataTypes\AuthData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\AvatarData.cs" Link="DataTypes\AvatarData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\WorldData.cs" Link="DataTypes\WorldData.cs" />
+    <Compile Include="..\DataTypes\DataObjects\Primitives.cs" Link="DataTypes\PosRotData.cs" />
+    <Compile Include="..\DataTypes\UniCastMessages.cs" Link="DataTypes\UniCastMessages.cs" />
+    <Compile Include="..\DataTypes\MultiCastMessages.cs" Link="DataTypes\MultiCastMessages.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
-		<Reference Include="MelonLoader">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\MelonLoader.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="0Harmony">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\0Harmony.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Assembly-CSharp">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Il2Cppmscorlib">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Il2CppInterop.Runtime">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.TextMeshPro">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\Unity.TextMeshPro.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.PhysicsModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.UI">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.IMGUIModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
+    <Reference Include="$(PRIMITIER_PATH)\MelonLoader\net6\*.dll;$(PRIMITIER_PATH)\MelonLoader\Il2CppAssemblies\*.dll" Exclude="$(PRIMITIER_PATH)\MelonLoader\net6\System.*.dll;$(PRIMITIER_PATH)\MelonLoader\net6\Microsoft.*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(PRIMITIER_PATH)\MelonLoader\Managed\Newtonsoft.json.dll">
+      <Private>false</Private>
+    </Reference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,7 +39,8 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="move $(OutDir)$(AssemblyName).dll $(PRIMITIER_PATH)\Mods\" />
+    <Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(PRIMITIER_PATH)\Mods\$(AssemblyName).dll" />
+    <Copy SourceFiles="$(OutDir)$(AssemblyName).pdb" DestinationFiles="$(PRIMITIER_PATH)\Mods\$(AssemblyName).pdb" />
 	</Target>
 
 </Project>

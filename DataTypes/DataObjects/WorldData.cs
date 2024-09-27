@@ -1,24 +1,24 @@
 ﻿using MessagePack;
 
-namespace YuchiGames.POM.DataTypes
+namespace YuchiGames.POM.Shared.DataObjects
 {
     public class GlobalWorldData
     {
         public int Seed { get; init; }
         public float Time { get; set; }
         public HashSet<string> UserIDs { get; init; }
-        public List<Position> PlayerPositions { get; init; }
+        public List<SVector3> PlayerPositions { get; init; }
         public List<float> PlayerAngles { get; init; }
         public float PlayerMaxLife { get; init; }
         public List<float> PlayerLives { get; init; }
-        public List<Position> RespawnPositions { get; init; }
+        public List<SVector3> RespawnPositions { get; init; }
         public List<float> RespawnAngles { get; init; }
-        public List<Position> CameraPositions { get; init; }
-        public List<Rotation> CameraRotations { get; init; }
-        public List<Position> HolsterLeftPositions { get; init; }
-        public List<Position> HolsterRightPositions { get; init; }
+        public List<SVector3> CameraPositions { get; init; }
+        public List<SQuaternion> CameraRotations { get; init; }
+        public List<SVector3> HolsterLeftPositions { get; init; }
+        public List<SVector3> HolsterRightPositions { get; init; }
         public List<Chunk> Chunks { get; init; }
-        public HashSet<Position2> GeneratedChunks { get; init; }
+        public HashSet<SVector2> GeneratedChunks { get; init; }
 
         public GlobalWorldData(
             int seed,
@@ -28,18 +28,18 @@ namespace YuchiGames.POM.DataTypes
             Seed = seed;
             Time = time;
             UserIDs = new HashSet<string>();
-            PlayerPositions = new List<Position>();
+            PlayerPositions = new List<SVector3>();
             PlayerAngles = new List<float>();
             PlayerMaxLife = playerMaxLife;
             PlayerLives = new List<float>();
-            RespawnPositions = new List<Position>();
+            RespawnPositions = new List<SVector3>();
             RespawnAngles = new List<float>();
-            CameraPositions = new List<Position>();
-            CameraRotations = new List<Rotation>();
-            HolsterLeftPositions = new List<Position>();
-            HolsterRightPositions = new List<Position>();
+            CameraPositions = new List<SVector3>();
+            CameraRotations = new List<SQuaternion>();
+            HolsterLeftPositions = new List<SVector3>();
+            HolsterRightPositions = new List<SVector3>();
             Chunks = new List<Chunk>();
-            GeneratedChunks = new HashSet<Position2>();
+            GeneratedChunks = new HashSet<SVector2>();
         }
     }
 
@@ -51,7 +51,7 @@ namespace YuchiGames.POM.DataTypes
         [Key(1)]
         public float Time { get; set; }
         [Key(2)]
-        public Position PlayerPos { get; set; }
+        public SVector3 PlayerPos { get; set; }
         [Key(3)]
         public float PlayerAngle { get; set; }
         [Key(4)]
@@ -59,32 +59,32 @@ namespace YuchiGames.POM.DataTypes
         [Key(5)]
         public float PlayerLife { get; set; }
         [Key(6)]
-        public Position RespawnPos { get; set; }
+        public SVector3 RespawnPos { get; set; }
         [Key(7)]
         public float RespawnAngle { get; set; }
         [Key(8)]
-        public Position CameraPos { get; set; }
+        public SVector3 CameraPos { get; set; }
         [Key(9)]
-        public Rotation CameraRot { get; set; }
+        public SQuaternion CameraRot { get; set; }
         [Key(10)]
-        public Position HolsterLeftPos { get; set; }
+        public SVector3 HolsterLeftPos { get; set; }
         [Key(11)]
-        public Position HolsterRightPos { get; set; }
+        public SVector3 HolsterRightPos { get; set; }
 
         [SerializationConstructor]
         public LocalWorldData(
             int seed,
             float time,
-            Position playerPos,
+            SVector3 playerPos,
             float playerAngle,
             float playerMaxLife,
             float playerLife,
-            Position respawnPos,
+            SVector3 respawnPos,
             float respawnAngle,
-            Position cameraPos,
-            Rotation cameraRot,
-            Position holsterLeftPos,
-            Position holsterRightPos)
+            SVector3 cameraPos,
+            SQuaternion cameraRot,
+            SVector3 holsterLeftPos,
+            SVector3 holsterRightPos)
         {
             Seed = seed;
             Time = time;
@@ -104,16 +104,16 @@ namespace YuchiGames.POM.DataTypes
         {
             Seed = 0;
             Time = 0;
-            PlayerPos = new Position(130, 5, 130);
+            PlayerPos = new SVector3(130, 5, 130);
             PlayerAngle = 0;
             PlayerMaxLife = 1000;
             PlayerLife = 1000;
-            RespawnPos = new Position(130, 5, 130);
+            RespawnPos = new SVector3(130, 5, 130);
             RespawnAngle = 0;
-            CameraPos = new Position(0, 0, 0);
-            CameraRot = new Rotation(0, 0, 0, 0);
-            HolsterLeftPos = new Position(-0.2f, 0, 0.12f);
-            HolsterRightPos = new Position(0.2f, 0, 0.12f);
+            CameraPos = new SVector3(0, 0, 0);
+            CameraRot = new SQuaternion(0, 0, 0, 0);
+            HolsterLeftPos = new SVector3(-0.2f, 0, 0.12f);
+            HolsterRightPos = new SVector3(0.2f, 0, 0.12f);
         }
     }
 
@@ -140,14 +140,14 @@ namespace YuchiGames.POM.DataTypes
     public class Group
     {
         [Key(0)]
-        public Position Position { get; set; }
+        public SVector3 Position { get; set; }
         [Key(1)]
-        public Rotation Rotation { get; set; }
+        public SQuaternion Rotation { get; set; }
         [Key(2)]
         public List<Cube> Cubes { get; init; }
 
         [SerializationConstructor]
-        public Group(Position position, Rotation rotation, List<Cube> cubes)
+        public Group(SVector3 position, SQuaternion rotation, List<Cube> cubes)
         {
             Position = position;
             Rotation = rotation;
@@ -159,11 +159,11 @@ namespace YuchiGames.POM.DataTypes
     public class Cube
     {
         [Key(0)]
-        public Position Position { get; set; }
+        public SVector3 Position { get; set; }
         [Key(1)]
-        public Rotation Rotation { get; set; }
+        public SQuaternion Rotation { get; set; }
         [Key(2)]
-        public Scale Scale { get; set; }
+        public SVector3 Scale { get; set; }
         [Key(3)]
         public float LifeRatio { get; set; }
         [Key(4)]
@@ -191,9 +191,9 @@ namespace YuchiGames.POM.DataTypes
 
         [SerializationConstructor]
         public Cube(
-            Position position,
-            Rotation rotation,
-            Scale scale,
+            SVector3 position,
+            SQuaternion rotation,
+            SVector3 scale,
             float lifeRatio,
             Anchor anchor,
             Substance substance,
@@ -327,16 +327,16 @@ namespace YuchiGames.POM.DataTypes
     public class UVOffset
     {
         [Key(0)]
-        public Position2 Right { get; set; }
+        public SVector2 Right { get; set; }
         [Key(1)]
-        public Position2 Left { get; set; }
+        public SVector2 Left { get; set; }
         [Key(2)]
-        public Position2 Top { get; set; }
+        public SVector2 Top { get; set; }
         [Key(3)]
-        public Position2 Bottom { get; set; }
+        public SVector2 Bottom { get; set; }
         [Key(4)]
-        public Position2 Front { get; set; }
+        public SVector2 Front { get; set; }
         [Key(5)]
-        public Position2 Back { get; set; }
+        public SVector2 Back { get; set; }
     }
 }

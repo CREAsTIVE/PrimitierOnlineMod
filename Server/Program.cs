@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Reflection;
-using YuchiGames.POM.DataTypes;
+using YuchiGames.POM.Shared;
 using YuchiGames.POM.Server.Managers;
 using Microsoft.Extensions.Configuration;
 
@@ -10,24 +10,12 @@ namespace YuchiGames.POM.Server
 {
     static class Program
     {
-        private static ServerSettings s_settings;
-        public static ServerSettings Settings
-        {
-            get => s_settings;
-        }
-        private static string s_version;
-        public static string Version
-        {
-            get => s_version;
-        }
+        public static ServerSettings Settings { get; private set; } = new();
+        public static string Version { get; private set; } = "";
 
-        private static bool s_isCancelled;
+        private static bool s_isCancelled = false;
 
-        static Program()
-        {
-            s_settings = new ServerSettings();
-            s_version = "";
-        }
+        // public static Network Network { get; private set; } = new();
 
         private static void Main()
         {
@@ -58,7 +46,7 @@ namespace YuchiGames.POM.Server
                         WriteIndented = true
                     };
                     string json = JsonSerializer.Serialize(
-                        s_settings,
+                        Settings,
                         options);
                     stream.Write(Encoding.UTF8.GetBytes(json));
                 }
@@ -66,19 +54,19 @@ namespace YuchiGames.POM.Server
             IConfigurationRoot config = new ConfigurationBuilder()
                 .AddJsonFile(path)
                 .Build();
-            s_settings = config.Get<ServerSettings>()
+            Settings = config.Get<ServerSettings>()
                 ?? throw new Exception("Settings not found.");
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
 
-            s_version = (Assembly.GetExecutingAssembly().GetName().Version
+            Version = (Assembly.GetExecutingAssembly().GetName().Version
                 ?? throw new Exception("Version not found."))
                 .ToString();
 
             s_isCancelled = false;
 
-            Network.Start(s_settings.Port);
+            Network.Start(Settings.Port);
         }
     }
 }

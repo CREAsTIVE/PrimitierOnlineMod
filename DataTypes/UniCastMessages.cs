@@ -1,7 +1,8 @@
 ﻿using MessagePack;
+using YuchiGames.POM.Shared.DataObjects;
 using System.Net.Sockets;
 
-namespace YuchiGames.POM.DataTypes
+namespace YuchiGames.POM.Shared
 {
     [Union(0, typeof(RequestServerInfoMessage))]
     [Union(1, typeof(ServerInfoMessage))]
