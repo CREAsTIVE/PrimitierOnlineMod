@@ -7,41 +7,31 @@ namespace YuchiGames.POM.Shared
 {
     public static class DataConverter
     {
-        public static Vector3 ToUnity(this SVector3 position)
+        public static Vector3 ToUnity(this SVector3 sPosition)
         {
-            return new Vector3(position.X, position.Y, position.Z);
+            return new Vector3(sPosition.X, sPosition.Y, sPosition.Z);
         }
 
-        /*public static Vector3 ToVector3(STransform posRot)
+        public static Vector2 ToUnity(this SVector2 sPosition2)
         {
-            return new Vector3(posRot.Position.X, posRot.Position.Y, posRot.Position.Z);
-        }*/
-
-        public static Vector2 ToUnity(this SVector2 position2)
-        {
-            return new Vector2(position2.X, position2.Y);
+            return new Vector2(sPosition2.X, sPosition2.Y);
         }
 
-        public static Vector2Int ToUnity(this SVector2Int position2)
+        public static Vector2Int ToUnity(this SVector2Int sPosition2)
         {
-            return new Vector2Int(position2.X, position2.Y);
+            return new Vector2Int(sPosition2.X, sPosition2.Y);
         }
 
-        public static Quaternion ToUnity(this SQuaternion rotation)
+        public static Quaternion ToUnity(this SQuaternion sRotation)
         {
-            return new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
+            return new Quaternion(sRotation.X, sRotation.Y, sRotation.Z, sRotation.W);
         }
 
-        /*public static Quaternion ToQuaternion(STransform posRot)
-        {
-            return new Quaternion(posRot.Rotation.X, posRot.Rotation.Y, posRot.Rotation.Z, posRot.Rotation.W);
-        }*/
-
-        public static Transform ToUnity(this STransform posRot)
+        public static Transform ToUnity(this STransform sTransform)
         {
             Transform transform = new Transform();
-            transform.position = posRot.Position.ToUnity();
-            transform.rotation = posRot.Rotation.ToUnity();
+            transform.position = sTransform.Position.ToUnity();
+            transform.rotation = sTransform.Rotation.ToUnity();
             return transform;
         }
 
@@ -49,11 +39,6 @@ namespace YuchiGames.POM.Shared
         {
             return new SVector3(vector3.x, vector3.y, vector3.z);
         }
-
-        /*public static SVector3 ToSVector3(Transform transform)
-        {
-            return new SVector3(transform.position.x, transform.position.y, transform.position.z);
-        }*/
 
         public static SVector2 ToShared(this Vector2 vector2)
         {
@@ -69,11 +54,6 @@ namespace YuchiGames.POM.Shared
         {
             return new SQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         }
-
-        /*public static SVector4 ToSVector4(Transform transform)
-        {
-            return new SVector4(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        }*/
 
         public static STransform ToShared(this Transform transform)
         {

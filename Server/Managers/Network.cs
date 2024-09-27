@@ -173,7 +173,7 @@ namespace YuchiGames.POM.Server.Managers
                                 peer.Id,
                                 Program.Settings.MaxPlayers,
                                 localWorldData,
-                                false
+                                Program.Settings.DayNightCycle
                             ));
 
                             Send(new JoinMessage(peer.Id), peer);
