@@ -14,7 +14,7 @@
 		<PackageReference Include="System.Security.Permissions" Version="8.0.0" />
 	</ItemGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <Compile Include="..\DataTypes\**\*.cs" Link="DataTypes" Exclude="..\DataTypes\bin\**\*.cs;..\DataTypes\obj\**\*.cs" />
   </ItemGroup>
 
