@@ -57,7 +57,7 @@ namespace YuchiGames.POM.Server.Managers
 
         bool ValidateConnection(AuthData authData, [NotNullWhen(false)] out string? errorMessage)
         {
-            if (_authorizedUsers.Count >= MaxPlayersCount)
+            if (_authorizedUsers.Count + _waitingForAuthUsers.Count >= MaxPlayersCount)
             {
                 errorMessage = "Too many connections";
                 return false;
