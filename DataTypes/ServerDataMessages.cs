@@ -6,12 +6,10 @@ namespace YuchiGames.POM.Shared
 {
     [Union(0, typeof(RequestServerInfoMessage))]
     [Union(1, typeof(ServerInfoMessage))]
-    public interface IServerDataMessage
+    public interface IServerDataMessage : IDataMessage
     {
-        public int FromID { get; }
-        public int ToID { get; }
-        public ProtocolType Protocol { get; }
-        // public bool IsLarge { get; }
+        [IgnoreMember]
+        byte IDataMessage.Channel => 0x01;
     }
 
     [MessagePackObject]
@@ -20,18 +18,13 @@ namespace YuchiGames.POM.Shared
         [IgnoreMember]
         public ProtocolType Protocol => ProtocolType.Tcp;
 
-        [IgnoreMember]
-        public int ToID { get; } = -1;
 
         [Key(0)]
-        public int FromID { get; }
-        [Key(1)]
         public string UserGUID { get; }
 
         [SerializationConstructor]
-        public RequestServerInfoMessage(int fromID, string userGUID)
+        public RequestServerInfoMessage(string userGUID)
         {
-            FromID = fromID;
             UserGUID = userGUID;
         }
     }
@@ -42,21 +35,17 @@ namespace YuchiGames.POM.Shared
         [IgnoreMember]
         public ProtocolType Protocol => ProtocolType.Tcp;
 
-        [IgnoreMember]
-        public int FromID { get; } = -1;
+
         [Key(0)]
-        public int ToID { get; }
-        [Key(1)]
         public int MaxPlayers { get; }
-        [Key(2)]
+        [Key(1)]
         public LocalWorldData WorldData { get; }
-        [Key(3)]
+        [Key(2)]
         public bool IsDayNightCycle { get; }
 
         [SerializationConstructor]
-        public ServerInfoMessage(int toID, int maxPlayers, LocalWorldData worldData, bool isDayNightCycle)
+        public ServerInfoMessage(int maxPlayers, LocalWorldData worldData, bool isDayNightCycle)
         {
-            ToID = toID;
             MaxPlayers = maxPlayers;
             WorldData = worldData;
             IsDayNightCycle = isDayNightCycle;

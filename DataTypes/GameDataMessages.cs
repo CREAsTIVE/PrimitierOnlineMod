@@ -7,19 +7,20 @@ namespace YuchiGames.POM.Shared
     [Union(0, typeof(JoinMessage))]
     [Union(1, typeof(LeaveMessage))]
     [Union(2, typeof(PlayerPositionMessage))]
-    public interface IGameDataMessage
+    [Union(3, typeof(PlayerPositionUpdateMessage))]
+    public interface IGameDataMessage : IDataMessage
     {
-        public int FromID { get; }
-        public ProtocolType Protocol { get; }
+        [IgnoreMember]
+        byte IDataMessage.Channel => 0x00;
     }
 
     [MessagePackObject]
     public class JoinMessage : IGameDataMessage
     {
         [IgnoreMember]
-        public int FromID { get; } = -1;
-        [IgnoreMember]
-        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        public ProtocolType Protocol => ProtocolType.Tcp;
+
+
         [Key(0)]
         public int JoinID { get; }
 
@@ -34,9 +35,9 @@ namespace YuchiGames.POM.Shared
     public class LeaveMessage : IGameDataMessage
     {
         [IgnoreMember]
-        public int FromID { get; } = -1;
-        [IgnoreMember]
-        public ProtocolType Protocol { get; } = ProtocolType.Tcp;
+        public ProtocolType Protocol => ProtocolType.Tcp;
+
+
         [Key(0)]
         public int LeaveID { get; }
 
@@ -47,21 +48,41 @@ namespace YuchiGames.POM.Shared
         }
     }
 
+    // Client->Server self pos
     [MessagePackObject]
     public class PlayerPositionMessage : IGameDataMessage
     {
-        [Key(0)]
-        public int FromID { get; }
         [IgnoreMember]
-        public ProtocolType Protocol { get; } = ProtocolType.Udp;
-        [Key(1)]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
         public PlayerPositionData PlayerPos { get; }
 
         [SerializationConstructor]
-        public PlayerPositionMessage(int fromID, PlayerPositionData playerPos)
+        public PlayerPositionMessage(PlayerPositionData playerPos)
         {
-            FromID = fromID;
             PlayerPos = playerPos;
+        }
+    }
+
+    // Server->Client player pos
+    [MessagePackObject]
+    public class PlayerPositionUpdateMessage : IGameDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public PlayerPositionData PlayerPos { get; }
+
+        [Key(1)]
+        public int PlayerID { get; }
+
+        [SerializationConstructor]
+        public PlayerPositionUpdateMessage(PlayerPositionData playerPos, int playerID)
+        {
+            PlayerPos = playerPos;
+            this.PlayerID = playerID;
         }
     }
 }

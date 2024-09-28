@@ -35,7 +35,6 @@ namespace YuchiGames.POM.Client.Managers
             Ping = -1;
             IsConnected = false;
             ServerInfo = new ServerInfoMessage(
-                ID,
                 0,
                 new LocalWorldData(),
                 true);
@@ -59,7 +58,6 @@ namespace YuchiGames.POM.Client.Managers
             Log.Debug($"Connected peer with ID{peer.RemoteId}");
             ID = peer.RemoteId;
             IServerDataMessage message = new RequestServerInfoMessage(
-                ID,
                 Program.UserGUID);
             Send(message);
         }
@@ -117,9 +115,10 @@ namespace YuchiGames.POM.Client.Managers
                 Ping = s_client.FirstPeer.Ping;
             if (IsConnected)
             {
-                IGameDataMessage message = new PlayerPositionMessage(
-                    ID,
-                    Player.GetPlayerPosition());
+                IGameDataMessage message = new PlayerPositionMessage(new PlayerPositionData(
+                    Player.s_clientPlayerTransform[0].ToShared(),
+                    Player.s_clientPlayerTransform[1].ToShared(),
+                    Player.s_clientPlayerTransform[2].ToShared()));
                 Send(message);
             }
         }
@@ -179,9 +178,8 @@ namespace YuchiGames.POM.Client.Managers
                             Log.Information($"Player left with ID{message.LeaveID}");
                             Player.DespawnPlayer(message.LeaveID);
                             break;
-                        case PlayerPositionMessage message:
-                            if (IsConnected)
-                                Player.SetPlayerPosition(message.FromID, message.PlayerPos);
+                        case PlayerPositionUpdateMessage message:
+                            Player.s_activePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
                             break;
                     }
                     break;
@@ -208,23 +206,11 @@ namespace YuchiGames.POM.Client.Managers
             }
         }
 
-        public static void Send(IGameDataMessage message)
+        public static void Send(IDataMessage message)
         {
-            byte[] data = MessagePackSerializer.Serialize(message);
+            byte[] data = IDataMessage.Serialize(message);
 
-            s_client.FirstPeer.Send(data, 0x00, message.Protocol switch
-            {
-                ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
-                ProtocolType.Udp => DeliveryMethod.Sequenced,
-                _ => throw new NotSupportedException()
-            });
-        }
-
-        public static void Send(IServerDataMessage message)
-        {
-            byte[] data = MessagePackSerializer.Serialize(message);
-
-            s_client.FirstPeer.Send(data, 0x01, message.Protocol switch
+            s_client.FirstPeer.Send(data, message.Channel, message.Protocol switch
             {
                 ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
                 ProtocolType.Udp => DeliveryMethod.Sequenced,

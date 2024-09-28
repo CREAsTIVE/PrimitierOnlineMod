@@ -15,7 +15,7 @@ namespace YuchiGames.POM.Server
 
         private static bool s_isCancelled = false;
 
-        public static Network Network { get; private set; } = new();
+        public static Network Network { get; private set; } = new(Settings);
 
         private static void Main()
         {
@@ -28,6 +28,7 @@ namespace YuchiGames.POM.Server
                 }
                 e.Cancel = true;
             };
+
             AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
             {
                 if (!s_isCancelled)
@@ -67,6 +68,7 @@ namespace YuchiGames.POM.Server
             s_isCancelled = false;
 
             Network.Start(Settings.Port);
+            Network.Wait();
         }
     }
 }

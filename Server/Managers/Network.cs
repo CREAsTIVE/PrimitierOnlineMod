@@ -12,19 +12,35 @@ namespace YuchiGames.POM.Server.Managers
 {
     public class Network
     {
-        EventBasedNetListener _listener = new();
-        CancellationTokenSource _cancellationTokenSource = new();
+        public struct ConnectedUser
+        {
+            public ConnectedUser() { }
+            public string GUID = "";
+            public int ID = NextID();
 
-        List<string> _userGUIDs;
-        public int MaxPlayersCount => Program.Settings.MaxPlayers; // Can be chaged to variable later 
+
+            static int s_idCounter;
+            static int NextID() => s_idCounter++;
+        }
+
+        EventBasedNetListener _listener = new();
+
+        Dictionary<NetPeer, ConnectedUser> _authorizedUsers = new();
+        bool IsAuthorized(NetPeer peer) => _authorizedUsers.ContainsKey(peer);
+
+        List<NetPeer> _waitingForAuthUsers = new();
+
+        Task? _pollEventsTask = null;
+
+        public int MaxPlayersCount => ServerSettings.MaxPlayers; // Can be chaged to variable later 
+
+        public ServerSettings ServerSettings;
 
         NetManager _server;
 
-        private const int s_serverId = -1;
-
-        public Network()
+        public Network(ServerSettings serverSettings)
         {
-            _userGUIDs = new(MaxPlayersCount);
+            this.ServerSettings = serverSettings;
 
             _server = new NetManager(_listener)
             {
@@ -41,7 +57,7 @@ namespace YuchiGames.POM.Server.Managers
 
         bool ValidateConnection(AuthData authData, [NotNullWhen(false)] out string? errorMessage)
         {
-            if (_server.ConnectedPeersCount >= MaxPlayersCount)
+            if (_authorizedUsers.Count >= MaxPlayersCount)
             {
                 errorMessage = "Too many connections";
                 return false;
@@ -68,22 +84,23 @@ namespace YuchiGames.POM.Server.Managers
                 return;
             }
 
-            Log.Debug($"Accepted connection from {request.RemoteEndPoint}");
+            Log.Debug($"Accepted connection from {request.RemoteEndPoint}.");
             request.Accept();
         }
 
         private void PeerConnectedEventHandler(NetPeer peer)
         {
-            Log.Debug($"Connected peer with ID {peer.Id}");
+            _waitingForAuthUsers.Add(peer);
+            Log.Debug($"Connected peer with ID {peer.Id}.");
         }
 
         private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Log.Debug($"Disconnected peer with ID {peer.Id} {disconnectInfo.Reason}");
-            _userGUIDs[peer.Id] = "";
-            IGameDataMessage leaveMessage = new LeaveMessage(peer.Id);
-            Send(leaveMessage);
-            Log.Information($"Disconnected from Server: {peer.Id}");
+            _authorizedUsers.Remove(peer);
+            _waitingForAuthUsers.Remove(peer);
+
+            Log.Debug($"Disconnected peer with ID {peer.Id} {disconnectInfo.Reason}.");
+            SendToAll(new LeaveMessage(peer.Id));
         }
 
         private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
@@ -95,69 +112,30 @@ namespace YuchiGames.POM.Server.Managers
 
         private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
         {
-            Log.Error($"A network error has occurred {socketError}");
+            Log.Error($"A network error has occurred {socketError}.");
         }
 
         public void Start(int port)
         {
-            Thread pollEventsThread = new Thread(() => PollEventsThread(_cancellationTokenSource.Token));
-            pollEventsThread.Start();
             _server.Start(port);
-            Log.Information("Server started.");
+            _pollEventsTask = Task.Run(() =>
+            {
+                while (_server.IsRunning) // FIXME: Cancelation token or something
+                {
+                    _server.PollEvents();
+                    Task.Delay(15).Wait(); // FIXME: SCARY! .Wait is a bad thing 
+                }
+            });
+            Log.Information($"Server started at port {port}.");
         }
+
+        public void Wait() =>
+            _pollEventsTask?.Wait(); // FIXME: SCARY! Stop using wait!
 
         public void Stop()
         {
-            _cancellationTokenSource.Cancel();
             _server.Stop();
             Log.Information("Server stopped.");
-        }
-
-        private void PollEventsThread(CancellationToken token)
-        {
-            TcpListener listener = new TcpListener(IPAddress.Any, _server.LocalPort);
-            listener.Start();
-            while (!token.IsCancellationRequested)
-            {
-                _server.PollEvents();
-                if (!listener.Pending())
-                    continue;
-                TcpClient tcpClient = listener.AcceptTcpClient();
-                Task.Run(() => DataRequestHandler(tcpClient), token);
-            }
-            listener.Stop();
-        }
-
-        private void DataRequestHandler(TcpClient client)
-        {
-            using (client)
-            using (NetworkStream stream = client.GetStream())
-            {
-                byte[] length = new byte[4];
-                stream.Read(length, 0, length.Length);
-                byte[] channel = new byte[1];
-                stream.Read(channel, 0, channel.Length);
-                byte[] guid = new byte[36];
-                stream.Read(guid, 0, guid.Length);
-                byte[] data = new byte[BitConverter.ToInt32(length)];
-                byte[] buffer = new byte[1024];
-                int readDataLength = 0;
-                int i;
-                while ((i = stream.Read(buffer, 0, buffer.Length)) != 0)
-                {
-                    Array.Copy(buffer, 0, data, readDataLength, i);
-                    readDataLength += i;
-                }
-
-                if (readDataLength != data.Length)
-                    throw new Exception("Data length mismatch.");
-
-                int id = _userGUIDs.IndexOf(Encoding.UTF8.GetString(guid));
-                if (id == -1)
-                    throw new Exception("User not found.");
-                NetPeer peer = _server.GetPeerById(id);
-                NetworkReceiveEventProcess(peer, data, channel[0], DeliveryMethod.ReliableOrdered);
-            }
         }
 
         private void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
@@ -165,80 +143,86 @@ namespace YuchiGames.POM.Server.Managers
             switch (channel)
             {
                 case 0x00:
-                    IGameDataMessage multiMessage = MessagePackSerializer.Deserialize<IGameDataMessage>(buffer);
-                    if (multiMessage.FromID != peer.Id)
-                        return;
-                    switch (multiMessage)
-                    {
-                        case PlayerPositionMessage:
-                            Send(multiMessage, peer);
-                            break;
-                    };
+                    ReceiveGameDataMessage(peer, MessagePackSerializer.Deserialize<IGameDataMessage>(buffer));
                     break;
                 case 0x01:
-                    IServerDataMessage uniMessage = MessagePackSerializer.Deserialize<IServerDataMessage>(buffer);
-                    if (uniMessage.FromID != peer.Id)
-                        return;
-                    switch (uniMessage)
-                    {
-                        case RequestServerInfoMessage message:
-                            if (message.ToID != s_serverId)
-                                return;
-                            _userGUIDs[peer.Id] = message.UserGUID;
-                            LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
-
-                            Send(new ServerInfoMessage(
-                                peer.Id,
-                                MaxPlayersCount,
-                                localWorldData,
-                                Program.Settings.DayNightCycle // TODO: As local variable?
-                            ));
-
-                            Send(new JoinMessage(peer.Id), peer);
-
-                            Log.Information($"Connected to Client with ID{peer.Id}");
-                            break;
-                    }
+                    ReceiveServerDataMessage(peer, MessagePackSerializer.Deserialize<IServerDataMessage>(buffer));
                     break;
             }
         }
 
-
-        public void Send(IGameDataMessage message)
+        /// <summary>
+        /// Process Server Data Messages
+        /// </summary>
+        private void ReceiveServerDataMessage(NetPeer peer, IServerDataMessage serverDataMessage)
         {
-            byte[] data = MessagePackSerializer.Serialize(message);
+            switch (serverDataMessage)
+            {
+                // Authorizing
+                case RequestServerInfoMessage message:
+                    _authorizedUsers[peer] = new() { GUID = message.UserGUID };
+                    _waitingForAuthUsers.Remove(peer);
 
-            _server.SendToAll(data, 0x00, message.Protocol switch
+                    LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
+
+                    Send(new ServerInfoMessage(
+                        MaxPlayersCount,
+                        localWorldData,
+                        ServerSettings.DayNightCycle
+                    ), peer);
+
+                    SendToAllExcluded(new JoinMessage(peer.Id), peer);
+
+                    Log.Information($"Peer with ID {peer.Id} was authorized.");
+                    break;
+            }
+        }
+        /// <summary>
+        /// Process Game Data Messages
+        /// </summary>
+        private void ReceiveGameDataMessage(NetPeer peer, IGameDataMessage gameDataMessage)
+        {
+            switch (gameDataMessage)
+            {
+                case PlayerPositionMessage playerPosition:
+                    SendToAllExcluded(new PlayerPositionUpdateMessage(playerPosition.PlayerPos, _authorizedUsers[peer].ID), peer);
+                    break;
+            };
+        }
+        /// <summary>
+        /// Sends message to everyon, except peer with id <paramref name="excludedPeerId"/>
+        /// </summary>
+        public void SendToAllExcluded(IDataMessage message, int excludedPeerId) =>
+            SendToAllExcluded(message, _server.GetPeerById(excludedPeerId));
+        /// <summary>
+        /// Sends message to everyone, except <paramref name="excludedPeer"/>
+        /// </summary>
+        public void SendToAllExcluded(IDataMessage message, NetPeer excludedPeer) =>
+            SendToAllExcluded(message, peer => peer != excludedPeer);
+        /// <summary>
+        /// Sends message to everyone, who satisfy <paramref name="filter"/>
+        /// </summary>
+        public void SendToAllExcluded(IDataMessage message, Func<NetPeer, bool> filter) =>
+            _authorizedUsers.Keys.Where(filter).ForEach(peer => Send(message, peer));
+
+        public void SendToAll(IDataMessage message) =>
+            _authorizedUsers.Keys.ForEach(peer => Send(message, peer));
+
+        // used _connectedUsers.Keys so data will be sended only to authorized users
+
+        public void Send(IDataMessage message, int peerId) =>
+            Send(message, _server.GetPeerById(peerId));
+        public void Send(IDataMessage message, NetPeer peer)
+        {
+            byte[] data = IDataMessage.Serialize(message);
+
+            peer.Send(data, message.Channel, message.Protocol switch
             {
                 ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
                 ProtocolType.Udp => DeliveryMethod.Sequenced,
                 _ => throw new NotSupportedException()
             });
         }
-
-        public void Send(IGameDataMessage message, NetPeer excludePeer)
-        {
-            byte[] data = MessagePackSerializer.Serialize(message);
-
-            _server.SendToAll(data, 0x01, message.Protocol switch
-            {
-                ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
-                ProtocolType.Udp => DeliveryMethod.Sequenced,
-                _ => throw new NotSupportedException()
-            });
-        }
-
-
-        public void Send(IServerDataMessage message)
-        {
-            byte[] data = MessagePackSerializer.Serialize(message);
-
-            _server.GetPeerById(message.ToID).Send(data, 0x01, message.Protocol switch
-            {
-                ProtocolType.Tcp => DeliveryMethod.ReliableOrdered,
-                ProtocolType.Udp => DeliveryMethod.Sequenced,
-                _ => throw new NotSupportedException()
-            });
-        }
+        
     }
 }
