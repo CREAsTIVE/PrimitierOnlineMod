@@ -8,6 +8,8 @@ using YuchiGames.POM.Shared;
 using System.Runtime.Versioning;
 using YuchiGames.POM.Client.Assets;
 using YuchiGames.POM.Client.Managers;
+using Il2CppInterop.Runtime.Injection;
+using UnityEngine.Rendering.VirtualTexturing;
 
 namespace YuchiGames.POM.Client
 {
@@ -21,6 +23,8 @@ namespace YuchiGames.POM.Client
         [SupportedOSPlatform("windows")]
         public override void OnInitializeMelon()
         {
+            ClassInjector.RegisterTypeInIl2Cpp<CubeSyncerComponent>();
+
             string settingsPath = $"{Directory.GetCurrentDirectory()}/Mods/settings.json";
 
             Settings = ClientSettings.LoadFromFileOrCreateDefault(settingsPath);
@@ -38,6 +42,7 @@ namespace YuchiGames.POM.Client
             UserGUID = machineID.Trim('{', '}');
 
             MelonEvents.OnSceneWasInitialized.Subscribe(PingUI.OnSceneWasInitialized);
+            MelonEvents.OnSceneWasInitialized.Subscribe((_, _) => SystemObject.Init());
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnUpdate.Subscribe(PingUI.OnUpdate);
             MelonEvents.OnGUI.Subscribe(InfoGUI.OnGUI);

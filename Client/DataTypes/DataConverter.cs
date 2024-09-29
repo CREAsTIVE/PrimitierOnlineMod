@@ -2,6 +2,8 @@
 using YuchiGames.POM.Shared.DataObjects;
 using UnityEngine;
 using YuchiGames.POM.Client.Assets;
+using static Il2Cpp.CubeAppearance;
+using static Il2Cpp.SaveAndLoad;
 
 namespace YuchiGames.POM.Shared
 {
@@ -81,146 +83,80 @@ namespace YuchiGames.POM.Shared
             return systemList;
         }
 
-        public static Chunk ToChunk(SaveAndLoad.ChunkData chunkData)
+        public static Chunk ToChunk(SaveAndLoad.ChunkData sourceChunk) => new Chunk
         {
-            List<Group> groups = new List<Group>();
-            foreach (SaveAndLoad.GroupData groupData in chunkData.groups)
+            Groups = sourceChunk.groups.ToSystem().Select(group => new Group
             {
-                List<Cube> cubes = new List<Cube>();
-                foreach (SaveAndLoad.CubeData cubeData in groupData.cubes)
-                {
-                    UVOffset uvOffset = new UVOffset()
-                    {
-                        Right = cubeData.uvOffset.right.ToShared(),
-                        Left = cubeData.uvOffset.left.ToShared(),
-                        Top = cubeData.uvOffset.top.ToShared(),
-                        Bottom = cubeData.uvOffset.bottom.ToShared(),
-                        Front = cubeData.uvOffset.front.ToShared(),
-                        Back = cubeData.uvOffset.back.ToShared()
-                    };
-                    Cube cube = new Cube(
-                        cubeData.pos.ToShared(),
-                        cubeData.rot.ToShared(),
-                        cubeData.scale.ToShared(),
-                        cubeData.lifeRatio,
-                        (Anchor)cubeData.anchor,
-                        (DataObjects.Substance)cubeData.substance,
-                        (DataObjects.CubeName)cubeData.name,
-                        ToSystem<int>(cubeData.connections),
-                        cubeData.temperature,
-                        cubeData.isBurning,
-                        cubeData.burnedRatio,
-                        (SectionState)cubeData.sectionState,
-                        uvOffset,
-                        cubeData.behaviors.ToSystem(),
-                        cubeData.states.ToSystem()
-                        );
-                    cubes.Add(cube);
-                }
-                Group group = new Group(
-                    groupData.pos.ToShared(),
-                    groupData.rot.ToShared(),
-                    cubes
-                    );
-                groups.Add(group);
-            }
-            Chunk chunk = new Chunk(chunkData.x, chunkData.z, groups);
-            return chunk;
-        }
+                Position = group.pos.ToShared(),
+                Rotation = group.rot.ToShared(),
+                Cubes = group.cubes.ToSystem().Select(ToCube).ToList(),
+            }).ToList(),
+        };
 
-        public static SaveAndLoad.ChunkData ToChunkData(Chunk chunk)
+        private static Cube ToCube(CubeData cube) => new()
         {
-            List<SaveAndLoad.GroupData> groupDataList = new List<SaveAndLoad.GroupData>();
-            foreach (Group group in chunk.Groups)
+            Position = cube.pos.ToShared(),
+            Rotation = cube.rot.ToShared(),
+            Scale = cube.scale.ToShared(),
+            LifeRatio = cube.lifeRatio,
+            Anchor = (Anchor)cube.anchor,
+            Substance = (DataObjects.Substance)cube.substance,
+            Name = (DataObjects.CubeName)cube.name,
+            Connections = cube.connections.ToSystem(),
+            Temperature = cube.temperature,
+            IsBurning = cube.isBurning,
+            BurnedRatio = cube.burnedRatio,
+            SectionState = (DataObjects.SectionState)cube.sectionState,
+            UVOffset = new DataObjects.UVOffset()
             {
-                List<SaveAndLoad.CubeData> cubeDataList = new List<SaveAndLoad.CubeData>();
-                foreach (Cube cube in group.Cubes)
-                {
-                    CubeAppearance.UVOffset uvOffset = new CubeAppearance.UVOffset()
-                    {
-                        right = cube.UVOffset.Right.ToUnity(),
-                        left = cube.UVOffset.Left.ToUnity(),
-                        top = cube.UVOffset.Top.ToUnity(),
-                        bottom = cube.UVOffset.Bottom.ToUnity(),
-                        front = cube.UVOffset.Front.ToUnity(),
-                        back = cube.UVOffset.Back.ToUnity()
-                    };
-                    SaveAndLoad.CubeData cubeData = new SaveAndLoad.CubeData()
-                    {
-                        pos = cube.Position.ToUnity(),
-                        rot = cube.Rotation.ToUnity(),
-                        scale = cube.Scale.ToUnity(),
-                        lifeRatio = cube.LifeRatio,
-                        anchor = (CubeConnector.Anchor)cube.Anchor,
-                        substance = (Il2Cpp.Substance)cube.Substance,
-                        name = (Il2Cpp.CubeName)cube.Name,
-                        connections = cube.Connections.ToIl2cpp(),
-                        temperature = cube.Temperature,
-                        isBurning = cube.IsBurning,
-                        burnedRatio = cube.BurnedRatio,
-                        sectionState = (CubeAppearance.SectionState)cube.SectionState,
-                        uvOffset = uvOffset,
-                        behaviors = cube.Behaviors.ToIl2cpp(),
-                        states = cube.States.ToIl2cpp()
-                    };
-                    cubeDataList.Add(cubeData);
-                }
-                SaveAndLoad.GroupData groupData = new SaveAndLoad.GroupData()
-                {
-                    pos = group.Position.ToUnity(),
-                    rot = group.Rotation.ToUnity(),
-                    cubes = cubeDataList.ToIl2cpp()
-                };
-                groupDataList.Add(groupData);
-            }
-            SaveAndLoad.ChunkData chunkData = new SaveAndLoad.ChunkData()
-            {
-                x = chunk.X,
-                z = chunk.Z,
-                groups = groupDataList.ToIl2cpp()
-            };
-            return chunkData;
-        }
+                Right = cube.uvOffset.right.ToShared(),
+                Left = cube.uvOffset.left.ToShared(),
+                Top = cube.uvOffset.top.ToShared(),
+                Bottom = cube.uvOffset.bottom.ToShared(),
+                Front = cube.uvOffset.front.ToShared(),
+                Back = cube.uvOffset.back.ToShared()
+            },
+            Behaviors = cube.behaviors.ToSystem(),
+            States = cube.states.ToSystem(),
+        };
 
-        public static Group ToGroup(SaveAndLoad.GroupData groupData)
+        public static ChunkData ToIl2CppChunk(Chunk chunk, SVector2Int pos) => new ChunkData
         {
-            List<Cube> cubes = new List<Cube>();
-            foreach (SaveAndLoad.CubeData cubeData in groupData.cubes)
+            x = pos.X,
+            z = pos.Y,
+            groups = chunk.Groups.Select(group => new GroupData
             {
-                UVOffset uvOffset = new UVOffset()
-                {
-                    Right = cubeData.uvOffset.right.ToShared(),
-                    Left = cubeData.uvOffset.left.ToShared(),
-                    Top = cubeData.uvOffset.top.ToShared(),
-                    Bottom = cubeData.uvOffset.bottom.ToShared(),
-                    Front = cubeData.uvOffset.front.ToShared(),
-                    Back = cubeData.uvOffset.back.ToShared()
-                };
-                Cube cube = new Cube(
-                    cubeData.pos.ToShared(),
-                    cubeData.rot.ToShared(),
-                    cubeData.scale.ToShared(),
-                    cubeData.lifeRatio,
-                    (Anchor)cubeData.anchor,
-                    (DataObjects.Substance)cubeData.substance,
-                    (DataObjects.CubeName)cubeData.name,
-                    cubeData.connections.ToSystem(),
-                    cubeData.temperature,
-                    cubeData.isBurning,
-                    cubeData.burnedRatio,
-                    (SectionState)cubeData.sectionState,
-                    uvOffset,
-                    cubeData.behaviors.ToSystem(),
-                    cubeData.states.ToSystem()
-                    );
-                cubes.Add(cube);
-            }
-            Group group = new Group(
-                groupData.pos.ToShared(),
-                groupData.rot.ToShared(),
-                cubes
-                );
-            return group;
-        }
+                pos = group.Position.ToUnity(),
+                rot = group.Rotation.ToUnity(),
+                cubes = group.Cubes.Select(ToIl2CppCube).ToList().ToIl2cpp()
+            }).ToList().ToIl2cpp()
+        };
+
+        private static CubeData ToIl2CppCube(Cube cube) => new()
+        {
+            pos = cube.Position.ToUnity(),
+            rot = cube.Rotation.ToUnity(),
+            scale = cube.Scale.ToUnity(),
+            lifeRatio = cube.LifeRatio,
+            anchor = (CubeConnector.Anchor)cube.Anchor,
+            substance = (Il2Cpp.Substance)cube.Substance,
+            name = (Il2Cpp.CubeName)cube.Name,
+            connections = cube.Connections.ToIl2cpp(),
+            temperature = cube.Temperature,
+            isBurning = cube.IsBurning,
+            burnedRatio = cube.BurnedRatio,
+            sectionState = (CubeAppearance.SectionState)cube.SectionState,
+            uvOffset = new()
+            {
+                right = cube.UVOffset.Right.ToUnity(),
+                left = cube.UVOffset.Left.ToUnity(),
+                top = cube.UVOffset.Top.ToUnity(),
+                bottom = cube.UVOffset.Bottom.ToUnity(),
+                front = cube.UVOffset.Front.ToUnity(),
+                back = cube.UVOffset.Back.ToUnity()
+            },
+            behaviors = cube.Behaviors.ToIl2cpp(),
+            states = cube.States.ToIl2cpp(),
+        };
     }
 }

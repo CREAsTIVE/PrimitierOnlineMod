@@ -34,10 +34,7 @@ namespace YuchiGames.POM.Client.Managers
             ID = -1;
             Ping = -1;
             IsConnected = false;
-            ServerInfo = new ServerInfoMessage(
-                0,
-                new LocalWorldData(),
-                true);
+            ServerInfo = new ServerInfoMessage();
 
             s_listener = new EventBasedNetListener();
             s_client = new NetManager(s_listener)
@@ -187,6 +184,8 @@ namespace YuchiGames.POM.Client.Managers
                     switch (MessagePackSerializer.Deserialize<IServerDataMessage>(buffer))
                     {
                         case ServerInfoMessage message:
+                            ID = message.UID;
+
                             var dayNightCycleButton = UnityUtils.FindGameObjectOfType<DayNightCycleButton>();
                             dayNightCycleButton.SwitchState(message.IsDayNightCycle);
                             ServerInfo = message;
@@ -200,6 +199,23 @@ namespace YuchiGames.POM.Client.Managers
                                     continue;
                                 Player.SpawnPlayer(i.Id);
                             }
+                            break;
+                        
+                        case ChunkDataMessage message:
+                            SaveAndLoad.chunkDict[message.Pos.ToUnity()] = DataConverter.ToIl2CppChunk(message.Chunk, message.Pos).groups;
+                            CubeGenerator.GenerateSavedChunk(message.Pos.ToUnity());
+                            break;
+
+                        case RequestNewChunkDataMessage message:
+                            CubeGenerator.GenerateNewChunk(message.ChunkPos.ToUnity());
+                            Send(new ChunkDataMessage() 
+                            { 
+                                Pos = message.ChunkPos, 
+                                Chunk = DataConverter.ToChunk(new SaveAndLoad.ChunkData() 
+                                {
+                                    groups = SaveAndLoad.chunkDict[message.ChunkPos.ToUnity()] 
+                                })
+                            });
                             break;
                     }
                     break;

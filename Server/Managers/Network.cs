@@ -16,7 +16,7 @@ namespace YuchiGames.POM.Server.Managers
         {
             public ConnectedUser() { }
             public string GUID = "";
-            public int ID = NextID();
+            public int UID = NextID();
 
 
             static int s_idCounter;
@@ -38,6 +38,8 @@ namespace YuchiGames.POM.Server.Managers
 
         NetManager _server;
 
+        public WorldData WorldData;
+
         public Network(ServerSettings serverSettings)
         {
             this.ServerSettings = serverSettings;
@@ -47,6 +49,8 @@ namespace YuchiGames.POM.Server.Managers
                 AutoRecycle = true,
                 ChannelsCount = 2
             };
+
+            WorldData = new(); // TODO: allow to load saves
 
             _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
@@ -151,6 +155,8 @@ namespace YuchiGames.POM.Server.Managers
             }
         }
 
+        Dictionary<SVector2Int, (NetPeer loader, HashSet<NetPeer> waiters)> _loadsChunk = new();
+
         /// <summary>
         /// Process Server Data Messages
         /// </summary>
@@ -160,20 +166,50 @@ namespace YuchiGames.POM.Server.Managers
             {
                 // Authorizing
                 case RequestServerInfoMessage message:
-                    _authorizedUsers[peer] = new() { GUID = message.UserGUID };
+                    ConnectedUser newUser = new() { GUID = message.UserGUID };
+                    _authorizedUsers[peer] = newUser;
                     _waitingForAuthUsers.Remove(peer);
 
-                    LocalWorldData localWorldData = World.GetLocalWorldData(message.UserGUID);
+                    var localWorldData = LocalWorldData.From(WorldData, message.UserGUID);
 
-                    Send(new ServerInfoMessage(
-                        MaxPlayersCount,
-                        localWorldData,
-                        ServerSettings.DayNightCycle
-                    ), peer);
+                    Send(new ServerInfoMessage()
+                    {
+                        UID = newUser.UID,
+                        IsDayNightCycle = ServerSettings.DayNightCycle,
+                        WorldData = localWorldData,
+                        MaxPlayers = MaxPlayersCount
+                    }, peer);
 
                     SendToAllExcluded(new JoinMessage(peer.Id), peer);
 
                     Log.Information($"Peer with ID {peer.Id} was authorized.");
+                    break;
+                case RequestNewChunkDataMessage message:
+                    // TODO: await if 2 players at the same time request unloaded chunk
+                    if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk))
+                    {
+                        Send(new ChunkDataMessage()
+                        {
+                            Chunk = chunk,
+                            Pos = message.ChunkPos,
+                        }, peer);
+
+                        break;
+                    }
+                    if (_loadsChunk.TryGetValue(message.ChunkPos, out var pair))
+                    {
+                        pair.waiters.Add(peer);
+                        break;
+                    }
+
+                    _loadsChunk[message.ChunkPos] = (peer, new());
+                    Send(new RequestNewChunkDataMessage() { ChunkPos = message.ChunkPos }, peer);
+                    break;
+                case ChunkDataMessage message:
+                    WorldData.ChunksData[message.Pos] = message.Chunk;
+                    var waiters = _loadsChunk[message.Pos].waiters;
+                    waiters.ForEach(waiter => Send(message, waiter));
+                    _loadsChunk.Remove(message.Pos);
                     break;
             }
         }
@@ -185,7 +221,7 @@ namespace YuchiGames.POM.Server.Managers
             switch (gameDataMessage)
             {
                 case PlayerPositionMessage playerPosition:
-                    SendToAllExcluded(new PlayerPositionUpdateMessage(playerPosition.PlayerPos, _authorizedUsers[peer].ID), peer);
+                    SendToAllExcluded(new PlayerPositionUpdateMessage(playerPosition.PlayerPos, _authorizedUsers[peer].UID), peer);
                     break;
             };
         }
