@@ -7,32 +7,30 @@ namespace YuchiGames.POM.Client.Managers
 {
     public static class World
     {
-        private static int s_seed;
-        public static int Seed
-        {
-            get => s_seed;
-        }
-        private static LocalWorldData s_worldData;
-        public static LocalWorldData WorldData
-        {
-            get => s_worldData;
-        }
-        private static SaveAndLoad.SaveData s_saveData;
-        public static SaveAndLoad.SaveData SaveData
-        {
-            get => s_saveData;
-        }
-
-        static World()
-        {
-            s_seed = 0;
-            s_worldData = new LocalWorldData();
-            s_saveData = new SaveAndLoad.SaveData();
-        }
+        public static LocalWorldData WorldData { get; private set; } = new();
+        public static SaveAndLoad.SaveData SaveData { get; private set; } = new();
 
         public static void LoadWorldData(LocalWorldData localWorldData)
         {
-            s_worldData = localWorldData;
+            WorldData = localWorldData;
+            SaveData = new()
+            {
+                seed = WorldData.Seed,
+                time = WorldData.Time,
+                playerMaxLife = WorldData.PlayerMaxLife,
+                playerPos = WorldData.Player.Position.ToUnity(),
+                playerAngle = 0f,
+                playerLife = WorldData.Player.Life,
+                respawnPos = WorldData.RespawnPosition.ToUnity(),
+                respawnAngle = 0f,
+                holsterPositions = new Il2CppSystem.Collections.Generic.List<Vector3>().Apply(l =>
+                {
+                    l.Add(WorldData.Player.LeftHolsterPosition.ToUnity());
+                    l.Add(WorldData.Player.RightHolsterPosition.ToUnity());
+                }),
+                chunks = new(),
+            };
+            /*s_worldData = localWorldData;
             s_seed = s_worldData.Seed;
             s_saveData.seed = s_worldData.Seed;
             s_saveData.time = s_worldData.Time;
@@ -47,7 +45,7 @@ namespace YuchiGames.POM.Client.Managers
             Il2CppSystem.Collections.Generic.List<Vector3> holsterPositions = new Il2CppSystem.Collections.Generic.List<Vector3>();
             holsterPositions.Add(DataConverter.ToUnity(s_worldData.HolsterLeftPos));
             holsterPositions.Add(DataConverter.ToUnity(s_worldData.HolsterRightPos));
-            s_saveData.holsterPositions = holsterPositions;
+            s_saveData.holsterPositions = holsterPositions;*/
         }
     }
 }

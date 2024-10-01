@@ -23,8 +23,11 @@ namespace YuchiGames.POM.Shared.DataObjects
         public int Seed { get; set; }
         public float Time { get; set; }
 
+        public SVector3 RespawnPosition { get; set; }
+
         // UUID: PlayerData
         public Dictionary<string, PlayerData> PlayersData { get; set; } = new();
+        public float PlayerMaxLife = 100f;
         public Dictionary<SVector2Int, Chunk> ChunksData { get; set; } = new();
     }
 
@@ -38,16 +41,22 @@ namespace YuchiGames.POM.Shared.DataObjects
 
         [Key(2)]
         public PlayerData Player { get; set; } = null!;
+        [Key(3)]
+        public float PlayerMaxLife { get; set; }
+        [Key(4)]
+        public SVector3 RespawnPosition { get; set; }
 
         [SerializationConstructor]
-        private LocalWorldData() { }
+        public LocalWorldData() { }
 
         public static LocalWorldData From(WorldData worldData, string playerGUID) =>
             new LocalWorldData()
             {
-                Player = worldData.PlayersData[playerGUID],
+                Player = worldData.PlayersData.TryGetValue(playerGUID, out var data) ? data : new() { Position = new(0, 10, 0), Life = 1000},
                 Seed = worldData.Seed,
                 Time = worldData.Time,
+                PlayerMaxLife = worldData.PlayerMaxLife,
+                RespawnPosition = worldData.RespawnPosition,
             };
     }
 
@@ -66,7 +75,13 @@ namespace YuchiGames.POM.Shared.DataObjects
         [Key(1)]
         public SQuaternion Rotation { get; set; }
         [Key(2)]
+        public SVector3 Velocity { get; set; }
+        [Key(3)]
+        public SVector3 AngularVelocity { get; set; }
+        [Key(4)]
         public List<Cube> Cubes { get; set; } = new();
+        [Key(5)]
+        public bool IsFixedToGroup { get; set; } // FIXME: At that to save
     }
 
     [MessagePackObject]
@@ -79,28 +94,30 @@ namespace YuchiGames.POM.Shared.DataObjects
         [Key(2)]
         public SVector3 Scale { get; set; }
         [Key(3)]
-        public float LifeRatio { get; set; }
+        public float Life { get; set; }
         [Key(4)]
-        public Anchor Anchor { get; set; }
+        public float MaxLife { get; set; }
         [Key(5)]
-        public Substance Substance { get; set; }
+        public Anchor Anchor { get; set; }
         [Key(6)]
-        public CubeName Name { get; set; }
+        public Substance Substance { get; set; }
         [Key(7)]
-        public List<int> Connections { get; set; } = new();
+        public CubeName Name { get; set; }
         [Key(8)]
-        public float Temperature { get; set; }
+        public List<int> Connections { get; set; } = new();
         [Key(9)]
-        public bool IsBurning { get; set; }
+        public float Temperature { get; set; }
         [Key(10)]
-        public float BurnedRatio { get; set; }
+        public bool IsBurning { get; set; }
         [Key(11)]
-        public SectionState SectionState { get; set; }
+        public float BurnedRatio { get; set; }
         [Key(12)]
-        public UVOffset UVOffset { get; set; } = new();
+        public SectionState SectionState { get; set; }
         [Key(13)]
-        public List<string> Behaviors { get; set; } = new();
+        public UVOffset UVOffset { get; set; } = new();
         [Key(14)]
+        public List<string> Behaviors { get; set; } = new();
+        [Key(15)]
         public List<string> States { get; set; } = new();
     }
 
@@ -217,5 +234,21 @@ namespace YuchiGames.POM.Shared.DataObjects
         public SVector2 Front { get; set; }
         [Key(5)]
         public SVector2 Back { get; set; }
+    }
+
+    [MessagePackObject]
+    public struct ObjectUID
+    {
+        [Key(0)]
+        public int CreatorID;
+        [Key(1)]
+        public int LocalID;
+
+        public ObjectUID()
+        {
+            CreatorID = 0; LocalID = 0;
+        }
+
+        public override string ToString() => $"#{CreatorID}:{LocalID}";
     }
 }

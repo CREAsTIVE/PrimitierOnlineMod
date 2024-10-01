@@ -122,19 +122,16 @@ namespace YuchiGames.POM.Server.Managers
         public void Start(int port)
         {
             _server.Start(port);
-            _pollEventsTask = Task.Run(() =>
-            {
-                while (_server.IsRunning) // FIXME: Cancelation token or something
-                {
-                    _server.PollEvents();
-                    Task.Delay(15).Wait(); // FIXME: SCARY! .Wait is a bad thing 
-                }
-            });
             Log.Information($"Server started at port {port}.");
+            while (_server.IsRunning) // FIXME: Cancelation token or something
+            {
+                _server.PollEvents();
+                Task.Delay(15).Wait(); // FIXME: SCARY! .Wait is a bad thing 
+            }
         }
 
-        public void Wait() =>
-            _pollEventsTask?.Wait(); // FIXME: SCARY! Stop using wait!
+        public async Task Wait() =>
+            await (_pollEventsTask ?? throw new("Start Server!")); // FIXME: SCARY! Stop using wait!
 
         public void Stop()
         {
@@ -155,7 +152,9 @@ namespace YuchiGames.POM.Server.Managers
             }
         }
 
-        Dictionary<SVector2Int, (NetPeer loader, HashSet<NetPeer> waiters)> _loadsChunk = new();
+        // TODO: Maybe??? just send for everyone that chunk is loaded, even if it still loading by another player
+        Dictionary<SVector2Int, (NetPeer loader, HashSet<NetPeer> waiters)> _awaitsForChunkLoad = new();
+        Dictionary<SVector2Int, HashSet<NetPeer>> _loadedChunks = new();
 
         /// <summary>
         /// Process Server Data Messages
@@ -184,11 +183,29 @@ namespace YuchiGames.POM.Server.Managers
 
                     Log.Information($"Peer with ID {peer.Id} was authorized.");
                     break;
+
                 case RequestNewChunkDataMessage message:
-                    // TODO: await if 2 players at the same time request unloaded chunk
-                    if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk))
+                    // FIXME: EDGE CASE! Server request to load a chunk, but player leaves.
+
+                    // If chunk already loaded by another player
+                    if (_loadedChunks.TryGetValue(message.ChunkPos, out var loaders)) 
                     {
-                        Send(new ChunkDataMessage()
+                        Send(new ChunkUnloadMessage() { Pos = message.ChunkPos }, peer);
+                        loaders.Add(peer);
+                        break;
+                    }
+
+                    // If someone at this moment loading that chunk
+                    if (_awaitsForChunkLoad.TryGetValue(message.ChunkPos, out var loaderWaiter)) 
+                    {
+                        loaderWaiter.waiters.Add(peer);
+                        break;
+                    }
+
+                    // If chunk is saved
+                    if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk)) 
+                    {
+                        Send(new SavedChunkDataMessage()
                         {
                             Chunk = chunk,
                             Pos = message.ChunkPos,
@@ -196,21 +213,45 @@ namespace YuchiGames.POM.Server.Managers
 
                         break;
                     }
-                    if (_loadsChunk.TryGetValue(message.ChunkPos, out var pair))
-                    {
-                        pair.waiters.Add(peer);
-                        break;
-                    }
 
-                    _loadsChunk[message.ChunkPos] = (peer, new());
+                    // If chunk need to be generated
+                    _awaitsForChunkLoad[message.ChunkPos] = (peer, new()); 
                     Send(new RequestNewChunkDataMessage() { ChunkPos = message.ChunkPos }, peer);
                     break;
-                case ChunkDataMessage message:
-                    WorldData.ChunksData[message.Pos] = message.Chunk;
-                    var waiters = _loadsChunk[message.Pos].waiters;
-                    waiters.ForEach(waiter => Send(message, waiter));
-                    _loadsChunk.Remove(message.Pos);
+
+                case RequestedChunkDataMessage message:
+                    // When player finnaly generates a chunk after request
+                    _loadedChunks[message.Pos] = new();
+                    _awaitsForChunkLoad[message.Pos].waiters.ForEach(waiter =>
+                    {
+                        Send(new ChunkUnloadMessage() { Pos = message.Pos }, waiter);
+                        _loadedChunks[message.Pos].Add(waiter);
+                    });
                     break;
+
+                case ChunkUnloadMessage message:
+
+                    // If player unload any loaded chunk:
+                    if (_loadedChunks.TryGetValue(message.Pos, out var loadedBy))
+                    {
+                        loadedBy.Remove(peer);
+                        if (loadedBy.Count <= 0)
+                            _loadedChunks.Remove(message.Pos);
+                    }
+
+                    // If player unload still loading chunk:
+                    if (_awaitsForChunkLoad.TryGetValue(message.Pos, out var loader))
+                        loader.waiters.Remove(peer);
+                    
+                    break;
+
+                // Merge with MarkChunkLoadState? Send only by request?
+                case SavedChunkDataMessage message:
+                    if (!_loadedChunks.ContainsKey(message.Pos))
+                        WorldData.ChunksData[message.Pos] = message.Chunk;
+                    break;
+
+                
             }
         }
         /// <summary>
@@ -222,6 +263,19 @@ namespace YuchiGames.POM.Server.Managers
             {
                 case PlayerPositionMessage playerPosition:
                     SendToAllExcluded(new PlayerPositionUpdateMessage(playerPosition.PlayerPos, _authorizedUsers[peer].UID), peer);
+                    break;
+
+                case GroupUpdateMessage message:
+                    SendToAllExcluded(message, peer);
+                    break;
+
+                case GroupDestroyedMessage message:
+                    SendToAllExcluded(message, peer);
+                    break;
+
+                case GroupSetHostMessage message:
+                    Log.Information($"Transfering ownership of {message.GroupID} to {message.NewHostID}");
+                    SendToAll(message);
                     break;
             };
         }

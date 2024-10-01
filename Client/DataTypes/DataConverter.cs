@@ -73,6 +73,21 @@ namespace YuchiGames.POM.Shared
             return il2cppList;
         }
 
+        public static Il2CppSystem.Collections.Generic.HashSet<T> ToIl2Cpp<T>(this HashSet<T> systemSet) =>
+            new Il2CppSystem.Collections.Generic.HashSet<T>()
+            .Apply(set =>
+            {
+                foreach (var item in systemSet)
+                    set.Add(item);
+            });
+
+        public static HashSet<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.HashSet<T> values) =>
+            new HashSet<T>().Apply(set =>
+            {
+                foreach (var item in values)
+                    set.Add(item);
+            });
+
         public static List<T> ToSystem<T>(this Il2CppSystem.Collections.Generic.List<T> il2cppList)
         {
             List<T> systemList = new List<T>();
@@ -83,13 +98,13 @@ namespace YuchiGames.POM.Shared
             return systemList;
         }
 
-        public static Chunk ToChunk(SaveAndLoad.ChunkData sourceChunk) => new Chunk
+        public static Chunk ToChunk(Il2CppSystem.Collections.Generic.List<GroupData> groups) => new Chunk
         {
-            Groups = sourceChunk.groups.ToSystem().Select(group => new Group
+            Groups = groups.ToSystem().Select(group => new Group
             {
                 Position = group.pos.ToShared(),
                 Rotation = group.rot.ToShared(),
-                Cubes = group.cubes.ToSystem().Select(ToCube).ToList(),
+                Cubes = group.cubes.ToSystem().Select(ToCube).ToList()
             }).ToList(),
         };
 
@@ -98,7 +113,8 @@ namespace YuchiGames.POM.Shared
             Position = cube.pos.ToShared(),
             Rotation = cube.rot.ToShared(),
             Scale = cube.scale.ToShared(),
-            LifeRatio = cube.lifeRatio,
+            Life = cube.lifeRatio,
+            MaxLife = cube.lifeRatio,
             Anchor = (Anchor)cube.anchor,
             Substance = (DataObjects.Substance)cube.substance,
             Name = (DataObjects.CubeName)cube.name,
@@ -120,24 +136,20 @@ namespace YuchiGames.POM.Shared
             States = cube.states.ToSystem(),
         };
 
-        public static ChunkData ToIl2CppChunk(Chunk chunk, SVector2Int pos) => new ChunkData
-        {
-            x = pos.X,
-            z = pos.Y,
-            groups = chunk.Groups.Select(group => new GroupData
+        public static Il2CppSystem.Collections.Generic.List<GroupData> ToIl2CppChunk(Chunk chunk) =>
+            chunk.Groups.Select(group => new GroupData
             {
                 pos = group.Position.ToUnity(),
                 rot = group.Rotation.ToUnity(),
                 cubes = group.Cubes.Select(ToIl2CppCube).ToList().ToIl2cpp()
-            }).ToList().ToIl2cpp()
-        };
+            }).ToList().ToIl2cpp();
 
-        private static CubeData ToIl2CppCube(Cube cube) => new()
+        public static CubeData ToIl2CppCube(Cube cube) => new()
         {
             pos = cube.Position.ToUnity(),
             rot = cube.Rotation.ToUnity(),
             scale = cube.Scale.ToUnity(),
-            lifeRatio = cube.LifeRatio,
+            lifeRatio = cube.Life,
             anchor = (CubeConnector.Anchor)cube.Anchor,
             substance = (Il2Cpp.Substance)cube.Substance,
             name = (Il2Cpp.CubeName)cube.Name,

@@ -68,7 +68,6 @@ namespace YuchiGames.POM.Server
             s_isCancelled = false;
 
             Network.Start(Settings.Port);
-            Network.Wait();
         }
     }
 }

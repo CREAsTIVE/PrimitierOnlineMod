@@ -8,6 +8,10 @@ namespace YuchiGames.POM.Shared
     [Union(1, typeof(LeaveMessage))]
     [Union(2, typeof(PlayerPositionMessage))]
     [Union(3, typeof(PlayerPositionUpdateMessage))]
+
+    [Union(4, typeof(GroupUpdateMessage))]
+    [Union(5, typeof(GroupDestroyedMessage))]
+    [Union(6, typeof(GroupSetHostMessage))]
     public interface IGameDataMessage : IDataMessage
     {
         [IgnoreMember]
@@ -84,5 +88,40 @@ namespace YuchiGames.POM.Shared
             PlayerPos = playerPos;
             this.PlayerID = playerID;
         }
+    }
+
+    // CUBES DATA:
+
+    [MessagePackObject]
+    public class GroupUpdateMessage : IGameDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public Group GroupData { get; set; } = null!;
+        [Key(1)]
+        public ObjectUID GroupUID { get; set; }
+    }
+
+    [MessagePackObject]
+    public class GroupDestroyedMessage : IGameDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+        [Key(0)]
+        public ObjectUID GroupID { get; set; }
+    }
+
+    [MessagePackObject]
+    public class GroupSetHostMessage : IGameDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public ObjectUID GroupID { get; set; }
+        [Key(1)]
+        public int NewHostID { get; set; }
     }
 }

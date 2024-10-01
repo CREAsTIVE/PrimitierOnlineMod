@@ -7,7 +7,9 @@ namespace YuchiGames.POM.Shared
     [Union(0, typeof(RequestServerInfoMessage))]
     [Union(1, typeof(ServerInfoMessage))]
     [Union(2, typeof(RequestNewChunkDataMessage))]
-    [Union(3, typeof(ChunkDataMessage))]
+    [Union(3, typeof(SavedChunkDataMessage))]
+    [Union(4, typeof(ChunkUnloadMessage))]
+    [Union(5, typeof(RequestedChunkDataMessage))]
     public interface IServerDataMessage : IDataMessage
     {
         [IgnoreMember]
@@ -50,8 +52,8 @@ namespace YuchiGames.POM.Shared
 
 
     // WARNING:
-    // If that packet was sended to client, it should generate chunk data and then return that data back to server
-    // If that packet was sended to server, it should try to find that chunk inside save data and return in, or request for generating that chunk
+    // client->server: client request new chunk to load
+    // server->client: server request to generate that chunk
     [MessagePackObject]
     public class RequestNewChunkDataMessage : IServerDataMessage
     {
@@ -62,7 +64,7 @@ namespace YuchiGames.POM.Shared
         public SVector2Int ChunkPos { get; set; }
     }
     [MessagePackObject]
-    public class ChunkDataMessage : IServerDataMessage // TODO: Add chunk owner (who will claim host for every object inside that chunk)
+    public class SavedChunkDataMessage : IServerDataMessage
     {
         [IgnoreMember]
         public ProtocolType Protocol => ProtocolType.Tcp;
@@ -70,6 +72,26 @@ namespace YuchiGames.POM.Shared
         [Key(0)]
         public Chunk Chunk { get; set; } = null!;
         [Key(1)]
+        public SVector2Int Pos { get; set; }
+    }
+    [MessagePackObject]
+    public class ChunkUnloadMessage : IServerDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public SVector2Int Pos { get; set; }
+    }
+    [MessagePackObject]
+    public class RequestedChunkDataMessage : IServerDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Tcp;
+
+        /*[Key(0)]
+        public Chunk Chunk { get; set; } = null!;*/
+        [Key(0)]
         public SVector2Int Pos { get; set; }
     }
 }

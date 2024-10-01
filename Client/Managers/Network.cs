@@ -12,6 +12,11 @@ using Il2Cpp;
 using YuchiGames.POM.Shared.DataObjects;
 using Il2CppMToon;
 using Client;
+using Il2CppInterop.Runtime;
+using System.Collections.Generic;
+using static Il2CppRootMotion.FinalIK.RagdollUtility;
+using static Il2Cpp.SaveAndLoad;
+using static MelonLoader.MelonLogger;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -27,7 +32,17 @@ namespace YuchiGames.POM.Client.Managers
         private static NetManager s_client;
         private static CancellationTokenSource s_cancelTokenSource;
 
+        private static GameObject s_baseGroupedCube = null!;
+        private static GameObject s_baseCube = null!;
+
         private const int s_serverId = -1;
+
+        static int s_idCounter = 0;
+        public static ObjectUID NextObjectUID() => new()
+        {
+            CreatorID = ID,
+            LocalID = s_idCounter++,
+        };
 
         static Network()
         {
@@ -165,62 +180,307 @@ namespace YuchiGames.POM.Client.Managers
             switch (channel)
             {
                 case 0x00:
-                    switch (MessagePackSerializer.Deserialize<IGameDataMessage>(buffer))
-                    {
-                        case JoinMessage message:
-                            Log.Information($"Joined player with ID{message.JoinID}");
-                            Player.SpawnPlayer(message.JoinID);
-                            break;
-                        case LeaveMessage message:
-                            Log.Information($"Player left with ID{message.LeaveID}");
-                            Player.DespawnPlayer(message.LeaveID);
-                            break;
-                        case PlayerPositionUpdateMessage message:
-                            Player.s_activePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
-                            break;
-                    }
+                    ProcessGameDataMessage(MessagePackSerializer.Deserialize<IGameDataMessage>(buffer));
                     break;
                 case 0x01:
-                    switch (MessagePackSerializer.Deserialize<IServerDataMessage>(buffer))
-                    {
-                        case ServerInfoMessage message:
-                            ID = message.UID;
-
-                            var dayNightCycleButton = UnityUtils.FindGameObjectOfType<DayNightCycleButton>();
-                            dayNightCycleButton.SwitchState(message.IsDayNightCycle);
-                            ServerInfo = message;
-                            World.LoadWorldData(message.WorldData);
-                            IsConnected = true;
-                            Log.Information($"Connected to Server with ID: {ID}");
-                            Assets.StartButton.JoinGame();
-                            foreach (NetPeer i in s_client.ConnectedPeerList)
-                            {
-                                if (i.Id == ID)
-                                    continue;
-                                Player.SpawnPlayer(i.Id);
-                            }
-                            break;
-                        
-                        case ChunkDataMessage message:
-                            SaveAndLoad.chunkDict[message.Pos.ToUnity()] = DataConverter.ToIl2CppChunk(message.Chunk, message.Pos).groups;
-                            CubeGenerator.GenerateSavedChunk(message.Pos.ToUnity());
-                            break;
-
-                        case RequestNewChunkDataMessage message:
-                            CubeGenerator.GenerateNewChunk(message.ChunkPos.ToUnity());
-                            Send(new ChunkDataMessage() 
-                            { 
-                                Pos = message.ChunkPos, 
-                                Chunk = DataConverter.ToChunk(new SaveAndLoad.ChunkData() 
-                                {
-                                    groups = SaveAndLoad.chunkDict[message.ChunkPos.ToUnity()] 
-                                })
-                            });
-                            break;
-                    }
+                    ProcessServerDataMessage(MessagePackSerializer.Deserialize<IServerDataMessage>(buffer));
                     break;
             }
         }
+
+        public static Dictionary<ObjectUID, GroupSyncerComponent> SyncedObjects { get; set; } = new();
+
+        // Override cube base cube init or something like that
+        static void SyncAllGroups()
+        {
+            foreach (var cube in UnityEngine.Object.FindObjectsOfTypeAll(Il2CppType.Of<RigidbodyManager>()).Select(cb => cb.Cast<RigidbodyManager>().gameObject))
+                if (cube.GetComponent<GroupSyncerComponent>() == null)
+                    cube.AddComponent<GroupSyncerComponent>().Apply(g => SyncedObjects.Add(g.UID, g));
+        }
+
+        public static void ClaimHost(ObjectUID uid)
+        {
+            Log.Information($"Trying to claim a host of {SyncedObjects[uid].UID} from: {SyncedObjects[uid].HostID} to: {ID}");
+
+            SyncedObjects[uid].HostID = ID;
+            
+            Send(new GroupSetHostMessage()
+            {
+                GroupID = uid,
+                NewHostID = Network.ID
+            });
+        }
+
+        private static void ProcessServerDataMessage(IServerDataMessage serverDataMessage)
+        {
+            switch (serverDataMessage)
+            {
+                case ServerInfoMessage message:
+                    ID = message.UID;
+
+                    var dayNightCycleButton = UnityUtils.FindGameObjectOfType<DayNightCycleButton>();
+                    dayNightCycleButton.SwitchState(message.IsDayNightCycle);
+                    ServerInfo = message;
+                    World.LoadWorldData(message.WorldData);
+                    IsConnected = true;
+                    Log.Information($"Connected to Server with ID: {ID}");
+                    Assets.StartButton.JoinGame();
+                    foreach (NetPeer i in s_client.ConnectedPeerList)
+                    {
+                        if (i.Id == ID)
+                            continue;
+                        Player.SpawnPlayer(i.Id);
+                    }
+                    break;
+
+                // If server request to generate a new chunk
+                case RequestNewChunkDataMessage message:
+                    CubeGenerator.GenerateNewChunk(message.ChunkPos.ToUnity());
+                    Send(new RequestedChunkDataMessage() { Pos = message.ChunkPos });
+                    
+                    // SyncAllGroups();
+
+                    // TODO: Remove that???
+                    /*Send(new SavedChunkDataMessage() // Server will save generated chunk data
+                    {
+                        Pos = message.ChunkPos,
+                        Chunk = DataConverter.ToChunk(SaveAndLoad.chunkDict[message.ChunkPos.ToUnity()])
+                    });*/
+                    break;
+
+                // If server tells that this chunk already loaded by somebody
+                case ChunkUnloadMessage message:
+                    CubeGenerator.generatedChunks.Add(message.Pos.ToUnity());
+                    break;
+
+                // If server send saved chunk
+                case SavedChunkDataMessage message:
+                    SaveAndLoad.chunkDict[message.Pos.ToUnity()] = DataConverter.ToIl2CppChunk(message.Chunk);
+                    CubeGenerator.GenerateSavedChunk(message.Pos.ToUnity());
+                    // SyncAllGroups();
+                    break;
+
+                
+            }
+        }
+        private static void ProcessGameDataMessage(IGameDataMessage gameDataMessage)
+        {
+            switch (gameDataMessage)
+            {
+                case JoinMessage message:
+                    Log.Information($"Joined player with ID{message.JoinID}");
+                    Player.SpawnPlayer(message.JoinID);
+                    break;
+                case LeaveMessage message:
+                    Log.Information($"Player left with ID{message.LeaveID}");
+                    Player.DespawnPlayer(message.LeaveID);
+                    break;
+                case PlayerPositionUpdateMessage message:
+                    Player.s_activePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
+                    break;
+
+                case GroupUpdateMessage message:
+                    if (SyncedObjects.TryGetValue(message.GroupUID, out var groupSyncerComponent))
+                    {
+                        if (groupSyncerComponent.RBM == null)
+                        {
+                            Log.Warning("Rigidbody manager is null! Update skipped...");
+                            break;
+                        }
+                        UpdateGroupValues(groupSyncerComponent.RBM, message.GroupData);
+                        break;
+                    }
+
+                    // IF GROUP DIDN'T EXISTS:
+
+                    //// Attempt 2:
+
+                    /*CubeGenerator.GenerateGroup(new GroupData
+                    {
+                        pos = message.GroupData.Position.ToUnity(),
+                        rot = message.GroupData.Rotation.ToUnity(),
+                        cubes = message.GroupData.Cubes.Select(DataConverter.ToIl2CppCube).ToList().ToIl2cpp()
+                    }, message.GroupData.Position.ToUnity(), message.GroupData.Rotation.ToUnity(), false, true);
+
+                    // FIXME: THERE CHECK THAT CODE PLEASE
+                    var rbm = GameObject.FindObjectsOfTypeAll(Il2CppType.Of<RigidbodyManager>()).First(c => c.Cast<RigidbodyManager>().GetComponent<GroupSyncerComponent>() == null).Cast<RigidbodyManager>();
+                    s_syncedObjects[message.GroupUID] = rbm.gameObject.AddComponent<GroupSyncerComponent>().Apply(c =>
+                    {
+                        c.HostID = -1;
+                        c.UID = message.GroupUID;
+                    });*/
+
+                    //// Attempt 1:
+
+                    /*var rbm = GameObject.Instantiate(s_baseGroupedCube).GetComponent<RigidbodyManager>();
+                    for (var i = 0; i < message.GroupData.Cubes.Count; i++)
+                        GameObject.Instantiate(s_baseCube).Apply(cube => cube.transform.SetParent(rbm.transform));*//*
+
+                    groupSyncerComponent = rbm.gameObject.AddComponent<GroupSyncerComponent>();
+                    s_syncedObjects[message.GroupUID] = groupSyncerComponent;*/
+
+                    //// Attempt 3:
+
+                    var newGroup = GameObject.Instantiate(s_baseGroupedCube);
+
+                    groupSyncerComponent = newGroup.GetComponent<GroupSyncerComponent>() ?? newGroup.AddComponent<GroupSyncerComponent>();
+
+                    groupSyncerComponent.UID = message.GroupUID;
+                    groupSyncerComponent.HostID = -1; // From message?
+
+                    foreach (var cube in message.GroupData.Cubes)
+                    {
+                        var go = CubeGenerator.GenerateCube(
+                            cube.Position.ToUnity(),
+                            cube.Scale.ToUnity(),
+                            (Il2Cpp.Substance)cube.Substance,
+                            (CubeAppearance.SectionState)cube.SectionState, 
+                            new()
+                            {
+                                back = cube.UVOffset.Back.ToUnity(),
+                                bottom = cube.UVOffset.Bottom.ToUnity(),
+                                front = cube.UVOffset.Front.ToUnity(),
+                                left = cube.UVOffset.Left.ToUnity(),
+                                right = cube.UVOffset.Right.ToUnity(),
+                                top = cube.UVOffset.Top.ToUnity()
+                            }
+                        );
+
+                        go.transform.SetParent(groupSyncerComponent.transform, false);
+                    }
+
+                    SyncedObjects[message.GroupUID] = groupSyncerComponent;
+
+                    break;
+
+                case GroupDestroyedMessage message:
+                    if (!SyncedObjects.ContainsKey(message.GroupID)) break;
+                    GameObject.Destroy(SyncedObjects[message.GroupID].gameObject);
+                    SyncedObjects.Remove(message.GroupID);
+                    break;
+
+                case GroupSetHostMessage message:
+                    Log.Information($"Host claimed of {message.GroupID} from {SyncedObjects[message.GroupID].HostID} to {message.NewHostID}");
+                    SyncedObjects[message.GroupID].HostID = message.NewHostID;
+                    break;
+            }
+        }
+
+        public static Group GetGroupValues(RigidbodyManager source) => new()
+        {
+            Position = source.transform.localPosition.ToShared(),
+            Rotation = source.transform.localRotation.ToShared(),
+            Velocity = source.rb.velocity.ToShared(),
+            AngularVelocity = source.rb.angularVelocity.ToShared(),
+            IsFixedToGroup = source.IsFixedToGround,
+
+            Cubes = source.transform.Childrens().Select(child =>
+            {
+                var cubeBase = child.GetComponent<CubeBase>();
+                var cubeConnector = child.GetComponent<CubeConnector>();
+                var heat = child.GetComponent<Heat>();
+                var fluid = child.GetComponent<FluidDynamics>();
+                var cubeAppearance = child.GetComponent<CubeAppearance>();
+
+                var cube = new Cube
+                {
+                    Position = child.transform.localPosition.ToShared(),
+                    Rotation = child.transform.localRotation.ToShared(),
+                    Scale = child.transform.localScale.ToShared(),
+
+                    Life = cubeBase.life,
+                    MaxLife = cubeBase.maxLife,
+
+                    Anchor = (Anchor)cubeConnector.anchor,
+                    Substance = (Shared.DataObjects.Substance)cubeBase.substance,
+                    Name = (Shared.DataObjects.CubeName)cubeBase.cubeName,
+                    Connections = cubeConnector.Connections.ToSystem()
+                        .Select(connection => source.transform.Childrens()
+                        .IndexOf(connection.gameObject))
+                        .ToList(),
+
+                    Temperature = heat.Temperature,
+                    IsBurning = heat.isBurning,
+                    BurnedRatio = heat.burnedRatio,
+                    SectionState = (SectionState)cubeAppearance.sectionState,
+                    UVOffset = new()
+                    {
+                        Back = cubeAppearance.uvOffset.back.ToShared(),
+                        Bottom = cubeAppearance.uvOffset.bottom.ToShared(),
+                        Front = cubeAppearance.uvOffset.front.ToShared(),
+                        Left = cubeAppearance.uvOffset.left.ToShared(),
+                        Right = cubeAppearance.uvOffset.right.ToShared(),
+                        Top = cubeAppearance.uvOffset.top.ToShared()
+                    }
+                };
+                return cube;
+            }).ToList()
+        };
+
+        public static void UpdateGroupValues(RigidbodyManager group, Group source)
+        {
+            group.transform.localPosition = source.Position.ToUnity();
+            group.transform.localRotation = source.Rotation.ToUnity();
+
+            group.rb.velocity = source.Velocity.ToUnity();
+            group.rb.angularVelocity = source.AngularVelocity.ToUnity();
+
+            group.IsFixedToGround = source.IsFixedToGroup;
+            group.rb.isKinematic = group.IsFixedToGround;
+
+            for (int childIndex = 0; childIndex < group.transform.GetChildCount(); childIndex++)
+            {
+                try
+                {
+                    var child = group.transform.GetChild(childIndex);
+                    var sourceCube = source.Cubes[childIndex];
+
+                    var cubeBase = child.GetComponent<CubeBase>();
+                    var cubeConnector = child.GetComponent<CubeConnector>();
+                    var heat = child.GetComponent<Heat>();
+                    var fluid = child.GetComponent<FluidDynamics>();
+                    var cubeAppearance = child.GetComponent<CubeAppearance>();
+
+                    child.transform.localPosition = sourceCube.Position.ToUnity();
+                    child.transform.localRotation = sourceCube.Rotation.ToUnity();
+                    child.transform.localScale = sourceCube.Scale.ToUnity();
+
+                    cubeBase.life = sourceCube.Life;
+                    cubeBase.maxLife = sourceCube.Life;
+
+                    cubeConnector.anchor = (CubeConnector.Anchor)sourceCube.Anchor;
+                    cubeBase.substance = (Il2Cpp.Substance)sourceCube.Substance;
+                    cubeBase.cubeName = (Il2Cpp.CubeName)sourceCube.Name;
+
+                    cubeBase.cubeConnector.Connections = new HashSet<CubeConnector>(
+                        sourceCube.Connections
+                        .Select(connectionId => group.transform.GetChild(connectionId).GetComponent<CubeConnector>())
+                        .ToList()
+                    ).ToIl2Cpp();
+
+                    heat.Temperature = sourceCube.Temperature;
+                    heat.isBurning = sourceCube.IsBurning;
+                    heat.burnedRatio = sourceCube.BurnedRatio;
+
+                    cubeAppearance.sectionState = (CubeAppearance.SectionState)sourceCube.SectionState;
+                    cubeAppearance.uvOffset = new()
+                    {
+                        back = sourceCube.UVOffset.Back.ToUnity(),
+                        bottom = sourceCube.UVOffset.Bottom.ToUnity(),
+                        front = sourceCube.UVOffset.Front.ToUnity(),
+                        left = sourceCube.UVOffset.Left.ToUnity(),
+                        right = sourceCube.UVOffset.Right.ToUnity(),
+                        top = sourceCube.UVOffset.Top.ToUnity()
+                    };
+                } catch (Exception ex)
+                {
+                    Log.Error($"Exception for group {group.GetComponent<GroupSyncerComponent>().UID}");
+                    Log.Error(ex);
+                }
+            }
+        }
+
+        
 
         public static void Send(IDataMessage message)
         {
@@ -232,6 +492,18 @@ namespace YuchiGames.POM.Client.Managers
                 ProtocolType.Udp => DeliveryMethod.Sequenced,
                 _ => throw new NotSupportedException()
             });
+        }
+
+        public static void Init()
+        {
+            s_baseGroupedCube = GameObject.FindObjectsOfTypeAll(Il2CppType.Of<RigidbodyManager>())
+                .Select(obj => obj.Cast<RigidbodyManager>().gameObject)
+                .First(obj => obj.name == "GroupedCube");
+            s_baseGroupedCube = GameObject.Instantiate(s_baseGroupedCube);
+            s_baseCube = s_baseGroupedCube.transform.Childrens().First().gameObject;
+            s_baseCube = GameObject.Instantiate(s_baseCube);
+
+            GameObject.Destroy(s_baseGroupedCube.transform.Childrens().First().gameObject);
         }
     }
 }
