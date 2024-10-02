@@ -82,6 +82,8 @@ namespace YuchiGames.POM.Shared.DataObjects
         public List<Cube> Cubes { get; set; } = new();
         [Key(5)]
         public bool IsFixedToGroup { get; set; } // FIXME: At that to save
+        [Key(6)]
+        public float Mass { get; set; }
     }
 
     [MessagePackObject]

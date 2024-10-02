@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using static Il2CppRootMotion.FinalIK.RagdollUtility;
 using static Il2Cpp.SaveAndLoad;
 using static MelonLoader.MelonLogger;
+using YuchiGames.POM.Shared.Utils;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -127,11 +128,10 @@ namespace YuchiGames.POM.Client.Managers
                 Ping = s_client.FirstPeer.Ping;
             if (IsConnected)
             {
-                IGameDataMessage message = new PlayerPositionMessage(new PlayerPositionData(
-                    Player.s_clientPlayerTransform[0].ToShared(),
-                    Player.s_clientPlayerTransform[1].ToShared(),
-                    Player.s_clientPlayerTransform[2].ToShared()));
-                Send(message);
+                Send(new PlayerPositionMessage()
+                {
+                    PlayerPos = Player.GetLocalPlayerPositionData()
+                });
             }
         }
 
@@ -231,6 +231,9 @@ namespace YuchiGames.POM.Client.Managers
                             continue;
                         Player.SpawnPlayer(i.Id);
                     }
+
+                    GroupSyncerComponent.WorldUpdateDistance = ServerInfo.WorldUpdateDistance;
+                    GroupSyncerComponent.WorldQuickUpdateDistance = ServerInfo.WorldQuickUpdateDistance;
                     break;
 
                 // If server request to generate a new chunk
@@ -276,12 +279,14 @@ namespace YuchiGames.POM.Client.Managers
                     Player.DespawnPlayer(message.LeaveID);
                     break;
                 case PlayerPositionUpdateMessage message:
-                    Player.s_activePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
+                    Player.ActivePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
                     break;
 
                 case GroupUpdateMessage message:
+
                     if (SyncedObjects.TryGetValue(message.GroupUID, out var groupSyncerComponent))
                     {
+                        if (groupSyncerComponent.HostID == ID) break;
                         if (groupSyncerComponent.RBM == null)
                         {
                             Log.Warning("Rigidbody manager is null! Update skipped...");
@@ -290,36 +295,6 @@ namespace YuchiGames.POM.Client.Managers
                         UpdateGroupValues(groupSyncerComponent.RBM, message.GroupData);
                         break;
                     }
-
-                    // IF GROUP DIDN'T EXISTS:
-
-                    //// Attempt 2:
-
-                    /*CubeGenerator.GenerateGroup(new GroupData
-                    {
-                        pos = message.GroupData.Position.ToUnity(),
-                        rot = message.GroupData.Rotation.ToUnity(),
-                        cubes = message.GroupData.Cubes.Select(DataConverter.ToIl2CppCube).ToList().ToIl2cpp()
-                    }, message.GroupData.Position.ToUnity(), message.GroupData.Rotation.ToUnity(), false, true);
-
-                    // FIXME: THERE CHECK THAT CODE PLEASE
-                    var rbm = GameObject.FindObjectsOfTypeAll(Il2CppType.Of<RigidbodyManager>()).First(c => c.Cast<RigidbodyManager>().GetComponent<GroupSyncerComponent>() == null).Cast<RigidbodyManager>();
-                    s_syncedObjects[message.GroupUID] = rbm.gameObject.AddComponent<GroupSyncerComponent>().Apply(c =>
-                    {
-                        c.HostID = -1;
-                        c.UID = message.GroupUID;
-                    });*/
-
-                    //// Attempt 1:
-
-                    /*var rbm = GameObject.Instantiate(s_baseGroupedCube).GetComponent<RigidbodyManager>();
-                    for (var i = 0; i < message.GroupData.Cubes.Count; i++)
-                        GameObject.Instantiate(s_baseCube).Apply(cube => cube.transform.SetParent(rbm.transform));*//*
-
-                    groupSyncerComponent = rbm.gameObject.AddComponent<GroupSyncerComponent>();
-                    s_syncedObjects[message.GroupUID] = groupSyncerComponent;*/
-
-                    //// Attempt 3:
 
                     var newGroup = GameObject.Instantiate(s_baseGroupedCube);
 
@@ -350,6 +325,7 @@ namespace YuchiGames.POM.Client.Managers
                     }
 
                     SyncedObjects[message.GroupUID] = groupSyncerComponent;
+                    UpdateGroupValues(groupSyncerComponent.GetComponent<RigidbodyManager>(), message.GroupData);
 
                     break;
 
@@ -360,11 +336,27 @@ namespace YuchiGames.POM.Client.Managers
                     break;
 
                 case GroupSetHostMessage message:
-                    Log.Information($"Host claimed of {message.GroupID} from {SyncedObjects[message.GroupID].HostID} to {message.NewHostID}");
+                    Log.Debug($"Host claimed of {message.GroupID} from {SyncedObjects[message.GroupID].HostID} to {message.NewHostID}");
                     SyncedObjects[message.GroupID].HostID = message.NewHostID;
+                    if (message.NewHostID < 0) // Give away host
+                        Send(new GroupSetHostMessage() { GroupID = message.GroupID, NewHostID = ID });
+                    break;
+
+                case GroupQuickUpdateMessage message:
+                    if (SyncedObjects.TryGetValue(message.ObjectUID, out var groupObject))
+                        groupObject.RBM?.Apply(rbm => QuickUpdateGroupValues(rbm, message));
                     break;
             }
         }
+
+        public static GroupQuickUpdateMessage GetQuickGroupValues(RigidbodyManager source) => new()
+        {
+            Position = source.transform.localPosition.ToShared(),
+            Rotation = source.transform.localRotation.ToShared(),
+
+            AngularVelocity = source.rb.angularVelocity.ToShared(),
+            Velocity = source.rb.velocity.ToShared(),
+        };
 
         public static Group GetGroupValues(RigidbodyManager source) => new()
         {
@@ -373,6 +365,8 @@ namespace YuchiGames.POM.Client.Managers
             Velocity = source.rb.velocity.ToShared(),
             AngularVelocity = source.rb.angularVelocity.ToShared(),
             IsFixedToGroup = source.IsFixedToGround,
+
+            Mass = source.rb.mass,
 
             Cubes = source.transform.Childrens().Select(child =>
             {
@@ -416,6 +410,15 @@ namespace YuchiGames.POM.Client.Managers
                 return cube;
             }).ToList()
         };
+
+        public static void QuickUpdateGroupValues(RigidbodyManager group, GroupQuickUpdateMessage data)
+        {
+            group.rb.velocity = data.Velocity.ToUnity();
+            group.rb.angularVelocity = data.AngularVelocity.ToUnity();
+
+            group.transform.localPosition = data.Position.ToUnity();
+            group.transform.localRotation = data.Rotation.ToUnity();
+        }
 
         public static void UpdateGroupValues(RigidbodyManager group, Group source)
         {
@@ -478,6 +481,9 @@ namespace YuchiGames.POM.Client.Managers
                     Log.Error(ex);
                 }
             }
+
+
+            group.rb.mass = source.Mass;
         }
 
         

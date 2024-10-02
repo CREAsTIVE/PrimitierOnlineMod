@@ -48,6 +48,10 @@ namespace YuchiGames.POM.Shared
         public bool IsDayNightCycle { get; set; }
         [Key(3)]
         public int UID { get; set; }
+        [Key(4)]
+        public float WorldQuickUpdateDistance { get; set; }
+        [Key(5)]
+        public float WorldUpdateDistance { get; set; }
     }
 
 

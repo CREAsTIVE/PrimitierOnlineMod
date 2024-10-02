@@ -2,6 +2,7 @@
 using YuchiGames.POM.Shared.DataObjects;
 using UnityEngine;
 using YuchiGames.POM.Shared;
+using YuchiGames.POM.Shared.Utils;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -30,22 +31,6 @@ namespace YuchiGames.POM.Client.Managers
                 }),
                 chunks = new(),
             };
-            /*s_worldData = localWorldData;
-            s_seed = s_worldData.Seed;
-            s_saveData.seed = s_worldData.Seed;
-            s_saveData.time = s_worldData.Time;
-            s_saveData.playerMaxLife = s_worldData.PlayerMaxLife;
-            s_saveData.playerPos = DataConverter.ToUnity(s_worldData.PlayerPos);
-            s_saveData.playerAngle = s_worldData.PlayerAngle;
-            s_saveData.playerLife = s_worldData.PlayerLife;
-            s_saveData.respawnPos = DataConverter.ToUnity(s_worldData.RespawnPos);
-            s_saveData.respawnAngle = s_worldData.RespawnAngle;
-            s_saveData.cameraPos = DataConverter.ToUnity(s_worldData.CameraPos);
-            s_saveData.cameraRot = DataConverter.ToUnity(s_worldData.CameraRot);
-            Il2CppSystem.Collections.Generic.List<Vector3> holsterPositions = new Il2CppSystem.Collections.Generic.List<Vector3>();
-            holsterPositions.Add(DataConverter.ToUnity(s_worldData.HolsterLeftPos));
-            holsterPositions.Add(DataConverter.ToUnity(s_worldData.HolsterRightPos));
-            s_saveData.holsterPositions = holsterPositions;*/
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YuchiGames.POM.Shared
+namespace YuchiGames.POM.Shared.Utils
 {
-    public static class IEnumerableUtils
+    public static class EnumerableUtils
     {
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
@@ -28,14 +28,5 @@ namespace YuchiGames.POM.Shared
 
         public static int IndexOf<T>(this IEnumerable<T> enumerable, T obj) =>
             enumerable.IndexOf(other => other?.Equals(obj) ?? false);
-    }
-    public static class ObjectUtils
-    {
-        public static T Apply<T>(this T value, Action<T> action)
-        {
-            action(value);
-            return value;
-        }
-        public static R Let<T, R>(this T value, Func<T, R> action) => action(value);
     }
 }

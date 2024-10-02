@@ -2,6 +2,7 @@
 using YuchiGames.POM.Shared.DataObjects;
 using UnityEngine;
 using YuchiGames.POM.Shared;
+using Unity.XR.CoreUtils;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -11,19 +12,19 @@ namespace YuchiGames.POM.Client.Managers
         private Transform[] _playerObjectTransforms;
 
         private static GameObject s_basePlayerObject;
-        public static Dictionary<int, Player> s_activePlayers = new();
+        public static Dictionary<int, Player> ActivePlayers { get; set; } = new();
         public static Transform[] s_clientPlayerTransform;
 
         static Player()
         {
             AvatarVisibility player = GameObject.FindObjectOfType<AvatarVisibility>();
             s_basePlayerObject = LoadBasePlayerObject(player);
-            s_clientPlayerTransform = GetClientPlayerTransform(player);
+            s_clientPlayerTransform = GetClientPlayerTransform(player, GameObject.FindObjectOfType<XROrigin>());
         }
 
-        static Transform[] GetClientPlayerTransform(AvatarVisibility player)
+        static Transform[] GetClientPlayerTransform(AvatarVisibility player, XROrigin origin)
         {
-            return new[] { player.proxyHead.transform, player.proxyLeftHand.transform, player.proxyRightHand.transform };
+            return new[] { player.proxyHead.transform, player.proxyLeftHand.transform, player.proxyRightHand.transform, origin.transform };
         }
 
         static GameObject LoadBasePlayerObject(AvatarVisibility basePlayer)
@@ -56,6 +57,7 @@ namespace YuchiGames.POM.Client.Managers
             _playerObject = GameObject.Instantiate(s_basePlayerObject);
             _playerObject.name = $"BaseBody_Player{id}";
             _playerObject.active = true;
+
             _playerObjectTransforms[0] = _playerObject.transform.Find("Head");
             _playerObjectTransforms[1] = _playerObject.transform.Find("LeftHand");
             _playerObjectTransforms[2] = _playerObject.transform.Find("RightHand");
@@ -73,26 +75,36 @@ namespace YuchiGames.POM.Client.Managers
 
         public static void SpawnPlayer(int id)
         {
-            s_activePlayers[id] = new Player(id);
+            ActivePlayers[id] = new Player(id);
         }
 
         public static void DespawnPlayer(int id)
         {
-            s_activePlayers[id].Destroy();
-            s_activePlayers.Remove(id);
+            ActivePlayers[id].Destroy();
+            ActivePlayers.Remove(id);
         }
 
-        public PlayerPositionData GetPositionData()
+        public PlayerPositionData GetPositionData() => new()
         {
-            PlayerPositionData posData = new PlayerPositionData(
-                _playerObjectTransforms[0].ToShared(),
-                _playerObjectTransforms[1].ToShared(),
-                _playerObjectTransforms[2].ToShared());
-            return posData;
-        }
+            Head = _playerObjectTransforms[0].ToShared(),
+            LeftHand = _playerObjectTransforms[1].ToShared(),
+            RightHand = _playerObjectTransforms[2].ToShared(),
+        };
+
+        public static PlayerPositionData GetLocalPlayerPositionData() => new()
+        {
+            BasePosition = s_clientPlayerTransform[3].transform.position.ToShared(),
+            Head = s_clientPlayerTransform[0].transform.ToShared(),
+            LeftHand = s_clientPlayerTransform[1].transform.ToShared(),
+            RightHand = s_clientPlayerTransform[2].transform.ToShared(),
+        };
+
+        public SVector3 PlayerLastPositionData = new(0, 0, 0);
 
         public void SetPositionData(PlayerPositionData posData)
         {
+            PlayerLastPositionData = posData.BasePosition;
+
             _playerObjectTransforms[0].position = DataConverter.ToUnity(posData.Head.Position);
             _playerObjectTransforms[0].rotation = DataConverter.ToUnity(posData.Head.Rotation);
             _playerObjectTransforms[1].position = DataConverter.ToUnity(posData.LeftHand.Position);

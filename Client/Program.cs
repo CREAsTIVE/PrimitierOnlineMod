@@ -45,6 +45,7 @@ namespace YuchiGames.POM.Client
             MelonEvents.OnSceneWasInitialized.Subscribe(PingUI.OnSceneWasInitialized);
             MelonEvents.OnSceneWasInitialized.Subscribe((_, _) => SystemObject.Init());
             MelonEvents.OnSceneWasInitialized.Subscribe((_, _) => Network.Init());
+            MelonEvents.OnUpdate.Subscribe(GroupSyncerComponent.GlobalUpdate);
             MelonEvents.OnUpdate.Subscribe(Network.OnUpdate);
             MelonEvents.OnUpdate.Subscribe(PingUI.OnUpdate);
             MelonEvents.OnGUI.Subscribe(InfoGUI.OnGUI);

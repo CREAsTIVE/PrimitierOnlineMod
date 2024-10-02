@@ -1,6 +1,7 @@
 ﻿using MessagePack;
 using YuchiGames.POM.Shared.DataObjects;
 using System.Net.Sockets;
+using System.ComponentModel;
 
 namespace YuchiGames.POM.Shared
 {
@@ -12,6 +13,7 @@ namespace YuchiGames.POM.Shared
     [Union(4, typeof(GroupUpdateMessage))]
     [Union(5, typeof(GroupDestroyedMessage))]
     [Union(6, typeof(GroupSetHostMessage))]
+    [Union(7, typeof(GroupQuickUpdateMessage))]
     public interface IGameDataMessage : IDataMessage
     {
         [IgnoreMember]
@@ -60,13 +62,7 @@ namespace YuchiGames.POM.Shared
         public ProtocolType Protocol => ProtocolType.Udp;
 
         [Key(0)]
-        public PlayerPositionData PlayerPos { get; }
-
-        [SerializationConstructor]
-        public PlayerPositionMessage(PlayerPositionData playerPos)
-        {
-            PlayerPos = playerPos;
-        }
+        public PlayerPositionData PlayerPos { get; set; } = null!;
     }
 
     // Server->Client player pos
@@ -123,5 +119,24 @@ namespace YuchiGames.POM.Shared
         public ObjectUID GroupID { get; set; }
         [Key(1)]
         public int NewHostID { get; set; }
+    }
+
+    [MessagePackObject]
+    public class GroupQuickUpdateMessage : IGameDataMessage
+    {
+
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public ObjectUID ObjectUID { get; set; }
+        [Key(1)]
+        public SVector3 Position { get; set; }
+        [Key(2)]
+        public SQuaternion Rotation { get; set; }
+        [Key(3)]
+        public SVector3 Velocity { get; set; }
+        [Key(4)]
+        public SVector3 AngularVelocity { get; set; }
     }
 }

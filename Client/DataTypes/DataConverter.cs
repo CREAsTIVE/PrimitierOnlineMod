@@ -4,6 +4,7 @@ using UnityEngine;
 using YuchiGames.POM.Client.Assets;
 using static Il2Cpp.CubeAppearance;
 using static Il2Cpp.SaveAndLoad;
+using YuchiGames.POM.Shared.Utils;
 
 namespace YuchiGames.POM.Shared
 {
@@ -59,8 +60,7 @@ namespace YuchiGames.POM.Shared
 
         public static STransform ToShared(this Transform transform)
         {
-            return new STransform(new SVector3(transform.position.x, transform.position.y, transform.position.z),
-                new SQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+            return new STransform(transform.position.ToShared(), transform.rotation.ToShared());
         }
 
         public static Il2CppSystem.Collections.Generic.List<T> ToIl2cpp<T>(this List<T> systemList)

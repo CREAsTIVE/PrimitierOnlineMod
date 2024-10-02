@@ -1,56 +1,55 @@
 ﻿using LiteNetLib;
 using MessagePack;
-using Serilog;
 using YuchiGames.POM.Shared.DataObjects;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using YuchiGames.POM.Shared;
 using System.Diagnostics.CodeAnalysis;
+using YuchiGames.POM.Shared.Utils;
 
-namespace YuchiGames.POM.Server.Managers
+namespace YuchiGames.POM.Server
 {
-    public class Network
+    public class Server
     {
-        public struct ConnectedUser
+        // Connected users: 
+        public class ConnectedUser
         {
             public ConnectedUser() { }
             public string GUID = "";
             public int UID = NextID();
 
+            public SVector3 LastPlayerPosition = new();
+
 
             static int s_idCounter;
             static int NextID() => s_idCounter++;
         }
-
-        EventBasedNetListener _listener = new();
-
         Dictionary<NetPeer, ConnectedUser> _authorizedUsers = new();
-        bool IsAuthorized(NetPeer peer) => _authorizedUsers.ContainsKey(peer);
-
         List<NetPeer> _waitingForAuthUsers = new();
 
-        Task? _pollEventsTask = null;
+        bool IsAuthorized(NetPeer peer) => _authorizedUsers.ContainsKey(peer);
 
-        public int MaxPlayersCount => ServerSettings.MaxPlayers; // Can be chaged to variable later 
 
-        public ServerSettings ServerSettings;
+        // Internal:
+        EventBasedNetListener _listener = new();
+        NetManager _netServer;
 
-        NetManager _server;
 
-        public WorldData WorldData;
+        // Settings:
+        public ServerSettings Settings;
+        public ILogger Log = new EmptyLogger();
 
-        public Network(ServerSettings serverSettings)
+        public WorldData WorldData = new();
+
+        public Server(ServerConfig serverSettings)
         {
-            this.ServerSettings = serverSettings;
+            Settings = serverSettings;
 
-            _server = new NetManager(_listener)
+            _netServer = new NetManager(_listener)
             {
                 AutoRecycle = true,
                 ChannelsCount = 2
             };
-
-            WorldData = new(); // TODO: allow to load saves
 
             _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
             _listener.PeerConnectedEvent += PeerConnectedEventHandler;
@@ -61,14 +60,14 @@ namespace YuchiGames.POM.Server.Managers
 
         bool ValidateConnection(AuthData authData, [NotNullWhen(false)] out string? errorMessage)
         {
-            if (_authorizedUsers.Count + _waitingForAuthUsers.Count >= MaxPlayersCount)
+            if (_authorizedUsers.Count + _waitingForAuthUsers.Count >= Settings.MaxPlayers)
             {
                 errorMessage = "Too many connections";
                 return false;
             }
-            if (authData.Version != Program.Version)
+            if (authData.Version != Settings.Version)
             {
-                errorMessage = $"Versions unmatched. Server: {Program.Version}. Client: {authData.Version}";
+                errorMessage = $"Versions unmatched. Server: {Settings.Version}. Client: {authData.Version}";
                 return false;
             }
             errorMessage = null;
@@ -114,29 +113,29 @@ namespace YuchiGames.POM.Server.Managers
             NetworkReceiveEventProcess(peer, buffer, channel, deliveryMethod);
         }
 
-        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError)
-        {
-            Log.Error($"A network error has occurred {socketError}.");
-        }
+        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError) =>
+            Log.Error($"A network error has occurred:\n{socketError}");
 
-        public void Start(int port)
+        public void StartSynced(int port)
         {
-            _server.Start(port);
-            Log.Information($"Server started at port {port}.");
-            while (_server.IsRunning) // FIXME: Cancelation token or something
+            _netServer.Start(port);
+            Log.Info($"Server started at port {port}.");
+            while (_netServer.IsRunning) // FIXME: Cancelation token or something
             {
-                _server.PollEvents();
+                _netServer.PollEvents();
                 Task.Delay(15).Wait(); // FIXME: SCARY! .Wait is a bad thing 
             }
         }
 
-        public async Task Wait() =>
-            await (_pollEventsTask ?? throw new("Start Server!")); // FIXME: SCARY! Stop using wait!
+        public bool Stopped { get; private set; } = false;
 
         public void Stop()
         {
-            _server.Stop();
-            Log.Information("Server stopped.");
+            if (Stopped) return;
+
+            Stopped = true;
+            _netServer.Stop();
+            Log.Info("Server stopped.");
         }
 
         private void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
@@ -174,21 +173,23 @@ namespace YuchiGames.POM.Server.Managers
                     Send(new ServerInfoMessage()
                     {
                         UID = newUser.UID,
-                        IsDayNightCycle = ServerSettings.DayNightCycle,
+                        IsDayNightCycle = Settings.DayNightCycle,
                         WorldData = localWorldData,
-                        MaxPlayers = MaxPlayersCount
+                        MaxPlayers = Settings.MaxPlayers,
+                        WorldUpdateDistance = Settings.WorldUpdateDistance,
+                        WorldQuickUpdateDistance = Settings.WorldQuickUpdateDistance
                     }, peer);
 
                     SendToAllExcluded(new JoinMessage(peer.Id), peer);
 
-                    Log.Information($"Peer with ID {peer.Id} was authorized.");
+                    Log.Info($"Peer with ID {peer.Id} was authorized.");
                     break;
 
                 case RequestNewChunkDataMessage message:
                     // FIXME: EDGE CASE! Server request to load a chunk, but player leaves.
 
                     // If chunk already loaded by another player
-                    if (_loadedChunks.TryGetValue(message.ChunkPos, out var loaders)) 
+                    if (_loadedChunks.TryGetValue(message.ChunkPos, out var loaders))
                     {
                         Send(new ChunkUnloadMessage() { Pos = message.ChunkPos }, peer);
                         loaders.Add(peer);
@@ -196,14 +197,14 @@ namespace YuchiGames.POM.Server.Managers
                     }
 
                     // If someone at this moment loading that chunk
-                    if (_awaitsForChunkLoad.TryGetValue(message.ChunkPos, out var loaderWaiter)) 
+                    if (_awaitsForChunkLoad.TryGetValue(message.ChunkPos, out var loaderWaiter))
                     {
                         loaderWaiter.waiters.Add(peer);
                         break;
                     }
 
                     // If chunk is saved
-                    if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk)) 
+                    if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk))
                     {
                         Send(new SavedChunkDataMessage()
                         {
@@ -215,7 +216,7 @@ namespace YuchiGames.POM.Server.Managers
                     }
 
                     // If chunk need to be generated
-                    _awaitsForChunkLoad[message.ChunkPos] = (peer, new()); 
+                    _awaitsForChunkLoad[message.ChunkPos] = (peer, new());
                     Send(new RequestNewChunkDataMessage() { ChunkPos = message.ChunkPos }, peer);
                     break;
 
@@ -242,7 +243,7 @@ namespace YuchiGames.POM.Server.Managers
                     // If player unload still loading chunk:
                     if (_awaitsForChunkLoad.TryGetValue(message.Pos, out var loader))
                         loader.waiters.Remove(peer);
-                    
+
                     break;
 
                 // Merge with MarkChunkLoadState? Send only by request?
@@ -251,7 +252,7 @@ namespace YuchiGames.POM.Server.Managers
                         WorldData.ChunksData[message.Pos] = message.Chunk;
                     break;
 
-                
+
             }
         }
         /// <summary>
@@ -262,11 +263,20 @@ namespace YuchiGames.POM.Server.Managers
             switch (gameDataMessage)
             {
                 case PlayerPositionMessage playerPosition:
+                    _authorizedUsers[peer].LastPlayerPosition = playerPosition.PlayerPos.Head.Position;
                     SendToAllExcluded(new PlayerPositionUpdateMessage(playerPosition.PlayerPos, _authorizedUsers[peer].UID), peer);
                     break;
 
                 case GroupUpdateMessage message:
-                    SendToAllExcluded(message, peer);
+                    SendToAllExcluded(message, otherPeer =>
+                    {
+                        var sourceUserData = _authorizedUsers[peer];
+                        var userData = _authorizedUsers[otherPeer];
+
+                        var distBetween = SVector3.Distance(sourceUserData.LastPlayerPosition, userData.LastPlayerPosition) < Settings.WorldUpdateDistance && peer != otherPeer;
+
+                        return distBetween;
+                    });
                     break;
 
                 case GroupDestroyedMessage message:
@@ -274,16 +284,27 @@ namespace YuchiGames.POM.Server.Managers
                     break;
 
                 case GroupSetHostMessage message:
-                    Log.Information($"Transfering ownership of {message.GroupID} to {message.NewHostID}");
+                    Log.Debug($"Transfering ownership of {message.GroupID} to {message.NewHostID}");
                     SendToAll(message);
+                    break;
+
+                case GroupQuickUpdateMessage message:
+                    foreach (var user in _authorizedUsers)
+                    {
+                        if (user.Key == peer || SVector3.Distance(message.Position, user.Value.LastPlayerPosition) > Settings.WorldQuickUpdateDistance)
+                            continue;
+
+                        Send(message, user.Key);
+                    }
                     break;
             };
         }
+
         /// <summary>
         /// Sends message to everyon, except peer with id <paramref name="excludedPeerId"/>
         /// </summary>
         public void SendToAllExcluded(IDataMessage message, int excludedPeerId) =>
-            SendToAllExcluded(message, _server.GetPeerById(excludedPeerId));
+            SendToAllExcluded(message, _netServer.GetPeerById(excludedPeerId));
         /// <summary>
         /// Sends message to everyone, except <paramref name="excludedPeer"/>
         /// </summary>
@@ -301,7 +322,7 @@ namespace YuchiGames.POM.Server.Managers
         // used _connectedUsers.Keys so data will be sended only to authorized users
 
         public void Send(IDataMessage message, int peerId) =>
-            Send(message, _server.GetPeerById(peerId));
+            Send(message, _netServer.GetPeerById(peerId));
         public void Send(IDataMessage message, NetPeer peer)
         {
             byte[] data = IDataMessage.Serialize(message);
@@ -313,6 +334,6 @@ namespace YuchiGames.POM.Server.Managers
                 _ => throw new NotSupportedException()
             });
         }
-        
+
     }
 }
