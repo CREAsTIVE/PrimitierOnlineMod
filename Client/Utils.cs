@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using YuchiGames.POM.Shared.Utils;
 
 namespace Client
 {
@@ -26,11 +27,20 @@ namespace Client
         public static T FindGameObjectOfType<T>() where T : UnityEngine.Object =>
             FindGameObject(obj => obj.GetComponent<T>() != null).GetComponent<T>();
 
-        public static IEnumerable<GameObject> Childrens(this Transform transform)
+        public static IEnumerable<Transform> Childrens(this Transform transform)
+        {
+            for (var childId = 0; childId < transform.GetChildCount(); childId++)
+                yield return transform.GetChild(childId);
+        }
+
+        public static IEnumerable<GameObject> ChildrensObjects(this Transform transform)
         {
             for (var childId = 0; childId < transform.GetChildCount(); childId++)
                 yield return transform.GetChild(childId).gameObject;
         }
+
+        public static int ChildIndex(this Transform transform) =>
+            transform.parent.Childrens().IndexOf(transform);
     }
 
     public static class Il2CppUtils

@@ -1,5 +1,6 @@
 ﻿using Shared.Logger;
 using System.Reflection;
+using YuchiGames.POM.Server.Managers.CommandSystem;
 using YuchiGames.POM.Shared.Utils;
 
 namespace YuchiGames.POM.Server
@@ -14,21 +15,18 @@ namespace YuchiGames.POM.Server
 
             serverConfig.Version = version;
 
-            var server = new Server(serverConfig);
+            var server = new ServerApp(serverConfig);
 
             server.Log = new MultipleLoggerManager(new ConsoleLogger()); // Add file logger
 
-            Console.CancelKeyPress += (sender, e) =>
+            var commandManager = new CommandManager()
             {
-                server.Stop();
+                new Command("stop", args => server.Stop())
             };
-
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
-            {
-                server.Stop();
-            };
+            commandManager.Log = server.Log;
             
-            server.StartSynced(serverConfig.Port);
+            commandManager.Start();
+            server.Start().Wait();
         }
     }
 }

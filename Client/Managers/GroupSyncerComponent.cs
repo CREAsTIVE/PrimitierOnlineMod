@@ -1,9 +1,12 @@
-﻿using Il2Cpp;
+﻿using Client;
+using Il2Cpp;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -11,6 +14,7 @@ using YuchiGames.POM.Shared;
 using YuchiGames.POM.Shared.DataObjects;
 using YuchiGames.POM.Shared.Utils;
 using static Il2Cpp.CubeGenerator;
+using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace YuchiGames.POM.Client.Managers
 {
@@ -20,17 +24,19 @@ namespace YuchiGames.POM.Client.Managers
         public GroupSyncerComponent(IntPtr ptr) : base(ptr) { }
 
         public int HostID = Network.ID;
-        public ObjectUID UID = Network.NextObjectUID();
-        float _timePastSinceUpdate = 0f;
+        public ObjectUID GroupUID = Network.NextObjectUID();
+        public int TakeID = 0;
 
-        public RigidbodyManager RBM = null!;
+        public RigidbodyManager RBM => _rbm ?? (_rbm = GetComponent<RigidbodyManager>());
+        private RigidbodyManager? _rbm = null;
 
         bool _unloaded = false;
 
         public void Unload()
         {
             _unloaded = true;
-            Network.Send(new GroupSetHostMessage() { GroupID = UID, NewHostID = -1 });
+            SendUpdate();
+            Network.Send(new GroupSetHostMessage() { GroupID = GroupUID, NewHostID = -1 });
         }
 
         public void Start()
@@ -41,10 +47,9 @@ namespace YuchiGames.POM.Client.Managers
                 return;
             }
 
-            Network.SyncedObjects[UID] = this;
+            Network.SyncedObjects[GroupUID] = this;
 
-            RBM = GetComponent<RigidbodyManager>();
-            gameObject.name += $"[SYNCED {UID}]";
+            gameObject.name += $"[SYNCED {GroupUID}]";
 
             if (Network.IsConnected)
                 InserAwaitForUpdateObjectSorted(this);
@@ -54,53 +59,69 @@ namespace YuchiGames.POM.Client.Managers
         {
             if (Network.ID < 0)
                 return;
-            if (!_unloaded)
-                Network.Send(new GroupDestroyedMessage
-                    {
-                        GroupID = UID,
-                    }
-                );
-            Network.SyncedObjects.Remove(UID);
+
+            if (!_unloaded && IsHosted)
+                Network.Send(new GroupDestroyedMessage { GroupID = GroupUID } );
+            Network.SyncedObjects.Remove(GroupUID);
         }
-        
-        public void Update()
+
+        public void OnCollisionStay(UnityEngine.Collision collision)
         {
-            if (RBM == null)
-            {
-                RBM = GetComponent<RigidbodyManager>();
-                Log.Warning($"RigidbodyManager of GO {gameObject.name} didn't exist!");
+            if (!IsHosted)
                 return;
-            }
-                
+            if (collision.gameObject.TryGetComponent<GroupSyncerComponent>(out var syncedObject))
+                TryToClaimHost(syncedObject);
+        }
+        public void TryToClaimHost(GroupSyncerComponent other)
+        {
+            if (ShouldTake(other))
+                Network.ClaimHost(other.GroupUID);
+        }
 
-            /*_timePass += Time.deltaTime;
-            if (_timePass < NeedTime) return;
-            _timePass %= NeedTime;
+        public bool IsHosted => Network.ID == HostID;
+        /// <summary>
+        /// Do that object have priority above <paramref name="other"/> object
+        /// </summary>
+        /// <returns>true, if it have priority, otherwise false</returns>
+        public bool ShouldTake(GroupSyncerComponent other)
+        {
+            if (HostID == other.HostID)
+                return false;
+            if (TakeID == other.TakeID)
+                return other.GroupUID < GroupUID;
+            return TakeID > other.TakeID;
+        }
 
-            if (HostID != Network.ID) return;
-
+        
+        public void SendQuickUpdate()
+        {
+            Network.Send(Network.GetQuickUpdateData(RBM, GroupUID));
+        }
+        public void SendUpdate()
+        {
             Network.Send(new GroupUpdateMessage()
             {
-                GroupData = Network.GetGroupValues(RBM),
-                GroupUID = UID,
-            });*/
+                GroupData = Network.GetUpdateData(RBM),
+                GroupUID = GroupUID,
+            });
         }
 
+
+        #region Sync tasks
         class SyncerTask
         {
             public float TimePasses = 0f;
             public float TimeBetweenUpdates;
-            public Action<IEnumerable<GroupSyncerComponent>> ActualUpdate = delegate { };
+            public Action<IEnumerable<GroupSyncerComponent>> UpdateAction = delegate { };
         }
 
-        // Radius of objects, that will be synced with other players
-        public static float WorldUpdateDistance { get; set; }
-        public static float WorldQuickUpdateDistance { get; set; } // FETCH THAT FROM SERVER!!
+        public static float WorldUpdateDistance { get; set; } // Synced with server
+        public static float WorldQuickUpdateDistance { get; set; } // Synced with server
 
         private static LinkedList<(GroupSyncerComponent component, float distance)> s_awaitsForUpdateObjects = new();
 
         static float TakeMinDistance(Vector3 pos) =>
-            Player.ActivePlayers.Any() ? Player.ActivePlayers
+            Player.ConnectedPlayers.Any() ? Player.ConnectedPlayers
                 .Select(pair => Vector3.Distance(pos, pair.Value.PlayerLastPositionData.ToUnity()))
                 .Min() : 0;
 
@@ -129,17 +150,17 @@ namespace YuchiGames.POM.Client.Managers
             new() // Resort everything once in a second
             {
                 TimeBetweenUpdates = 1f,
-                ActualUpdate = groups =>
+                UpdateAction = groups =>
                 {
                     var tlist = s_awaitsForUpdateObjects.ToList();
                     tlist.Sort((a, b) => a.Item2 < b.Item2 ? -1 : 1);
                     s_awaitsForUpdateObjects = new(tlist);
                 }
             },
-            new() // All data update
+            new() // Full object data update (updates 1 object per invoke)
             {
                 TimeBetweenUpdates = 1f/100f,
-                ActualUpdate = (groups) =>
+                UpdateAction = groups =>
                 {
                     if (!s_awaitsForUpdateObjects.Any())
                     {
@@ -164,65 +185,25 @@ namespace YuchiGames.POM.Client.Managers
 
                     var elementForUpdate = nodeForUpdate.Value.component;
 
-                    elementForUpdate.RBM?.Apply(rbm =>
-                        Network.Send(new GroupUpdateMessage()
-                        {
-                            GroupData = Network.GetGroupValues(rbm),
-                            GroupUID = elementForUpdate.UID,
-                        })
-                    );
+                    elementForUpdate.SendUpdate();
 
                     s_awaitsForUpdateObjects.RemoveFirst();
-
-
-                        /*Log.Information("Collecting all groups...");
-
-                        var objectsDistances = groups
-                            .Select(obj => (obj, Player.ActivePlayers
-                                .Select(pair => Vector3.Distance(obj.gameObject.transform.position, pair.Value.PlayerLastPositionData.ToUnity()))
-                                .Min()))
-                            // .Where((pair) => pair.Item2 < MaxDistanceForUpdate)
-                            .ToList();
-
-                        objectsDistances.Sort((a, b) => a.Item2 < b.Item2 ? -1 : 1);
-
-                        s_awaitsForUpdateObjects = new(objectsDistances.Select(obj => obj.obj));
-
-                        Log.Information($"Collected {objectsDistances.Count} groups.");*/
-
-                    /*if (!s_awaitsForUpdateObjects.Any()) return;
-
-                    var elementForUpdate = s_awaitsForUpdateObjects[0];
-
-                    if (elementForUpdate == null) return;
-
-                    elementForUpdate.RBM?.Apply(rbm => 
-                        Network.Send(new GroupUpdateMessage()
-                        {
-                            GroupData = Network.GetGroupValues(rbm),
-                            GroupUID = elementForUpdate.UID,
-                        })
-                    );
-
-                    s_awaitsForUpdateObjects.RemoveAt(0);*/
                 }
             },
-            new() // Quick update (position + rotation + velocity + angular velocity)
+            new() // Quick update (position + rotation + velocity + angular velocity) (updates all objects per invoke)
             {
-                TimeBetweenUpdates = 0f,
-                ActualUpdate = groups =>
+                TimeBetweenUpdates = 0,
+                UpdateAction = groups =>
                 {
-                    var sorted = ((IEnumerable<GroupSyncerComponent>)groups)
-                        .Select(obj => (obj, Player.ActivePlayers
+                    var sorted = groups
+                        .Select(obj => (obj, Player.ConnectedPlayers
                             .Select(pair => Vector3.Distance(obj.gameObject.transform.position, pair.Value.PlayerLastPositionData.ToUnity()))
                             .Min()))
                         .Where(obj => obj.Item2 < WorldQuickUpdateDistance)
-                        .Select(obj => obj.obj)
-                        .Select(obj => (obj, obj.GetComponent<RigidbodyManager>()))
-                        .Where(obj => obj.Item2 != null);
+                        .Select(obj => obj.obj);
 
                     foreach (var e in sorted)
-                        Network.Send(Network.GetQuickGroupValues(e.Item2).Apply(values => values.ObjectUID = e.obj.UID));
+                        e.SendQuickUpdate();
 
                     return;
                 }
@@ -233,7 +214,7 @@ namespace YuchiGames.POM.Client.Managers
         {
             if (!Network.IsConnected) return;
 
-            if (Player.ActivePlayers.Count <= 0) return;
+            if (Player.ConnectedPlayers.Count <= 0) return;
 
             foreach (var task in s_tasks)
             {
@@ -248,9 +229,10 @@ namespace YuchiGames.POM.Client.Managers
                         .Select(obj => obj.Cast<GroupSyncerComponent>())
                         .Where(obj => obj.HostID == Network.ID);
 
-                    task.ActualUpdate(groups);
+                    task.UpdateAction(groups);
                 }
             }
         }
+        #endregion
     }
 }

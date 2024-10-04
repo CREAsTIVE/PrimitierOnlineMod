@@ -251,6 +251,20 @@ namespace YuchiGames.POM.Shared.DataObjects
             CreatorID = 0; LocalID = 0;
         }
 
+        public static bool operator <(ObjectUID a, ObjectUID b)
+        {
+            if (a.LocalID == b.LocalID)
+                return a.CreatorID < b.CreatorID;
+            return a.LocalID < b.LocalID;
+        }
+
+        public static bool operator >(ObjectUID a, ObjectUID b)
+        {
+            if (a.LocalID == b.LocalID)
+                return a.CreatorID > b.CreatorID;
+            return a.LocalID > b.LocalID;
+        }
+
         public override string ToString() => $"#{CreatorID}:{LocalID}";
     }
 }

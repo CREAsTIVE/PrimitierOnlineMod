@@ -39,6 +39,8 @@ namespace YuchiGames.POM.Client.Managers
         private const int s_serverId = -1;
 
         static int s_idCounter = 0;
+
+        public static int TakeID { get; set; } = 0;
         public static ObjectUID NextObjectUID() => new()
         {
             CreatorID = ID,
@@ -190,24 +192,25 @@ namespace YuchiGames.POM.Client.Managers
 
         public static Dictionary<ObjectUID, GroupSyncerComponent> SyncedObjects { get; set; } = new();
 
-        // Override cube base cube init or something like that
-        static void SyncAllGroups()
-        {
-            foreach (var cube in UnityEngine.Object.FindObjectsOfTypeAll(Il2CppType.Of<RigidbodyManager>()).Select(cb => cb.Cast<RigidbodyManager>().gameObject))
-                if (cube.GetComponent<GroupSyncerComponent>() == null)
-                    cube.AddComponent<GroupSyncerComponent>().Apply(g => SyncedObjects.Add(g.UID, g));
-        }
-
         public static void ClaimHost(ObjectUID uid)
         {
-            Log.Information($"Trying to claim a host of {SyncedObjects[uid].UID} from: {SyncedObjects[uid].HostID} to: {ID}");
+            if (!SyncedObjects.TryGetValue(uid, out var syncedObject))
+                return;
 
-            SyncedObjects[uid].HostID = ID;
+            if (syncedObject.HostID != ID)
+                Log.Debug($"Claim host of {syncedObject.GroupUID}, from {syncedObject.HostID}, to {ID}");
+
+            if (syncedObject.HostID == ID) // FIXME: Remove that maybe?
+                return; 
+
+            syncedObject.HostID = ID;
+            syncedObject.TakeID = ++TakeID;
             
             Send(new GroupSetHostMessage()
             {
                 GroupID = uid,
-                NewHostID = Network.ID
+                NewHostID = Network.ID,
+                TakeID = TakeID
             });
         }
 
@@ -279,7 +282,7 @@ namespace YuchiGames.POM.Client.Managers
                     Player.DespawnPlayer(message.LeaveID);
                     break;
                 case PlayerPositionUpdateMessage message:
-                    Player.ActivePlayers[message.PlayerID].SetPositionData(message.PlayerPos);
+                    Player.ConnectedPlayers[message.PlayerID].SetPositionData(message.PlayerPos);
                     break;
 
                 case GroupUpdateMessage message:
@@ -292,41 +295,10 @@ namespace YuchiGames.POM.Client.Managers
                             Log.Warning("Rigidbody manager is null! Update skipped...");
                             break;
                         }
-                        UpdateGroupValues(groupSyncerComponent.RBM, message.GroupData);
+                        Network.ApplyUpdateData(groupSyncerComponent.RBM, message.GroupData);
                         break;
                     }
-
-                    var newGroup = GameObject.Instantiate(s_baseGroupedCube);
-
-                    groupSyncerComponent = newGroup.GetComponent<GroupSyncerComponent>() ?? newGroup.AddComponent<GroupSyncerComponent>();
-
-                    groupSyncerComponent.UID = message.GroupUID;
-                    groupSyncerComponent.HostID = -1; // From message?
-
-                    foreach (var cube in message.GroupData.Cubes)
-                    {
-                        var go = CubeGenerator.GenerateCube(
-                            cube.Position.ToUnity(),
-                            cube.Scale.ToUnity(),
-                            (Il2Cpp.Substance)cube.Substance,
-                            (CubeAppearance.SectionState)cube.SectionState, 
-                            new()
-                            {
-                                back = cube.UVOffset.Back.ToUnity(),
-                                bottom = cube.UVOffset.Bottom.ToUnity(),
-                                front = cube.UVOffset.Front.ToUnity(),
-                                left = cube.UVOffset.Left.ToUnity(),
-                                right = cube.UVOffset.Right.ToUnity(),
-                                top = cube.UVOffset.Top.ToUnity()
-                            }
-                        );
-
-                        go.transform.SetParent(groupSyncerComponent.transform, false);
-                    }
-
-                    SyncedObjects[message.GroupUID] = groupSyncerComponent;
-                    UpdateGroupValues(groupSyncerComponent.GetComponent<RigidbodyManager>(), message.GroupData);
-
+                    CreateSyncedGroup(message);
                     break;
 
                 case GroupDestroyedMessage message:
@@ -336,39 +308,88 @@ namespace YuchiGames.POM.Client.Managers
                     break;
 
                 case GroupSetHostMessage message:
-                    Log.Debug($"Host claimed of {message.GroupID} from {SyncedObjects[message.GroupID].HostID} to {message.NewHostID}");
-                    SyncedObjects[message.GroupID].HostID = message.NewHostID;
+                    if (!SyncedObjects.TryGetValue(message.GroupID, out var syncedGroup))
+                    {
+                        Log.Warning($"Can't claim host of {message.GroupID} to {message.NewHostID}: object didn't exist!");
+                        break;
+                    }
+
+                    Log.Debug($"Host claimed of {message.GroupID} from {syncedGroup.HostID.ToString() ?? "null"} to {message.NewHostID}");
+                    TakeID = message.TakeID;
+                    syncedGroup.HostID = message.NewHostID;
+                    syncedGroup.TakeID = message.TakeID;
                     if (message.NewHostID < 0) // Give away host
-                        Send(new GroupSetHostMessage() { GroupID = message.GroupID, NewHostID = ID });
+                        ClaimHost(message.GroupID);
                     break;
 
                 case GroupQuickUpdateMessage message:
-                    if (SyncedObjects.TryGetValue(message.ObjectUID, out var groupObject))
-                        groupObject.RBM?.Apply(rbm => QuickUpdateGroupValues(rbm, message));
+                    if (SyncedObjects.TryGetValue(message.GroupUID, out var groupObject))
+                        Network.ApplyQuickUpdateData(groupObject.RBM, message);
+                    break;
+
+                case CubeDamageTakedMessage message:
+                    if (!SyncedObjects.TryGetValue(message.GroupUID, out var group) || group.IsHosted)
+                        break;
+
+                    Log.Debug("Damage take message recived");
+
+                    group.transform.GetChild(message.CubeIndex).gameObject
+                        .GetComponent<CubeBase>().Apply((cubeBase) =>
+                        {
+                            cubeBase.life = message.Health;
+                            cubeBase.ShowStatusText();
+                        });
+
                     break;
             }
         }
 
-        public static GroupQuickUpdateMessage GetQuickGroupValues(RigidbodyManager source) => new()
+        private static void CreateSyncedGroup(GroupUpdateMessage message)
         {
-            Position = source.transform.localPosition.ToShared(),
-            Rotation = source.transform.localRotation.ToShared(),
+            var newGroup = GameObject.Instantiate(s_baseGroupedCube);
 
-            AngularVelocity = source.rb.angularVelocity.ToShared(),
-            Velocity = source.rb.velocity.ToShared(),
-        };
+            var groupSyncerComponent = newGroup.GetComponent<GroupSyncerComponent>() ?? newGroup.AddComponent<GroupSyncerComponent>();
 
-        public static Group GetGroupValues(RigidbodyManager source) => new()
+            groupSyncerComponent.GroupUID = message.GroupUID;
+            groupSyncerComponent.HostID = -1; // From message?
+
+            foreach (var cube in message.GroupData.Cubes)
+            {
+                var go = CubeGenerator.GenerateCube(
+                    cube.Position.ToUnity(),
+                    cube.Scale.ToUnity(),
+                    (Il2Cpp.Substance)cube.Substance,
+                    (CubeAppearance.SectionState)cube.SectionState,
+                    new()
+                    {
+                        back = cube.UVOffset.Back.ToUnity(),
+                        bottom = cube.UVOffset.Bottom.ToUnity(),
+                        front = cube.UVOffset.Front.ToUnity(),
+                        left = cube.UVOffset.Left.ToUnity(),
+                        right = cube.UVOffset.Right.ToUnity(),
+                        top = cube.UVOffset.Top.ToUnity()
+                    }
+                );
+
+                go.transform.SetParent(groupSyncerComponent.transform, false);
+            }
+
+            SyncedObjects[message.GroupUID] = groupSyncerComponent; // Also invokes on Start
+            Network.ApplyUpdateData(groupSyncerComponent.RBM, message.GroupData);
+        }
+
+        #region Update
+        public static Group GetUpdateData(RigidbodyManager RBM) => new()
         {
-            Position = source.transform.localPosition.ToShared(),
-            Rotation = source.transform.localRotation.ToShared(),
-            Velocity = source.rb.velocity.ToShared(),
-            AngularVelocity = source.rb.angularVelocity.ToShared(),
-            IsFixedToGroup = source.IsFixedToGround,
+            Position = RBM.transform.localPosition.ToShared(),
+            Rotation = RBM.transform.localRotation.ToShared(),
+            Velocity = RBM.rb.velocity.ToShared(),
+            AngularVelocity = RBM.rb.angularVelocity.ToShared(),
+            IsFixedToGroup = RBM.IsFixedToGround,
 
-            Mass = source.rb.mass,
+            Mass = RBM.rb.mass,
 
-            Cubes = source.transform.Childrens().Select(child =>
+            Cubes = RBM.transform.ChildrensObjects().Select(child =>
             {
                 var cubeBase = child.GetComponent<CubeBase>();
                 var cubeConnector = child.GetComponent<CubeConnector>();
@@ -389,7 +410,7 @@ namespace YuchiGames.POM.Client.Managers
                     Substance = (Shared.DataObjects.Substance)cubeBase.substance,
                     Name = (Shared.DataObjects.CubeName)cubeBase.cubeName,
                     Connections = cubeConnector.Connections.ToSystem()
-                        .Select(connection => source.transform.Childrens()
+                        .Select(connection => RBM.transform.ChildrensObjects()
                         .IndexOf(connection.gameObject))
                         .ToList(),
 
@@ -411,31 +432,22 @@ namespace YuchiGames.POM.Client.Managers
             }).ToList()
         };
 
-        public static void QuickUpdateGroupValues(RigidbodyManager group, GroupQuickUpdateMessage data)
+        public static void ApplyUpdateData(RigidbodyManager RBM, Group source)
         {
-            group.rb.velocity = data.Velocity.ToUnity();
-            group.rb.angularVelocity = data.AngularVelocity.ToUnity();
+            RBM.transform.localPosition = source.Position.ToUnity();
+            RBM.transform.localRotation = source.Rotation.ToUnity();
 
-            group.transform.localPosition = data.Position.ToUnity();
-            group.transform.localRotation = data.Rotation.ToUnity();
-        }
+            RBM.rb.velocity = source.Velocity.ToUnity();
+            RBM.rb.angularVelocity = source.AngularVelocity.ToUnity();
 
-        public static void UpdateGroupValues(RigidbodyManager group, Group source)
-        {
-            group.transform.localPosition = source.Position.ToUnity();
-            group.transform.localRotation = source.Rotation.ToUnity();
+            RBM.IsFixedToGround = source.IsFixedToGroup;
+            RBM.rb.isKinematic = RBM.IsFixedToGround;
 
-            group.rb.velocity = source.Velocity.ToUnity();
-            group.rb.angularVelocity = source.AngularVelocity.ToUnity();
-
-            group.IsFixedToGround = source.IsFixedToGroup;
-            group.rb.isKinematic = group.IsFixedToGround;
-
-            for (int childIndex = 0; childIndex < group.transform.GetChildCount(); childIndex++)
+            for (int childIndex = 0; childIndex < RBM.transform.GetChildCount(); childIndex++)
             {
                 try
                 {
-                    var child = group.transform.GetChild(childIndex);
+                    var child = RBM.transform.GetChild(childIndex);
                     var sourceCube = source.Cubes[childIndex];
 
                     var cubeBase = child.GetComponent<CubeBase>();
@@ -457,7 +469,7 @@ namespace YuchiGames.POM.Client.Managers
 
                     cubeBase.cubeConnector.Connections = new HashSet<CubeConnector>(
                         sourceCube.Connections
-                        .Select(connectionId => group.transform.GetChild(connectionId).GetComponent<CubeConnector>())
+                        .Select(connectionId => RBM.transform.GetChild(connectionId).GetComponent<CubeConnector>())
                         .ToList()
                     ).ToIl2Cpp();
 
@@ -475,18 +487,40 @@ namespace YuchiGames.POM.Client.Managers
                         right = sourceCube.UVOffset.Right.ToUnity(),
                         top = sourceCube.UVOffset.Top.ToUnity()
                     };
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
-                    Log.Error($"Exception for group {group.GetComponent<GroupSyncerComponent>().UID}");
+                    Log.Error($"Exception for group {RBM.GetComponent<GroupSyncerComponent>().GroupUID}");
                     Log.Error(ex);
                 }
             }
 
-
-            group.rb.mass = source.Mass;
+            RBM.rb.mass = source.Mass;
         }
+        #endregion
 
-        
+        #region Quick update
+        public static GroupQuickUpdateMessage GetQuickUpdateData(RigidbodyManager RBM, ObjectUID GroupUID) => new()
+        {
+            Position = RBM.transform.localPosition.ToShared(),
+            Rotation = RBM.transform.localRotation.ToShared(),
+
+            AngularVelocity = RBM.rb.angularVelocity.ToShared(),
+            Velocity = RBM.rb.velocity.ToShared(),
+
+            GroupUID = GroupUID
+        };
+
+        public static void ApplyQuickUpdateData(RigidbodyManager RBM, GroupQuickUpdateMessage data)
+        {
+            RBM.rb.velocity = data.Velocity.ToUnity();
+            RBM.rb.angularVelocity = data.AngularVelocity.ToUnity();
+
+            RBM.transform.localPosition = data.Position.ToUnity();
+            RBM.transform.localRotation = data.Rotation.ToUnity();
+        }
+        #endregion
+
 
         public static void Send(IDataMessage message)
         {
@@ -506,10 +540,10 @@ namespace YuchiGames.POM.Client.Managers
                 .Select(obj => obj.Cast<RigidbodyManager>().gameObject)
                 .First(obj => obj.name == "GroupedCube");
             s_baseGroupedCube = GameObject.Instantiate(s_baseGroupedCube);
-            s_baseCube = s_baseGroupedCube.transform.Childrens().First().gameObject;
+            s_baseCube = s_baseGroupedCube.transform.ChildrensObjects().First().gameObject;
             s_baseCube = GameObject.Instantiate(s_baseCube);
 
-            GameObject.Destroy(s_baseGroupedCube.transform.Childrens().First().gameObject);
+            GameObject.Destroy(s_baseGroupedCube.transform.ChildrensObjects().First().gameObject);
         }
     }
 }

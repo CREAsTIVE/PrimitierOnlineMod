@@ -14,6 +14,7 @@ namespace YuchiGames.POM.Shared
     [Union(5, typeof(GroupDestroyedMessage))]
     [Union(6, typeof(GroupSetHostMessage))]
     [Union(7, typeof(GroupQuickUpdateMessage))]
+    [Union(8, typeof(CubeDamageTakedMessage))]
     public interface IGameDataMessage : IDataMessage
     {
         [IgnoreMember]
@@ -119,17 +120,20 @@ namespace YuchiGames.POM.Shared
         public ObjectUID GroupID { get; set; }
         [Key(1)]
         public int NewHostID { get; set; }
+        [Key(2)]
+        public int TakeID { get; set; } // index of take event. Last taked objects will have hieght id
     }
 
     [MessagePackObject]
     public class GroupQuickUpdateMessage : IGameDataMessage
     {
+        // TODO: Make Data object
 
         [IgnoreMember]
         public ProtocolType Protocol => ProtocolType.Udp;
 
         [Key(0)]
-        public ObjectUID ObjectUID { get; set; }
+        public ObjectUID GroupUID { get; set; }
         [Key(1)]
         public SVector3 Position { get; set; }
         [Key(2)]
@@ -138,5 +142,19 @@ namespace YuchiGames.POM.Shared
         public SVector3 Velocity { get; set; }
         [Key(4)]
         public SVector3 AngularVelocity { get; set; }
+    }
+
+    [MessagePackObject]
+    public class CubeDamageTakedMessage : IGameDataMessage
+    {
+        [IgnoreMember]
+        public ProtocolType Protocol => ProtocolType.Udp;
+
+        [Key(0)]
+        public ObjectUID GroupUID { get; set; }
+        [Key(1)]
+        public int CubeIndex { get; set; }
+        [Key(2)]
+        public float Health { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace YuchiGames.POM.Client.Managers
         private Transform[] _playerObjectTransforms;
 
         private static GameObject s_basePlayerObject;
-        public static Dictionary<int, Player> ActivePlayers { get; set; } = new();
+        public static Dictionary<int, Player> ConnectedPlayers { get; set; } = new();
         public static Transform[] s_clientPlayerTransform;
 
         static Player()
@@ -75,13 +75,13 @@ namespace YuchiGames.POM.Client.Managers
 
         public static void SpawnPlayer(int id)
         {
-            ActivePlayers[id] = new Player(id);
+            ConnectedPlayers[id] = new Player(id);
         }
 
         public static void DespawnPlayer(int id)
         {
-            ActivePlayers[id].Destroy();
-            ActivePlayers.Remove(id);
+            ConnectedPlayers[id].Destroy();
+            ConnectedPlayers.Remove(id);
         }
 
         public PlayerPositionData GetPositionData() => new()

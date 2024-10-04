@@ -9,7 +9,7 @@ using YuchiGames.POM.Shared.Utils;
 
 namespace YuchiGames.POM.Server
 {
-    public class Server
+    public class ServerApp
     {
         // Connected users: 
         public class ConnectedUser
@@ -41,7 +41,9 @@ namespace YuchiGames.POM.Server
 
         public WorldData WorldData = new();
 
-        public Server(ServerConfig serverSettings)
+        public int TakeID = 0;
+
+        public ServerApp(ServerConfig serverSettings)
         {
             Settings = serverSettings;
 
@@ -56,6 +58,52 @@ namespace YuchiGames.POM.Server
             _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
             _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
             _listener.NetworkErrorEvent += NetworkErrorEventHandler;
+        }
+
+        public Task Start() => Task.Run(async () =>
+        {
+            _netServer.Start(Settings.Port);
+            Log.Info($"Server started at port {Settings.Port}.");
+            while (_netServer.IsRunning)
+            {
+                _netServer.PollEvents();
+                await Task.Delay(15);
+            }
+        });
+
+        public bool Stopped { get; private set; } = false;
+        public void Stop()
+        {
+            if (Stopped) return;
+
+            Stopped = true;
+            Log.Info("Stopping a server...");
+            _netServer.Stop();
+        }
+
+        #region Connect
+        private void PeerConnectedEventHandler(NetPeer peer)
+        {
+            _waitingForAuthUsers.Add(peer);
+            Log.Debug($"Connected peer with ID {peer.Id}.");
+        }
+
+        private void ConnectionRequestEventHandler(ConnectionRequest request)
+        {
+            byte[] buffer = new byte[request.Data.AvailableBytes];
+            request.Data.GetBytes(buffer, buffer.Length);
+
+            AuthData authData = MessagePackSerializer.Deserialize<AuthData>(buffer);
+
+            if (!ValidateConnection(authData, out var error))
+            {
+                Log.Debug($"Rejected connection from {request.RemoteEndPoint}, reason: {error}.");
+                request.Reject();
+                return;
+            }
+
+            Log.Debug($"Accepted connection from {request.RemoteEndPoint}.");
+            request.Accept();
         }
 
         bool ValidateConnection(AuthData authData, [NotNullWhen(false)] out string? errorMessage)
@@ -73,30 +121,9 @@ namespace YuchiGames.POM.Server
             errorMessage = null;
             return true;
         }
+        #endregion
 
-        private void ConnectionRequestEventHandler(ConnectionRequest request)
-        {
-            byte[] buffer = new byte[request.Data.AvailableBytes];
-            request.Data.GetBytes(buffer, buffer.Length);
-            AuthData authData = MessagePackSerializer.Deserialize<AuthData>(buffer);
-
-            if (!ValidateConnection(authData, out var error))
-            {
-                Log.Debug($"Rejected connection from {request.RemoteEndPoint}, reason: {error}.");
-                request.Reject();
-                return;
-            }
-
-            Log.Debug($"Accepted connection from {request.RemoteEndPoint}.");
-            request.Accept();
-        }
-
-        private void PeerConnectedEventHandler(NetPeer peer)
-        {
-            _waitingForAuthUsers.Add(peer);
-            Log.Debug($"Connected peer with ID {peer.Id}.");
-        }
-
+        #region Disconnect
         private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             _authorizedUsers.Remove(peer);
@@ -105,37 +132,21 @@ namespace YuchiGames.POM.Server
             Log.Debug($"Disconnected peer with ID {peer.Id} {disconnectInfo.Reason}.");
             SendToAll(new LeaveMessage(peer.Id));
         }
+        #endregion
 
+        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError) =>
+            Log.Error($"A network error has occurred:\n{socketError}");
+
+        // TODO: Maybe??? just send for everyone that chunk is loaded, even if it still loading by another player
+        Dictionary<SVector2Int, (NetPeer loader, HashSet<NetPeer> waiters)> _awaitsForChunkLoad = new();
+        Dictionary<SVector2Int, HashSet<NetPeer>> _loadedChunks = new();
+
+        #region Recieve Data
         private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
             byte[] buffer = new byte[reader.AvailableBytes];
             reader.GetBytes(buffer, buffer.Length);
             NetworkReceiveEventProcess(peer, buffer, channel, deliveryMethod);
-        }
-
-        private void NetworkErrorEventHandler(IPEndPoint endPoint, SocketError socketError) =>
-            Log.Error($"A network error has occurred:\n{socketError}");
-
-        public void StartSynced(int port)
-        {
-            _netServer.Start(port);
-            Log.Info($"Server started at port {port}.");
-            while (_netServer.IsRunning) // FIXME: Cancelation token or something
-            {
-                _netServer.PollEvents();
-                Task.Delay(15).Wait(); // FIXME: SCARY! .Wait is a bad thing 
-            }
-        }
-
-        public bool Stopped { get; private set; } = false;
-
-        public void Stop()
-        {
-            if (Stopped) return;
-
-            Stopped = true;
-            _netServer.Stop();
-            Log.Info("Server stopped.");
         }
 
         private void NetworkReceiveEventProcess(NetPeer peer, byte[] buffer, byte channel, DeliveryMethod deliveryMethod)
@@ -151,13 +162,6 @@ namespace YuchiGames.POM.Server
             }
         }
 
-        // TODO: Maybe??? just send for everyone that chunk is loaded, even if it still loading by another player
-        Dictionary<SVector2Int, (NetPeer loader, HashSet<NetPeer> waiters)> _awaitsForChunkLoad = new();
-        Dictionary<SVector2Int, HashSet<NetPeer>> _loadedChunks = new();
-
-        /// <summary>
-        /// Process Server Data Messages
-        /// </summary>
         private void ReceiveServerDataMessage(NetPeer peer, IServerDataMessage serverDataMessage)
         {
             switch (serverDataMessage)
@@ -186,19 +190,22 @@ namespace YuchiGames.POM.Server
                     break;
 
                 case RequestNewChunkDataMessage message:
+                    Log.Debug($"Requested chunk data at {message.ChunkPos} by {peer.Id}");
                     // FIXME: EDGE CASE! Server request to load a chunk, but player leaves.
 
                     // If chunk already loaded by another player
                     if (_loadedChunks.TryGetValue(message.ChunkPos, out var loaders))
                     {
+                        Log.Debug("Chunk are loaded! Sending...");
                         Send(new ChunkUnloadMessage() { Pos = message.ChunkPos }, peer);
                         loaders.Add(peer);
                         break;
                     }
 
-                    // If someone at this moment loading that chunk
+                    // If someone at this moment loads that chunk
                     if (_awaitsForChunkLoad.TryGetValue(message.ChunkPos, out var loaderWaiter))
                     {
+                        Log.Debug("Chunk already loading! Waits...");
                         loaderWaiter.waiters.Add(peer);
                         break;
                     }
@@ -206,6 +213,7 @@ namespace YuchiGames.POM.Server
                     // If chunk is saved
                     if (WorldData.ChunksData.TryGetValue(message.ChunkPos, out var chunk))
                     {
+                        Log.Debug("Chunk is saved! Sending...");
                         Send(new SavedChunkDataMessage()
                         {
                             Chunk = chunk,
@@ -214,7 +222,7 @@ namespace YuchiGames.POM.Server
 
                         break;
                     }
-
+                    Log.Debug("Chunk didn't found! Sending generate request...");
                     // If chunk need to be generated
                     _awaitsForChunkLoad[message.ChunkPos] = (peer, new());
                     Send(new RequestNewChunkDataMessage() { ChunkPos = message.ChunkPos }, peer);
@@ -222,16 +230,18 @@ namespace YuchiGames.POM.Server
 
                 case RequestedChunkDataMessage message:
                     // When player finnaly generates a chunk after request
-                    _loadedChunks[message.Pos] = new();
+                    Log.Debug($"Recieved new chunk data info at {message.Pos}. Saving...");
+                    _loadedChunks[message.Pos] = new() { peer };
                     _awaitsForChunkLoad[message.Pos].waiters.ForEach(waiter =>
                     {
+                        Log.Debug($"Mark chunk as loaded for awaiter {waiter.Id}");
                         Send(new ChunkUnloadMessage() { Pos = message.Pos }, waiter);
                         _loadedChunks[message.Pos].Add(waiter);
                     });
                     break;
 
                 case ChunkUnloadMessage message:
-
+                    Log.Debug($"Chunk at {message.Pos} was unloaded by a {peer}.");
                     // If player unload any loaded chunk:
                     if (_loadedChunks.TryGetValue(message.Pos, out var loadedBy))
                     {
@@ -248,10 +258,14 @@ namespace YuchiGames.POM.Server
 
                 // Merge with MarkChunkLoadState? Send only by request?
                 case SavedChunkDataMessage message:
+                    Log.Debug($"Chunk data at {message.Pos} was received. Saving...");
                     if (!_loadedChunks.ContainsKey(message.Pos))
                         WorldData.ChunksData[message.Pos] = message.Chunk;
                     break;
 
+                case CubeDamageTakedMessage message:
+                    SendToAllExcluded(message, peer);
+                    break;
 
             }
         }
@@ -285,6 +299,7 @@ namespace YuchiGames.POM.Server
 
                 case GroupSetHostMessage message:
                     Log.Debug($"Transfering ownership of {message.GroupID} to {message.NewHostID}");
+                    message.TakeID = ++TakeID;
                     SendToAll(message);
                     break;
 
@@ -297,8 +312,13 @@ namespace YuchiGames.POM.Server
                         Send(message, user.Key);
                     }
                     break;
+                case CubeDamageTakedMessage message:
+                    SendToAllExcluded(message, peer);
+                    break;
             };
         }
+
+        #endregion
 
         /// <summary>
         /// Sends message to everyon, except peer with id <paramref name="excludedPeerId"/>

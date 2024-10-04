@@ -28,5 +28,8 @@ namespace YuchiGames.POM.Shared.Utils
 
         public static int IndexOf<T>(this IEnumerable<T> enumerable, T obj) =>
             enumerable.IndexOf(other => other?.Equals(obj) ?? false);
+
+        public static int? IndexOfOrDefault<T>(this IEnumerable<T> enumerable, T obj) =>
+            enumerable.IndexOf(obj).Let<int, int?>(id => id >= 0 ? id : null);
     }
 }

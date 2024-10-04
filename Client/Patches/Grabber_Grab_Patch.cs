@@ -12,7 +12,7 @@ namespace YuchiGames.POM.Client.Patches
         public static void Postfix(Grabber __instance, bool __0)
         {
             if (__instance.bond != null)
-                Network.ClaimHost(__instance.bond.GetComponent<GroupSyncerComponent>().UID);
+                Network.ClaimHost(__instance.bond.GetComponent<GroupSyncerComponent>().GroupUID);
         }
     }
 }

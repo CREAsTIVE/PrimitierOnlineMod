@@ -67,6 +67,8 @@ namespace YuchiGames.POM.Shared.DataObjects
             X = x;
             Y = y;
         }
+
+        public override string ToString() => $"({X}, {Y})";
     }
 
     [MessagePackObject]
